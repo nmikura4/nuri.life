@@ -156,7 +156,7 @@ export const MiniCalendarWidget = ({ selectedDate, onSelectDate, tasks = [], onT
               <X size={12} style={{ marginRight: '4px' }} /> Clear Filter
             </button>
           )}
-          <button onClick={onToggleCalendar} className="neu-btn" style={{ height: '32px', padding: '0 14px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600 }}>
+          <button onClick={onToggleCalendar} className="neu-btn" style={{ height: '44px', padding: '0 14px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600 }}>
             <Eye size={14} /> View
           </button>
         </div>
@@ -283,7 +283,7 @@ export const WeeklyCalendarWidget = ({ tasks = [], onAddTask, selectedDate, onSe
             background: 'var(--item-bg)', 
             borderRadius: '24px', 
             padding: '4px',
-            width: '200px',
+            width: '180px',
             boxShadow: 'var(--shadow-inner)'
           }}>
             <button 
@@ -317,17 +317,17 @@ export const WeeklyCalendarWidget = ({ tasks = [], onAddTask, selectedDate, onSe
               transition: 'all 0.2s'
             }}>Monthly</button>
           </div>
-          <button onClick={onToggleCalendar} className="neu-btn" style={{ height: '32px', padding: '0 14px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600 }}>
+          <button onClick={onToggleCalendar} className="neu-btn" style={{ height: '44px', padding: '0 14px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600 }}>
             <Eye size={14} /> View
           </button>
         </div>
 
         {/* Секция 2: Заголовок даты (Header) */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <h1 style={{ fontSize: '48px', fontWeight: 800, color: 'var(--text-main)', margin: 0, letterSpacing: '-1px' }}>
+          <h1 className="calendar-title" style={{ fontSize: '48px', fontWeight: 800, color: 'var(--text-main)', margin: 0, letterSpacing: '-1px' }}>
             {viewMode === 'weekly' ? currentMonthName : referenceDate.getFullYear()}
           </h1>
-          <h1 style={{ fontSize: '48px', fontWeight: 800, color: 'var(--accent-coral)', margin: 0 }}>
+          <h1 className="calendar-title" style={{ fontSize: '48px', fontWeight: 800, color: 'var(--accent-coral)', margin: 0 }}>
             {viewMode === 'weekly' ? currentDateNum : currentMonthName.substring(0,3)}
           </h1>
         </div>

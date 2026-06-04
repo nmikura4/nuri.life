@@ -89,7 +89,7 @@ const WelcomeCard = ({
           {localSearch && (
             <button 
               onClick={() => setLocalSearch('')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', padding: '2px' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px', minWidth: '44px', minHeight: '44px' }}
               aria-label="Clear search"
             >
               <X size={14} />

@@ -34,7 +34,7 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, showDone, setShowDone, so
                 <div 
                   onClick={(e) => onToggleStatus(task.id, e)}
                   style={{
-                    width: '24px', height: '24px', borderRadius: '8px',
+                    width: '32px', height: '32px', borderRadius: '8px',
                     border: '2px solid var(--accent-blue)',
                     background: isDone(task) ? 'var(--accent-blue)' : 'transparent',
                     boxShadow: 'var(--shadow-inner)',
@@ -63,7 +63,7 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, showDone, setShowDone, so
                   </div>
 
                   {task.tags && task.tags.length > 0 && (
-                    <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                    <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
                       {task.tags.map(tag => (
                         <span key={tag} style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '10px', background: 'var(--card-bg)', color: 'var(--text-muted)', boxShadow: 'var(--shadow-soft)' }}>
                           {tag}

@@ -86,10 +86,10 @@ const ListManager = ({ title, items, setItems, onRename, onDelete, placeholder }
                     style={{ flex: 1, padding: '8px 12px' }}
                     autoFocus
                   />
-                  <button onClick={() => saveEdit(item)} style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', cursor: 'pointer' }}>
+                  <button onClick={() => saveEdit(item)} style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', cursor: 'pointer', padding: '10px', display: 'flex', alignItems: 'center' }}>
                     <Check size={20} />
                   </button>
-                  <button onClick={cancelEdit} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                  <button onClick={cancelEdit} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '10px', display: 'flex', alignItems: 'center' }}>
                     <X size={20} />
                   </button>
                 </div>
@@ -99,13 +99,13 @@ const ListManager = ({ title, items, setItems, onRename, onDelete, placeholder }
                   <div style={{ display: 'flex', gap: '12px' }}>
                     <button 
                       onClick={() => startEdit(item)}
-                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '10px', display: 'flex', alignItems: 'center' }}
                     >
                       <Edit2 size={18} />
                     </button>
                     <button 
                       onClick={() => { if (window.confirm(`Delete "${item}"?`)) onDelete(item); }}
-                      style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer' }}
+                      style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer', padding: '10px', display: 'flex', alignItems: 'center' }}
                     >
                       <Trash2 size={18} />
                     </button>
@@ -145,7 +145,7 @@ const SettingsView = ({
   };
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px', maxHeight: '100vh', overflowY: 'auto', paddingRight: '10px' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto', paddingRight: '10px' }}>
       <GlassCard className="responsive-card" style={{ padding: '40px' }}>
         <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '30px' }}>Settings</h1>
         
