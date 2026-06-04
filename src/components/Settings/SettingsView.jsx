@@ -134,7 +134,23 @@ const SettingsView = ({
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setAvatarUrl(reader.result);
+        // Сжимаем изображение через canvas, чтобы не превысить лимит Firestore (1MB)
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const size = 200; // 200x200 — достаточно для аватарки
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          // Обрезаем по центру (квадрат)
+          const minSide = Math.min(img.width, img.height);
+          const sx = (img.width - minSide) / 2;
+          const sy = (img.height - minSide) / 2;
+          ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+          const compressed = canvas.toDataURL('image/jpeg', 0.7);
+          setAvatarUrl(compressed);
+        };
+        img.src = reader.result;
       };
       reader.readAsDataURL(file);
     }

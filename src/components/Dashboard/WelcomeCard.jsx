@@ -30,13 +30,13 @@ const WelcomeCard = ({
   };
 
   return (
-    <GlassCard style={{
+    <GlassCard className="welcome-card-header" style={{
       padding: '24px 30px',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       position: 'relative',
-      minHeight: '160px',
+      minHeight: '140px',
       overflow: 'visible', /* Changed to visible so track is not clipped */
       zIndex: 10
     }}>
@@ -103,7 +103,7 @@ const WelcomeCard = ({
 
         {(sortBy !== undefined) && (
           <div className="welcome-filters" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: 'auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>Tasks</h2>
               <Badge status="todo">{tasksCount} Tasks</Badge>
             </div>

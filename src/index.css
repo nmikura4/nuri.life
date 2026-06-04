@@ -84,13 +84,13 @@ body.dark-theme {
   /* Make sidebar a bottom navigation bar */
   .sidebar {
     width: 100% !important;
-    height: 70px !important;
+    height: 60px !important;
     flex-direction: row !important;
     position: fixed !important;
     bottom: 0;
     left: 0;
     z-index: 100;
-    padding: 10px 20px !important;
+    padding: 8px 10px !important;
     border-radius: 24px 24px 0 0 !important;
     justify-content: space-around !important;
     background: var(--card-bg) !important;
@@ -106,18 +106,27 @@ body.dark-theme {
   .sidebar > div:nth-child(2) {
     flex-direction: row !important;
     flex: unset !important;
-    gap: 10px !important;
+    gap: 4px !important;
   }
   
   /* Align settings in a row */
   .sidebar > div:nth-child(3) {
     flex-direction: row !important;
-    gap: 10px !important;
+    gap: 4px !important;
+  }
+
+  .sidebar .neu-btn {
+    width: 42px !important;
+    height: 42px !important;
   }
 
   .main-content {
     grid-template-columns: 1fr !important;
-    padding-bottom: 90px !important;
+    padding-bottom: 80px !important;
+  }
+
+  .welcome-card-header {
+    min-height: auto !important;
   }
 
   .dashboard-grid {
