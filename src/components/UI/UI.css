@@ -76,16 +76,16 @@
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(30, 30, 30, 0.6);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(128, 128, 128, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   z-index: 1000;
   overflow-y: auto;
   scrollbar-gutter: stable;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 40px 20px 120px;
+  padding: 40px 20px;
   box-sizing: border-box;
   animation: fadeIn 0.3s ease;
 }
@@ -96,7 +96,6 @@
 }
 
 /* Form Inputs - extends definitions in index.css */
-
 .neu-input, .neu-select, .neu-textarea {
   width: 100%;
   background: var(--item-bg-hover);
@@ -112,7 +111,7 @@
   border-radius: 24px;
   border: none;
   background: var(--card-bg);
-  box-shadow: 4px 4px 12px var(--shadow-color), -4px -4px 12px var(--highlight-color);
+  box-shadow: var(--shadow-soft);
   color: var(--text-main);
   font-weight: 600;
   cursor: pointer;
@@ -123,8 +122,8 @@
 .pill-btn:hover {
   transform: translateY(-2px);
   box-shadow: 
-    6px 6px 16px var(--shadow-color),
-    -6px -6px 16px var(--highlight-color);
+    12px 12px 24px var(--shadow-color),
+    -12px -12px 24px var(--highlight-color);
 }
 
 .pill-btn.primary {
@@ -140,8 +139,8 @@ body.dark-theme .pill-btn.primary {
 
 .pill-btn.primary:hover {
   box-shadow: 
-    4px 4px 12px var(--shadow-color),
-    -4px -4px 12px var(--highlight-color);
+    8px 8px 16px var(--shadow-color),
+    -8px -8px 16px var(--highlight-color);
   filter: brightness(1.05);
 }
 

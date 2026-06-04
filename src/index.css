@@ -23,7 +23,7 @@
 
   /* Shadows - Soft 3D Neumorphism */
   --shadow-color: rgba(190, 168, 159, 0.4);
-  --highlight-color: rgba(255, 255, 255, 0.5);
+  --highlight-color: rgba(255, 255, 255, 0.9);
   
   --shadow-soft: 
     10px 10px 20px var(--shadow-color),
@@ -35,7 +35,7 @@
 
   --shadow-card:
     20px 20px 40px rgba(190, 168, 159, 0.25),
-    -5px -5px 20px rgba(255, 255, 255, 0.4),
+    -10px -10px 30px rgba(255, 255, 255, 0.8),
     inset 0 0 0 1px var(--card-border);
 }
 
@@ -84,13 +84,13 @@ body.dark-theme {
   /* Make sidebar a bottom navigation bar */
   .sidebar {
     width: 100% !important;
-    height: 60px !important;
+    height: 70px !important;
     flex-direction: row !important;
     position: fixed !important;
     bottom: 0;
     left: 0;
     z-index: 100;
-    padding: 8px 10px !important;
+    padding: 10px 20px !important;
     border-radius: 24px 24px 0 0 !important;
     justify-content: space-around !important;
     background: var(--card-bg) !important;
@@ -106,123 +106,18 @@ body.dark-theme {
   .sidebar > div:nth-child(2) {
     flex-direction: row !important;
     flex: unset !important;
-    gap: 4px !important;
+    gap: 10px !important;
   }
   
   /* Align settings in a row */
   .sidebar > div:nth-child(3) {
     flex-direction: row !important;
-    gap: 4px !important;
-  }
-
-  .sidebar .neu-btn {
-    width: 42px !important;
-    height: 42px !important;
+    gap: 10px !important;
   }
 
   .main-content {
     grid-template-columns: 1fr !important;
-    padding-bottom: 80px !important;
-  }
-
-  .welcome-card-header {
-    min-height: auto !important;
-  }
-
-  .dashboard-grid {
-    grid-template-columns: 1fr !important;
-    gap: 20px !important;
-  }
-
-  .welcome-controls {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 15px !important;
-  }
-  
-  .welcome-search-wrapper {
-    max-width: 100% !important;
-  }
-  
-  .welcome-filters {
-    margin-left: 0 !important;
-    justify-content: space-between !important;
-    width: 100% !important;
-    flex-wrap: wrap !important;
-  }
-
-  /* Make modal take more space on mobile */
-  .modal-wrapper {
-    padding: 20px 10px !important;
-  }
-  .modal-card {
-    padding: 20px !important;
-  }
-  .modal-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  .task-row {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 15px !important;
-  }
-  
-  .task-row-meta > div {
-    align-items: flex-start !important;
-  }
-
-  .settings-item {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 10px !important;
-  }
-
-  .responsive-card {
-    padding: 20px !important;
-  }
-}
-
-/* Маленькие телефоны (< 480px) */
-@media (max-width: 480px) {
-  .app-container {
-    padding: 10px !important;
-  }
-
-  .main-content {
-    gap: 15px !important;
-  }
-
-  .dashboard-grid {
-    gap: 15px !important;
-  }
-
-  .responsive-card {
-    padding: 15px !important;
-  }
-
-  .modal-wrapper {
-    padding: 10px 5px !important;
-  }
-
-  .modal-card {
-    padding: 15px !important;
-  }
-
-  .calendar-title {
-    font-size: 32px !important;
-  }
-
-  .welcome-controls {
-    gap: 10px !important;
-  }
-
-  .task-row {
-    padding: 15px !important;
-  }
-
-  .glass-panel {
-    border-radius: 20px !important;
+    padding-bottom: 90px !important;
   }
 }
 
@@ -366,31 +261,9 @@ body.dark-theme .custom-select-dropdown {
     10px 10px 20px var(--shadow-color);
 }
 
-/* Notes Grid (CSS Columns for Masonry) */
-.notes-grid {
-  column-count: 3;
-  column-gap: 20px;
-  width: 100%;
-}
-
-.note-card-wrapper {
-  break-inside: avoid;
-  margin-bottom: 20px;
-}
-
-@media (max-width: 1200px) {
-  .notes-grid { column-count: 2; }
-}
-
-@media (max-width: 768px) {
-  .notes-grid { column-count: 1; }
-}
-
-.note-content-preview {
-  display: -webkit-box;
-  -webkit-line-clamp: 6;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: pre-wrap;
-}
+/* Notes Grid */
+.notes-grid { column-count: 3; column-gap: 20px; width: 100%; }
+.note-card-wrapper { break-inside: avoid; margin-bottom: 20px; }
+@media (max-width: 1200px) { .notes-grid { column-count: 2; } }
+@media (max-width: 768px) { .notes-grid { column-count: 1; } }
+.note-content-preview { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap; }
