@@ -156,7 +156,7 @@ export const MiniCalendarWidget = ({ selectedDate, onSelectDate, tasks = [], onT
               <X size={12} style={{ marginRight: '4px' }} /> Clear Filter
             </button>
           )}
-          <button onClick={onToggleCalendar} className="neu-btn" style={{ height: '44px', padding: '0 14px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600 }}>
+          <button onClick={onToggleCalendar} className="neu-btn" style={{ height: '32px', padding: '0 14px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600 }}>
             <Eye size={14} /> View
           </button>
         </div>
@@ -283,7 +283,7 @@ export const WeeklyCalendarWidget = ({ tasks = [], onAddTask, selectedDate, onSe
             background: 'var(--item-bg)', 
             borderRadius: '24px', 
             padding: '4px',
-            width: '180px',
+            width: '200px',
             boxShadow: 'var(--shadow-inner)'
           }}>
             <button 
@@ -317,17 +317,17 @@ export const WeeklyCalendarWidget = ({ tasks = [], onAddTask, selectedDate, onSe
               transition: 'all 0.2s'
             }}>Monthly</button>
           </div>
-          <button onClick={onToggleCalendar} className="neu-btn" style={{ height: '44px', padding: '0 14px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600 }}>
+          <button onClick={onToggleCalendar} className="neu-btn" style={{ height: '32px', padding: '0 14px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600 }}>
             <Eye size={14} /> View
           </button>
         </div>
 
         {/* Секция 2: Заголовок даты (Header) */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <h1 className="calendar-title" style={{ fontSize: '48px', fontWeight: 800, color: 'var(--text-main)', margin: 0, letterSpacing: '-1px' }}>
+          <h1 style={{ fontSize: '48px', fontWeight: 800, color: 'var(--text-main)', margin: 0, letterSpacing: '-1px' }}>
             {viewMode === 'weekly' ? currentMonthName : referenceDate.getFullYear()}
           </h1>
-          <h1 className="calendar-title" style={{ fontSize: '48px', fontWeight: 800, color: 'var(--accent-coral)', margin: 0 }}>
+          <h1 style={{ fontSize: '48px', fontWeight: 800, color: 'var(--accent-coral)', margin: 0 }}>
             {viewMode === 'weekly' ? currentDateNum : currentMonthName.substring(0,3)}
           </h1>
         </div>
@@ -337,8 +337,8 @@ export const WeeklyCalendarWidget = ({ tasks = [], onAddTask, selectedDate, onSe
           {viewMode === 'weekly' ? (
             <>
               {/* Curved band SVG aligned behind dates */}
-              <svg viewBox="0 0 400 100" preserveAspectRatio="none" style={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, zIndex: 0, overflow: 'visible' }}>
-                <path d="M 0 65 Q 200 17 400 65 L 400 105 Q 200 57 0 105 Z" fill="var(--item-bg-hover)" />
+              <svg viewBox="0 0 400 100" preserveAspectRatio="none" style={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, zIndex: 0 }}>
+                <path d="M 0 58 Q 200 38 400 58 L 400 88 Q 200 68 0 88 Z" fill="var(--item-bg-hover)" />
               </svg>
 
               <div style={{ 

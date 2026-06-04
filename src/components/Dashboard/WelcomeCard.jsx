@@ -30,13 +30,13 @@ const WelcomeCard = ({
   };
 
   return (
-    <GlassCard className="welcome-card-header" style={{
+    <GlassCard style={{
       padding: '24px 30px',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       position: 'relative',
-      minHeight: '140px',
+      minHeight: '160px',
       overflow: 'visible', /* Changed to visible so track is not clipped */
       zIndex: 10
     }}>
@@ -57,8 +57,8 @@ const WelcomeCard = ({
         
       </div>
 
-      <div className="welcome-controls" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-        <div className="welcome-search-wrapper" style={{
+      <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <div style={{
           background: 'var(--item-bg-hover)',
           borderRadius: '16px',
           padding: '10px 16px',
@@ -89,7 +89,7 @@ const WelcomeCard = ({
           {localSearch && (
             <button 
               onClick={() => setLocalSearch('')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px', minWidth: '44px', minHeight: '44px' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', padding: '2px' }}
               aria-label="Clear search"
             >
               <X size={14} />
@@ -102,8 +102,8 @@ const WelcomeCard = ({
         </button>
 
         {(sortBy !== undefined) && (
-          <div className="welcome-filters" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: 'auto' }}>
-            <div className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: 'auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>Tasks</h2>
               <Badge status="todo">{tasksCount} Tasks</Badge>
             </div>

@@ -114,10 +114,10 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
   };
 
   return (
-    <div className="modal-overlay modal-wrapper" onClick={onClose} role="dialog" aria-modal="true" aria-label={task ? 'Edit Task' : 'New Task'}>
+    <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={task ? 'Edit Task' : 'New Task'}>
       <div onClick={e => e.stopPropagation()} style={{ margin: 'auto', width: '100%', maxWidth: '500px' }}>
-        <GlassCard className="modal-card" style={{ padding: '30px', position: 'relative' }}>
-          <button onClick={onClose} style={{ position: 'absolute', top: '12px', right: '12px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <GlassCard style={{ padding: '30px', position: 'relative' }}>
+          <button onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
             <X size={24} />
           </button>
           
@@ -133,7 +133,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
 
 
 
-            <div className="modal-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Project</label>
                 <CustomSelect 
@@ -154,7 +154,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
               </div>
             </div>
 
-            <div className="modal-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Priority</label>
                 <CustomSelect 
@@ -173,7 +173,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
               </div>
             </div>
 
-            <div className="modal-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Recurrence</label>
                 <CustomSelect 
@@ -222,7 +222,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
                       <input type="checkbox" checked={sub.isCompleted} onChange={() => handleToggleSubtask(sub.id)} style={{ cursor: 'pointer' }} />
                       <span style={{ fontSize: '13px', textDecoration: sub.isCompleted ? 'line-through' : 'none', color: sub.isCompleted ? 'var(--text-muted)' : 'inherit' }}>{sub.title}</span>
                     </div>
-                    <button type="button" onClick={() => handleDeleteSubtask(sub.id)} style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer', padding: '10px', display: 'flex', alignItems: 'center' }}><X size={14}/></button>
+                    <button type="button" onClick={() => handleDeleteSubtask(sub.id)} style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer' }}><X size={14}/></button>
                   </div>
                 ))}
               </div>
