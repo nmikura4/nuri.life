@@ -338,7 +338,7 @@ export const WeeklyCalendarWidget = ({ tasks = [], onAddTask, selectedDate, onSe
             <>
               {/* Curved band SVG aligned behind dates */}
               <svg viewBox="0 0 400 100" preserveAspectRatio="none" style={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, zIndex: 0 }}>
-                <path d="M 0 37 Q 200 20 400 37 L 400 67 Q 200 50 0 67 Z" fill="var(--item-bg-hover)" />
+                <path d="M 0 44 Q 200 26 400 44 L 400 92 Q 200 74 0 92 Z" fill="var(--item-bg-hover)" />
               </svg>
 
               <div style={{ 
