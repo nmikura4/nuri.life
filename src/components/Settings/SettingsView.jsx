@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import GlassCard from '../UI/GlassCard';
-import { Plus, Trash2, Edit2, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, Edit2, Check, X, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from 'lucide-react';
 import '../UI/UI.css';
 
 const ListManager = ({ title, items, setItems, onRename, onDelete, placeholder }) => {
@@ -37,6 +37,17 @@ const ListManager = ({ title, items, setItems, onRename, onDelete, placeholder }
     setEditingItem(null);
   };
 
+  const moveItem = (index, direction) => {
+    const newItems = [...items];
+    if (direction === 'up' && index > 0) {
+      [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
+      setItems(newItems);
+    } else if (direction === 'down' && index < newItems.length - 1) {
+      [newItems[index], newItems[index + 1]] = [newItems[index + 1], newItems[index]];
+      setItems(newItems);
+    }
+  };
+
   return (
     <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
       <div 
@@ -69,7 +80,7 @@ const ListManager = ({ title, items, setItems, onRename, onDelete, placeholder }
         {items.length === 0 ? (
           <p style={{ color: 'var(--text-muted)' }}>No items available.</p>
         ) : (
-          items.map(item => (
+          items.map((item, index) => (
             <div className="settings-item" key={item} style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               background: 'var(--item-bg-hover)', padding: '16px 20px', borderRadius: '16px',
@@ -96,7 +107,21 @@ const ListManager = ({ title, items, setItems, onRename, onDelete, placeholder }
               ) : (
                 <>
                   <span style={{ fontWeight: 600 }}>{item}</span>
-                  <div style={{ display: 'flex', gap: '12px' }}>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <button 
+                      onClick={() => moveItem(index, 'up')}
+                      disabled={index === 0}
+                      style={{ background: 'none', border: 'none', color: index === 0 ? 'transparent' : 'var(--text-muted)', cursor: index === 0 ? 'default' : 'pointer', padding: '10px', display: 'flex', alignItems: 'center' }}
+                    >
+                      <ArrowUp size={18} />
+                    </button>
+                    <button 
+                      onClick={() => moveItem(index, 'down')}
+                      disabled={index === items.length - 1}
+                      style={{ background: 'none', border: 'none', color: index === items.length - 1 ? 'transparent' : 'var(--text-muted)', cursor: index === items.length - 1 ? 'default' : 'pointer', padding: '10px', display: 'flex', alignItems: 'center' }}
+                    >
+                      <ArrowDown size={18} />
+                    </button>
                     <button 
                       onClick={() => startEdit(item)}
                       style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '10px', display: 'flex', alignItems: 'center' }}

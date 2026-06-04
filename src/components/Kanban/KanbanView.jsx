@@ -5,7 +5,9 @@ import Badge from '../UI/Badge';
 const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, statuses = [] }) => {
   const [draggedTaskId, setDraggedTaskId] = useState(null);
   const [dragOverCol, setDragOverCol] = useState(null);
-  const [isDoneCollapsed, setIsDoneCollapsed] = useState(true);
+  const [collapsedCols, setCollapsedCols] = useState(() => {
+    return statuses.length > 0 ? [statuses[statuses.length - 1]] : ['done'];
+  });
 
   const handleDragStart = (e, taskId) => {
     e.dataTransfer.setData('taskId', taskId.toString());
@@ -34,9 +36,9 @@ const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, statuses = []
     }
     setDraggedTaskId(null);
     
-    // Auto-expand if dropping into the last column and it's collapsed
-    if (statuses.length > 0 && newStatus === statuses[statuses.length - 1] && isDoneCollapsed) {
-      setIsDoneCollapsed(false);
+    // Auto-expand if dropping into a collapsed column
+    if (collapsedCols.includes(newStatus)) {
+      setCollapsedCols(prev => prev.filter(c => c !== newStatus));
     }
   };
 
@@ -66,8 +68,7 @@ const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, statuses = []
       {columns.map(col => {
         const columnTasks = tasks.filter(t => t.status === col.id);
         const isHovered = dragOverCol === col.id;
-        const isDoneCol = statuses.length > 0 && col.id === statuses[statuses.length - 1];
-        const isCollapsed = isDoneCol && isDoneCollapsed;
+        const isCollapsed = collapsedCols.includes(col.id);
         
         return (
           <GlassCard 
@@ -76,7 +77,7 @@ const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, statuses = []
             onDragOver={(e) => handleDragOver(e, col.id)}
             onDragLeave={handleDragLeave}
             onClick={() => {
-              if (isCollapsed) setIsDoneCollapsed(false);
+              if (isCollapsed) setCollapsedCols(prev => prev.filter(c => c !== col.id));
             }}
             style={{ 
               flex: isCollapsed ? 0 : 1, 
@@ -109,15 +110,13 @@ const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, statuses = []
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Badge>{columnTasks.length}</Badge>
-                    {isDoneCol && (
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setIsDoneCollapsed(true); }}
-                        style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', padding: '4px' }}
-                        title="Collapse Column"
-                      >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="13 17 18 12 13 7"></polyline><polyline points="6 17 11 12 6 7"></polyline></svg>
-                      </button>
-                    )}
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setCollapsedCols(prev => [...prev, col.id]); }}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', padding: '4px' }}
+                      title="Collapse Column"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="13 17 18 12 13 7"></polyline><polyline points="6 17 11 12 6 7"></polyline></svg>
+                    </button>
                   </div>
                 </div>
 
