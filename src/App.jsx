@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { collection, doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
+import { db } from './firebase';
+
 import Sidebar from './components/Sidebar';
 import WelcomeCard from './components/Dashboard/WelcomeCard';
 import TaskList from './components/Dashboard/TaskList';
@@ -33,52 +36,45 @@ function App() {
     setCalendarType(prev => (prev === 'weekly' ? 'mini' : 'weekly'));
   };
 
-  // Load data & theme
+  // Load data from Firebase
   useEffect(() => {
-    try {
-      const savedTasks = localStorage.getItem('nuri-tasks');
-      if (savedTasks) setTasks(JSON.parse(savedTasks));
-
-      const savedProjects = localStorage.getItem('nuri-projects');
-      if (savedProjects) setProjects(JSON.parse(savedProjects));
-
-      const savedTheme = localStorage.getItem('nuri-theme');
-      if (savedTheme) {
-        setTheme(savedTheme);
+    const unsubSettings = onSnapshot(doc(db, "settings", "global"), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.projects) setProjects(data.projects);
+        if (data.priorities) setPriorities(data.priorities);
+        if (data.statuses) setStatuses(data.statuses);
+        if (data.theme) setTheme(data.theme);
+        if (data.avatarUrl !== undefined) setAvatarUrl(data.avatarUrl);
+      } else {
+        setDoc(doc(db, "settings", "global"), {
+          projects: ['Work', 'Personal', 'Shopping'],
+          priorities: ['low', 'medium', 'high'],
+          statuses: ['todo', 'progress', 'done'],
+          theme: 'light',
+          avatarUrl: null
+        });
       }
+      setIsLoaded(true);
+    });
 
-      const savedPriorities = localStorage.getItem('nuri-priorities');
-      if (savedPriorities) setPriorities(JSON.parse(savedPriorities));
+    const unsubTasks = onSnapshot(collection(db, "tasks"), (snapshot) => {
+      const loadedTasks = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      setTasks(loadedTasks);
+    }, (error) => {
+      alert("Ошибка чтения базы данных: " + error.message);
+      console.error(error);
+    });
 
-      const savedStatuses = localStorage.getItem('nuri-statuses');
-      if (savedStatuses) setStatuses(JSON.parse(savedStatuses));
-
-      const savedAvatar = localStorage.getItem('nuri-avatar');
-      if (savedAvatar) setAvatarUrl(savedAvatar);
-    } catch (e) {
-      console.error("Storage error:", e);
-    }
-    setIsLoaded(true);
+    return () => {
+      unsubSettings();
+      unsubTasks();
+    };
   }, []);
 
-  // Save tasks and projects
-  useEffect(() => {
-    if (isLoaded) {
-      try {
-        localStorage.setItem('nuri-tasks', JSON.stringify(tasks));
-        localStorage.setItem('nuri-projects', JSON.stringify(projects));
-        localStorage.setItem('nuri-priorities', JSON.stringify(priorities));
-        localStorage.setItem('nuri-statuses', JSON.stringify(statuses));
-        if (avatarUrl) {
-          localStorage.setItem('nuri-avatar', avatarUrl);
-        } else {
-          localStorage.removeItem('nuri-avatar');
-        }
-      } catch (e) {
-        console.error("Storage error:", e);
-      }
-    }
-  }, [tasks, projects, priorities, statuses, avatarUrl, isLoaded]);
+  const syncSettings = (updates) => {
+    setDoc(doc(db, "settings", "global"), updates, { merge: true }).catch(console.error);
+  };
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -89,8 +85,7 @@ function App() {
   }, [theme]);
 
   const handleThemeChange = (newTheme) => {
-    setTheme(newTheme);
-    localStorage.setItem('nuri-theme', newTheme);
+    syncSettings({ theme: newTheme });
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -101,12 +96,14 @@ function App() {
     setIsModalOpen(true);
   };
 
-  const handleSaveTask = (taskData) => {
-    setTasks(prev => {
-      const existing = prev.find(t => t.id === taskData.id);
-      if (existing) return prev.map(t => t.id === taskData.id ? taskData : t);
-      return [taskData, ...prev];
-    });
+  const handleSaveTask = async (taskData) => {
+    try {
+      const id = taskData.id || crypto.randomUUID();
+      await setDoc(doc(db, "tasks", id.toString()), { ...taskData, id });
+    } catch (e) {
+      alert("Ошибка при сохранении задачи: " + e.message);
+      console.error(e);
+    }
   };
 
   const calculateNextDeadline = (currentDeadlineStr, recurrence) => {
@@ -133,35 +130,27 @@ function App() {
     return `${ny}-${nm}-${nd}`;
   };
 
-  const updateTaskStatus = (id, newStatus) => {
-    setTasks(prev => {
-      const taskIndex = prev.findIndex(t => t.id === id || t.id.toString() === id.toString());
-      if (taskIndex === -1) return prev;
+  const updateTaskStatus = async (id, newStatus) => {
+    const task = tasks.find(t => t.id === id || t.id.toString() === id.toString());
+    if (!task || task.status === newStatus) return;
 
-      const task = prev[taskIndex];
-      if (task.status === newStatus) return prev;
+    const isBecomingDone = newStatus === (statuses.length > 0 ? statuses[statuses.length - 1] : 'done');
 
-      const isBecomingDone = newStatus === (statuses.length > 0 ? statuses[statuses.length - 1] : 'done');
+    await setDoc(doc(db, "tasks", id.toString()), { ...task, status: newStatus });
 
-      let updatedTasks = [...prev];
-      updatedTasks[taskIndex] = { ...task, status: newStatus };
-
-      if (isBecomingDone && task.recurrence && task.recurrence !== 'none') {
-        const nextDeadline = calculateNextDeadline(task.deadline, task.recurrence);
-        if (nextDeadline) {
-          const newTask = {
-            ...task,
-            id: crypto.randomUUID(),
-            status: statuses[0] || 'todo',
-            deadline: nextDeadline,
-            subtasks: task.subtasks ? task.subtasks.map(s => ({ ...s, isCompleted: false })) : []
-          };
-          updatedTasks = [newTask, ...updatedTasks];
-        }
+    if (isBecomingDone && task.recurrence && task.recurrence !== 'none') {
+      const nextDeadline = calculateNextDeadline(task.deadline, task.recurrence);
+      if (nextDeadline) {
+        const newId = crypto.randomUUID();
+        await setDoc(doc(db, "tasks", newId.toString()), {
+          ...task,
+          id: newId,
+          status: statuses[0] || 'todo',
+          deadline: nextDeadline,
+          subtasks: task.subtasks ? task.subtasks.map(s => ({ ...s, isCompleted: false })) : []
+        });
       }
-
-      return updatedTasks;
-    });
+    }
   };
 
   const handleToggleTaskStatus = (id, e) => {
@@ -175,37 +164,59 @@ function App() {
 
   const handleRenameProject = (oldName, newName) => {
     if (projects.includes(newName)) return;
-    setProjects(prev => prev.map(p => p === oldName ? newName : p));
-    setTasks(prev => prev.map(t => t.project === oldName ? { ...t, project: newName } : t));
+    const updated = projects.map(p => p === oldName ? newName : p);
+    syncSettings({ projects: updated });
+    tasks.filter(t => t.project === oldName).forEach(t => {
+      setDoc(doc(db, "tasks", t.id.toString()), { ...t, project: newName });
+    });
   };
 
   const handleDeleteProject = (proj) => {
-    setProjects(prev => prev.filter(p => p !== proj));
-    setTasks(prev => prev.map(t => t.project === proj ? { ...t, project: '' } : t));
+    const updated = projects.filter(p => p !== proj);
+    syncSettings({ projects: updated });
+    tasks.filter(t => t.project === proj).forEach(t => {
+      setDoc(doc(db, "tasks", t.id.toString()), { ...t, project: '' });
+    });
   };
 
   const handleRenamePriority = (oldName, newName) => {
     if (priorities.includes(newName)) return;
-    setPriorities(prev => prev.map(p => p === oldName ? newName : p));
-    setTasks(prev => prev.map(t => t.priority === oldName ? { ...t, priority: newName } : t));
+    const updated = priorities.map(p => p === oldName ? newName : p);
+    syncSettings({ priorities: updated });
+    tasks.filter(t => t.priority === oldName).forEach(t => {
+      setDoc(doc(db, "tasks", t.id.toString()), { ...t, priority: newName });
+    });
   };
 
   const handleDeletePriority = (pri) => {
-    setPriorities(prev => prev.filter(p => p !== pri));
-    const fallback = priorities.filter(p => p !== pri)[0] || 'low';
-    setTasks(prev => prev.map(t => t.priority === pri ? { ...t, priority: fallback } : t));
+    const updated = priorities.filter(p => p !== pri);
+    const fallback = updated[0] || 'low';
+    syncSettings({ priorities: updated });
+    tasks.filter(t => t.priority === pri).forEach(t => {
+      setDoc(doc(db, "tasks", t.id.toString()), { ...t, priority: fallback });
+    });
   };
 
   const handleRenameStatus = (oldName, newName) => {
     if (statuses.includes(newName)) return;
-    setStatuses(prev => prev.map(s => s === oldName ? newName : s));
-    setTasks(prev => prev.map(t => t.status === oldName ? { ...t, status: newName } : t));
+    const updated = statuses.map(s => s === oldName ? newName : s);
+    syncSettings({ statuses: updated });
+    tasks.filter(t => t.status === oldName).forEach(t => {
+      setDoc(doc(db, "tasks", t.id.toString()), { ...t, status: newName });
+    });
   };
 
   const handleDeleteStatus = (stat) => {
-    setStatuses(prev => prev.filter(s => s !== stat));
-    const fallback = statuses.filter(s => s !== stat)[0] || 'todo';
-    setTasks(prev => prev.map(t => t.status === stat ? { ...t, status: fallback } : t));
+    const updated = statuses.filter(s => s !== stat);
+    const fallback = updated[0] || 'todo';
+    syncSettings({ statuses: updated });
+    tasks.filter(t => t.status === stat).forEach(t => {
+      setDoc(doc(db, "tasks", t.id.toString()), { ...t, status: fallback });
+    });
+  };
+
+  const handleSetAvatarUrl = (url) => {
+    syncSettings({ avatarUrl: url });
   };
 
   // Filtering & Sorting
@@ -284,10 +295,10 @@ function App() {
 
         {activeTab === 'settings' ? (
           <SettingsView 
-            projects={projects} setProjects={setProjects} onRenameProject={handleRenameProject} onDeleteProject={handleDeleteProject}
-            priorities={priorities} setPriorities={setPriorities} onRenamePriority={handleRenamePriority} onDeletePriority={handleDeletePriority}
-            statuses={statuses} setStatuses={setStatuses} onRenameStatus={handleRenameStatus} onDeleteStatus={handleDeleteStatus}
-            avatarUrl={avatarUrl} setAvatarUrl={setAvatarUrl}
+            projects={projects} setProjects={(arr) => syncSettings({ projects: arr })} onRenameProject={handleRenameProject} onDeleteProject={handleDeleteProject}
+            priorities={priorities} setPriorities={(arr) => syncSettings({ priorities: arr })} onRenamePriority={handleRenamePriority} onDeletePriority={handleDeletePriority}
+            statuses={statuses} setStatuses={(arr) => syncSettings({ statuses: arr })} onRenameStatus={handleRenameStatus} onDeleteStatus={handleDeleteStatus}
+            avatarUrl={avatarUrl} setAvatarUrl={handleSetAvatarUrl}
           />
         ) : activeTab === 'finances' ? (
           <FinancesView />
@@ -355,7 +366,7 @@ function App() {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onSave={handleSaveTask} 
-        onDelete={(id) => setTasks(prev => prev.filter(t => t.id !== id))} 
+        onDelete={(id) => deleteDoc(doc(db, "tasks", id.toString()))} 
         task={editingTask} 
         projects={projects}
         priorities={priorities}
