@@ -119,6 +119,39 @@ body.dark-theme {
     grid-template-columns: 1fr !important;
     padding-bottom: 90px !important;
   }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  .welcome-controls {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 15px !important;
+  }
+  
+  .welcome-search-wrapper {
+    max-width: 100% !important;
+  }
+  
+  .welcome-filters {
+    margin-left: 0 !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* Make modal take more space on mobile */
+  .modal-wrapper {
+    padding: 20px 10px !important;
+  }
+  .modal-card {
+    padding: 20px !important;
+  }
+  .modal-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 * {

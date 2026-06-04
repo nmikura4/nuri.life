@@ -57,8 +57,8 @@ const WelcomeCard = ({
         
       </div>
 
-      <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-        <div style={{
+      <div className="welcome-controls" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <div className="welcome-search-wrapper" style={{
           background: 'var(--item-bg-hover)',
           borderRadius: '16px',
           padding: '10px 16px',
@@ -102,7 +102,7 @@ const WelcomeCard = ({
         </button>
 
         {(sortBy !== undefined) && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: 'auto' }}>
+          <div className="welcome-filters" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: 'auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>Tasks</h2>
               <Badge status="todo">{tasksCount} Tasks</Badge>
