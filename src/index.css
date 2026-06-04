@@ -23,7 +23,7 @@
 
   /* Shadows - Soft 3D Neumorphism */
   --shadow-color: rgba(190, 168, 159, 0.4);
-  --highlight-color: rgba(255, 255, 255, 0.9);
+  --highlight-color: rgba(255, 255, 255, 0.5);
   
   --shadow-soft: 
     10px 10px 20px var(--shadow-color),
@@ -35,7 +35,7 @@
 
   --shadow-card:
     20px 20px 40px rgba(190, 168, 159, 0.25),
-    -10px -10px 30px rgba(255, 255, 255, 0.8),
+    -5px -5px 20px rgba(255, 255, 255, 0.4),
     inset 0 0 0 1px var(--card-border);
 }
 
@@ -364,4 +364,33 @@ body.dark-theme .custom-select-dropdown {
     inset -10px -10px 20px rgba(0,0,0,0.1),
     inset 10px 10px 20px rgba(255,255,255,0.8),
     10px 10px 20px var(--shadow-color);
+}
+
+/* Notes Grid (CSS Columns for Masonry) */
+.notes-grid {
+  column-count: 3;
+  column-gap: 20px;
+  width: 100%;
+}
+
+.note-card-wrapper {
+  break-inside: avoid;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 1200px) {
+  .notes-grid { column-count: 2; }
+}
+
+@media (max-width: 768px) {
+  .notes-grid { column-count: 1; }
+}
+
+.note-content-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre-wrap;
 }

@@ -58,7 +58,9 @@ const CustomDatePicker = ({ value, onChange }) => {
   const firstDayOfWeek = new Date(displayYear, displayMonth, 1).getDay();
   const emptySlots = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
 
-  const displayValue = value ? new Date(value + 'T12:00:00').toLocaleDateString() : 'Select a date...';
+  const displayValue = value 
+    ? new Date(value + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) 
+    : 'Select a date...';
 
   return (
     <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>

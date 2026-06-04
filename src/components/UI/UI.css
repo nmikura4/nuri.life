@@ -96,6 +96,7 @@
 }
 
 /* Form Inputs - extends definitions in index.css */
+
 .neu-input, .neu-select, .neu-textarea {
   width: 100%;
   background: var(--item-bg-hover);
@@ -111,7 +112,7 @@
   border-radius: 24px;
   border: none;
   background: var(--card-bg);
-  box-shadow: var(--shadow-soft);
+  box-shadow: 4px 4px 12px var(--shadow-color), -4px -4px 12px var(--highlight-color);
   color: var(--text-main);
   font-weight: 600;
   cursor: pointer;
@@ -122,8 +123,8 @@
 .pill-btn:hover {
   transform: translateY(-2px);
   box-shadow: 
-    12px 12px 24px var(--shadow-color),
-    -12px -12px 24px var(--highlight-color);
+    6px 6px 16px var(--shadow-color),
+    -6px -6px 16px var(--highlight-color);
 }
 
 .pill-btn.primary {
@@ -139,8 +140,8 @@ body.dark-theme .pill-btn.primary {
 
 .pill-btn.primary:hover {
   box-shadow: 
-    8px 8px 16px var(--shadow-color),
-    -8px -8px 16px var(--highlight-color);
+    4px 4px 12px var(--shadow-color),
+    -4px -4px 12px var(--highlight-color);
   filter: brightness(1.05);
 }
 
