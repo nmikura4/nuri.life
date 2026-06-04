@@ -152,6 +152,26 @@ body.dark-theme {
   .modal-grid {
     grid-template-columns: 1fr !important;
   }
+
+  .task-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 15px !important;
+  }
+  
+  .task-row-meta > div {
+    align-items: flex-start !important;
+  }
+
+  .settings-item {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .responsive-card {
+    padding: 20px !important;
+  }
 }
 
 * {

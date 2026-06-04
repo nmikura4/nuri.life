@@ -51,7 +51,7 @@ const ListManager = ({ title, items, setItems, onRename, onDelete, placeholder }
       
       {isOpen && (
         <div style={{ marginTop: '20px' }}>
-          <form onSubmit={handleAdd} style={{ display: 'flex', gap: '16px', marginBottom: '30px' }}>
+          <form className="settings-item" onSubmit={handleAdd} style={{ display: 'flex', gap: '16px', marginBottom: '30px' }}>
         <input 
           type="text" 
           className="neu-input" 
@@ -70,7 +70,7 @@ const ListManager = ({ title, items, setItems, onRename, onDelete, placeholder }
           <p style={{ color: 'var(--text-muted)' }}>No items available.</p>
         ) : (
           items.map(item => (
-            <div key={item} style={{
+            <div className="settings-item" key={item} style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               background: 'var(--item-bg-hover)', padding: '16px 20px', borderRadius: '16px',
               boxShadow: 'var(--shadow-inner)'
@@ -146,7 +146,7 @@ const SettingsView = ({
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px', maxHeight: '100vh', overflowY: 'auto', paddingRight: '10px' }}>
-      <GlassCard style={{ padding: '40px' }}>
+      <GlassCard className="responsive-card" style={{ padding: '40px' }}>
         <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '30px' }}>Settings</h1>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
