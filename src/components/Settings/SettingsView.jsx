@@ -1,0 +1,197 @@
+import React, { useState } from 'react';
+import GlassCard from '../UI/GlassCard';
+import { Plus, Trash2, Edit2, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import '../UI/UI.css';
+
+const ListManager = ({ title, items, setItems, onRename, onDelete, placeholder }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [newItem, setNewItem] = useState('');
+  const [editingItem, setEditingItem] = useState(null);
+  const [editValue, setEditValue] = useState('');
+
+  const handleAdd = (e) => {
+    e.preventDefault();
+    if (newItem.trim() && !items.includes(newItem.trim())) {
+      setItems([...items, newItem.trim()]);
+      setNewItem('');
+    }
+  };
+
+  const startEdit = (item) => {
+    setEditingItem(item);
+    setEditValue(item);
+  };
+
+  const cancelEdit = () => {
+    setEditingItem(null);
+    setEditValue('');
+  };
+
+  const saveEdit = (oldName) => {
+    const trimmed = editValue.trim();
+    if (trimmed && trimmed !== oldName) {
+      if (!items.includes(trimmed)) {
+        onRename(oldName, trimmed);
+      }
+    }
+    setEditingItem(null);
+  };
+
+  return (
+    <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
+      <div 
+        onClick={() => setIsOpen(!isOpen)} 
+        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+      >
+        <h2 style={{ fontSize: '20px', fontWeight: 600 }}>{title}</h2>
+        <button style={{ background: 'none', border: 'none', color: 'var(--text-main)', display: 'flex', alignItems: 'center' }}>
+          {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+        </button>
+      </div>
+      
+      {isOpen && (
+        <div style={{ marginTop: '20px' }}>
+          <form onSubmit={handleAdd} style={{ display: 'flex', gap: '16px', marginBottom: '30px' }}>
+        <input 
+          type="text" 
+          className="neu-input" 
+          placeholder={placeholder} 
+          value={newItem}
+          onChange={(e) => setNewItem(e.target.value)}
+          style={{ flex: 1 }}
+        />
+        <button type="submit" className="pill-btn primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Plus size={18} /> Add
+        </button>
+      </form>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {items.length === 0 ? (
+          <p style={{ color: 'var(--text-muted)' }}>No items available.</p>
+        ) : (
+          items.map(item => (
+            <div key={item} style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              background: 'var(--item-bg-hover)', padding: '16px 20px', borderRadius: '16px',
+              boxShadow: 'var(--shadow-inner)'
+            }}>
+              {editingItem === item ? (
+                <div style={{ display: 'flex', gap: '12px', flex: 1, marginRight: '16px' }}>
+                  <input 
+                    type="text" 
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(item); if (e.key === 'Escape') cancelEdit(); }}
+                    className="neu-input"
+                    style={{ flex: 1, padding: '8px 12px' }}
+                    autoFocus
+                  />
+                  <button onClick={() => saveEdit(item)} style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', cursor: 'pointer' }}>
+                    <Check size={20} />
+                  </button>
+                  <button onClick={cancelEdit} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                    <X size={20} />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <span style={{ fontWeight: 600 }}>{item}</span>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button 
+                      onClick={() => startEdit(item)}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+                    >
+                      <Edit2 size={18} />
+                    </button>
+                    <button 
+                      onClick={() => { if (window.confirm(`Delete "${item}"?`)) onDelete(item); }}
+                      style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer' }}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+            ))
+          )}
+        </div>
+      </div>
+      )}
+    </div>
+  );
+};
+
+const SettingsView = ({ 
+  projects, setProjects, onRenameProject, onDeleteProject,
+  priorities, setPriorities, onRenamePriority, onDeletePriority,
+  statuses, setStatuses, onRenameStatus, onDeleteStatus,
+  avatarUrl, setAvatarUrl
+}) => {
+
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarUrl(null);
+  };
+
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px', maxHeight: '100vh', overflowY: 'auto', paddingRight: '10px' }}>
+      <GlassCard style={{ padding: '40px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '30px' }}>Settings</h1>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+          
+          <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '20px' }}>Profile Avatar</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Avatar Preview" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', boxShadow: 'var(--shadow-inner)' }} />
+              ) : (
+                <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--accent-coral)', boxShadow: 'var(--shadow-inner)' }}></div>
+              )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <label className="pill-btn primary" style={{ cursor: 'pointer', textAlign: 'center', padding: '8px 16px', fontSize: '13px' }}>
+                  Upload Photo
+                  <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
+                </label>
+                {avatarUrl && (
+                  <button onClick={handleRemoveAvatar} className="pill-btn danger" style={{ padding: '8px 16px', fontSize: '13px' }}>
+                    Remove
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <ListManager 
+            title="Manage Projects" 
+            items={projects} setItems={setProjects} onRename={onRenameProject} onDelete={onDeleteProject} 
+            placeholder="Enter new project name..." 
+          />
+          <ListManager 
+            title="Manage Priorities" 
+            items={priorities} setItems={setPriorities} onRename={onRenamePriority} onDelete={onDeletePriority} 
+            placeholder="Enter new priority name (e.g. Urgent)..." 
+          />
+          <ListManager 
+            title="Manage Statuses" 
+            items={statuses} setItems={setStatuses} onRename={onRenameStatus} onDelete={onDeleteStatus} 
+            placeholder="Enter new status (e.g. Review)..." 
+          />
+        </div>
+      </GlassCard>
+    </div>
+  );
+};
+
+export default SettingsView;

@@ -1,0 +1,262 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Colors */
+  --bg-gradient-start: #fbf1ed; /* Lighter peach-beige */
+  --bg-gradient-end: #ecd9d2;
+  
+  --card-bg: rgba(255, 255, 252, 0.75); /* Ivory translucent */
+  --card-border: rgba(255, 255, 255, 0.7);
+  
+  --accent-peach: #fbbba1;
+  --accent-coral: #ef9a8a;
+  --accent-blue: #a4c9e5;
+  --accent-blue-wave: #b7d5ec;
+  --accent-pink: #f4c2c2;
+  --accent-cream: #fffaf0;
+  --item-bg: rgba(255, 255, 255, 0.4);
+  --item-bg-hover: rgba(255, 255, 255, 0.5);
+
+  /* Typography */
+  --text-main: #5d5351; /* Soft warm dark grey */
+  --text-muted: #8d8381;
+
+  /* Shadows - Soft 3D Neumorphism */
+  --shadow-color: rgba(190, 168, 159, 0.4);
+  --highlight-color: rgba(255, 255, 255, 0.9);
+  
+  --shadow-soft: 
+    10px 10px 20px var(--shadow-color),
+    -10px -10px 20px var(--highlight-color);
+  
+  --shadow-inner: 
+    inset 4px 4px 10px var(--shadow-color),
+    inset -4px -4px 10px var(--highlight-color);
+
+  --shadow-card:
+    20px 20px 40px rgba(190, 168, 159, 0.25),
+    -10px -10px 30px rgba(255, 255, 255, 0.8),
+    inset 0 0 0 1px var(--card-border);
+}
+
+body.dark-theme {
+  --bg-gradient-start: #0a0f1c; /* Deep Midnight Blue */
+  --bg-gradient-end: #121b2f;
+  
+  --card-bg: rgba(18, 27, 47, 0.65); /* Dark translucent */
+  --card-border: rgba(255, 255, 255, 0.1);
+  
+  --accent-peach: #d97b5e; /* Darker peach/coral */
+  --accent-coral: #d46f5b;
+  --accent-blue: #5b8fb9;
+  --accent-blue-wave: #3a5f80;
+  --accent-pink: #bc7575;
+  --accent-cream: #1e293b;
+  --item-bg: rgba(255, 255, 255, 0.06);
+  --item-bg-hover: rgba(255, 255, 255, 0.1);
+
+  --text-main: #e2e8f0; /* Light grayish blue */
+  --text-muted: #94a3b8;
+
+  --shadow-color: rgba(0, 0, 0, 0.6);
+  --highlight-color: rgba(255, 255, 255, 0.05);
+  
+  --shadow-soft: 
+    10px 10px 20px var(--shadow-color),
+    -10px -10px 20px var(--highlight-color);
+  
+  --shadow-inner: 
+    inset 4px 4px 10px var(--shadow-color),
+    inset -4px -4px 10px var(--highlight-color);
+
+  --shadow-card:
+    20px 20px 40px rgba(0, 0, 0, 0.5),
+    -10px -10px 30px rgba(255, 255, 255, 0.03),
+    inset 0 0 0 1px var(--card-border);
+}
+
+@media (max-width: 900px) {
+  .app-container {
+    flex-direction: column !important;
+    padding: 15px !important;
+  }
+  
+  /* Make sidebar a bottom navigation bar */
+  .sidebar {
+    width: 100% !important;
+    height: 70px !important;
+    flex-direction: row !important;
+    position: fixed !important;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 10px 20px !important;
+    border-radius: 24px 24px 0 0 !important;
+    justify-content: space-around !important;
+    background: var(--card-bg) !important;
+    backdrop-filter: blur(20px) !important;
+  }
+  
+  /* Hide the profile picture bubble in sidebar on mobile */
+  .sidebar > div:first-child {
+    display: none !important;
+  }
+  
+  /* Align navigation buttons in a row */
+  .sidebar > div:nth-child(2) {
+    flex-direction: row !important;
+    flex: unset !important;
+    gap: 10px !important;
+  }
+  
+  /* Align settings in a row */
+  .sidebar > div:nth-child(3) {
+    flex-direction: row !important;
+    gap: 10px !important;
+  }
+
+  .main-content {
+    grid-template-columns: 1fr !important;
+    padding-bottom: 90px !important;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Manrope', sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+  min-height: 100vh;
+  color: var(--text-main);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--shadow-color);
+  border-radius: 10px;
+}
+
+/* Background floating spheres/blobs */
+.bg-blobs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.6;
+}
+
+.blob-1 {
+  width: 400px;
+  height: 400px;
+  background: var(--accent-peach);
+  top: -100px;
+  left: -100px;
+}
+
+.blob-2 {
+  width: 500px;
+  height: 500px;
+  background: var(--accent-blue);
+  bottom: -150px;
+  right: -150px;
+}
+
+.blob-3 {
+  width: 300px;
+  height: 300px;
+  background: var(--accent-pink);
+  top: 40%;
+  left: 30%;
+}
+
+/* Utilities */
+.glass-panel {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 32px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: visible;
+}
+
+.neu-input, .neu-textarea, .neu-select {
+  background: transparent;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 16px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-main);
+  box-shadow: var(--shadow-inner);
+  transition: all 0.3s ease;
+}
+
+.neu-input:focus, .neu-textarea:focus, .neu-select:focus {
+  outline: none;
+  box-shadow: 
+    inset 2px 2px 5px var(--shadow-color),
+    inset -2px -2px 5px var(--highlight-color),
+    0 0 0 2px var(--accent-blue);
+}
+
+.custom-select-option:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+body.dark-theme .custom-select-option:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.custom-select-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  background: rgba(255, 255, 252, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--card-border);
+  z-index: 100;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+body.dark-theme .custom-select-dropdown {
+  background: rgba(18, 27, 47, 0.98);
+}
+
+/* 3D Sphere Decorators */
+.sphere {
+  border-radius: 50%;
+  box-shadow: 
+    inset -10px -10px 20px rgba(0,0,0,0.1),
+    inset 10px 10px 20px rgba(255,255,255,0.8),
+    10px 10px 20px var(--shadow-color);
+}
