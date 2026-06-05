@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { collection, doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
 import { db } from './firebase';
 
@@ -18,8 +18,7 @@ function App() {
   const [projects, setProjects] = useState(['Work', 'Personal', 'Shopping']);
   const [priorities, setPriorities] = useState(['low', 'medium', 'high']);
   const [statuses, setStatuses] = useState(['todo', 'progress', 'done']);
-  const [isLoaded, setIsLoaded] = useState(false);
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [theme, setTheme] = useState('light');
   const [activeTab, setActiveTab] = useState('home');
@@ -31,10 +30,6 @@ function App() {
   const [showDone, setShowDone] = useState(false);
   const [sortBy, setSortBy] = useState('date_asc');
   const [calendarType, setCalendarType] = useState('weekly');
-
-  const onToggleCalendar = () => {
-    setCalendarType(prev => (prev === 'weekly' ? 'mini' : 'weekly'));
-  };
 
   // Load data from Firebase
   useEffect(() => {
@@ -55,7 +50,6 @@ function App() {
           avatarUrl: null
         });
       }
-      setIsLoaded(true);
     });
 
     const unsubTasks = onSnapshot(collection(db, "tasks"), (snapshot) => {
@@ -280,7 +274,7 @@ function App() {
     });
 
     return result;
-  }, [tasks, searchQuery, selectedDate, showDone, sortBy, activeTab, viewMode]);
+  }, [tasks, searchQuery, selectedDate, showDone, sortBy, activeTab, viewMode, statuses]);
 
   return (
     <>

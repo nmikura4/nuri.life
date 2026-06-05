@@ -1,8 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
-import Badge from '../UI/Badge';
-import { X, ChevronLeft, ChevronRight, Settings, Edit2, Plus, Eye } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Edit2, Plus, Eye } from 'lucide-react';
 
 export const ProgressWidget = ({ tasks = [], statuses = [] }) => {
   const [timeframe, setTimeframe] = useState('day');

@@ -1,10 +1,8 @@
-import React from 'react';
-import GlassCard from '../UI/GlassCard';
-import CustomSelect from '../UI/CustomSelect';
-import Badge from '../UI/Badge';
-import { Eye, EyeOff } from 'lucide-react';
 
-const TaskList = ({ tasks, onEditTask, onToggleStatus, showDone, setShowDone, sortBy, setSortBy, statuses = [] }) => {
+import GlassCard from '../UI/GlassCard';
+import Badge from '../UI/Badge';
+
+const TaskList = ({ tasks, onEditTask, onToggleStatus, statuses = [] }) => {
   const isDone = (task) => statuses.length > 0 && task.status === statuses[statuses.length - 1];
 
   return (

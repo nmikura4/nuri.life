@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import GlassCard from '../UI/GlassCard';
 import { Plus, Trash2, Edit2, Check, X, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from 'lucide-react';
 import '../UI/UI.css';

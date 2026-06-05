@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CornerThemeSwitcher from '../UI/CornerThemeSwitcher';
 import { Search, Plus, List, Columns, X, Eye, EyeOff } from 'lucide-react';

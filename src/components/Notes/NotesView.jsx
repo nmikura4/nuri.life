@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { collection, doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import GlassCard from '../UI/GlassCard';

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import GlassCard from './UI/GlassCard';
 import NeumorphicButton from './UI/NeumorphicButton';
 import { Home, CheckSquare, Settings, Wallet, StickyNote, Activity } from 'lucide-react';

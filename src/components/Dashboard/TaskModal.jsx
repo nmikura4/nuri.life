@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
 import CustomDatePicker from '../UI/CustomDatePicker';
@@ -29,6 +29,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
     const today = `${y}-${m}-${day}`;
     
     if (task) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         title: task.title || '',
         desc: task.desc || '',
@@ -42,6 +43,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
       });
       setIsDescOpen(!!task.desc);
     } else {
+       
       setFormData({
         title: '',
         desc: '',

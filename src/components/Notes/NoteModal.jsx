@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
 import { X, Check, Paperclip, Smile, Meh, Frown, Zap, Coffee, CloudRain } from 'lucide-react';
@@ -38,6 +38,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
 
   useEffect(() => {
     if (note) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         title: note.title || '',
         content: note.content || '',
@@ -46,6 +47,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
       });
       setFile(note.file || null);
     } else {
+       
       setFormData({
         title: '',
         content: '',
