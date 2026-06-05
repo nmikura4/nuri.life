@@ -6,6 +6,7 @@
   --bg-gradient-end: #ecd9d2;
   
   --card-bg: rgba(255, 255, 252, 0.75); /* Ivory translucent */
+  --solid-card-bg: #fffaf6; /* Solid ivory */
   --card-border: rgba(255, 255, 255, 0.7);
   
   --accent-peach: #fbbba1;
@@ -44,6 +45,7 @@ body.dark-theme {
   --bg-gradient-end: #121b2f;
   
   --card-bg: rgba(18, 27, 47, 0.65); /* Dark translucent */
+  --solid-card-bg: #121b2f; /* Solid dark blue */
   --card-border: rgba(255, 255, 255, 0.1);
   
   --accent-peach: #d97b5e; /* Darker peach/coral */

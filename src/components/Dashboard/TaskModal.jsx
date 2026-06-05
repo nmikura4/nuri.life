@@ -116,7 +116,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
   return (
     <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={task ? 'Edit Task' : 'New Task'}>
       <div onClick={e => e.stopPropagation()} style={{ margin: 'auto', width: '100%', maxWidth: '500px' }}>
-        <GlassCard style={{ padding: '30px', position: 'relative' }}>
+        <GlassCard style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)' }}>
           <button onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
             <X size={24} />
           </button>
