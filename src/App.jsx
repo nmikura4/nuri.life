@@ -3,6 +3,7 @@ import { collection, doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firesto
 import { db, auth } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import AuthView from './components/Auth/AuthView';
+import CornerThemeSwitcher from './components/UI/CornerThemeSwitcher';
 
 import Sidebar from './components/Sidebar';
 import WelcomeCard from './components/Dashboard/WelcomeCard';
@@ -328,7 +329,9 @@ function App() {
       <div className="app-container" style={{ maxWidth: '1400px', margin: '0 auto', padding: '80px 30px 30px 30px', display: 'flex', gap: '30px', minHeight: '100vh' }}>
         <Sidebar theme={theme} onThemeChange={handleThemeChange} activeTab={activeTab} setActiveTab={setActiveTab} avatarUrl={avatarUrl} onLogout={handleLogout} />
 
-        {activeTab === 'settings' ? (
+        <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', width: '100%' }}>
+          <CornerThemeSwitcher theme={theme} onChange={handleThemeChange} />
+          {activeTab === 'settings' ? (
           <SettingsView 
             projects={projects} setProjects={(arr) => syncSettings({ projects: arr })} onRenameProject={handleRenameProject} onDeleteProject={handleDeleteProject}
             priorities={priorities} setPriorities={(arr) => syncSettings({ priorities: arr })} onRenamePriority={handleRenamePriority} onDeletePriority={handleDeletePriority}
@@ -395,6 +398,7 @@ function App() {
             )}
           </div>
         )}
+        </div>
       </div>
 
       <TaskModal 

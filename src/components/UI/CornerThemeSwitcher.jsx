@@ -20,7 +20,7 @@ const CornerThemeSwitcher = ({ theme, onChange }) => {
       <svg className="offset-track-svg" viewBox="0 0 160 160">
         <path 
           className="offset-track-path"
-          d="M 10 68 L 48 68 A 44 44 0 0 1 92 112 L 92 140" 
+          d="M 10 48 L 68 48 A 44 44 0 0 1 112 92 L 112 150" 
           onClick={toggleTheme}
         />
       </svg>

@@ -88,7 +88,8 @@ const CustomDatePicker = ({ value, onChange }) => {
           width: '280px', 
           padding: '20px', 
           zIndex: 100,
-          boxShadow: 'var(--shadow-card)'
+          boxShadow: 'var(--shadow-card)',
+          background: 'var(--solid-card-bg)'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <button onClick={goToPrevMonth} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-main)' }}>

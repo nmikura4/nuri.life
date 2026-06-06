@@ -264,8 +264,15 @@ body.dark-theme .custom-select-dropdown {
 }
 
 /* Notes Grid */
-.notes-grid { column-count: 3; column-gap: 20px; width: 100%; }
-.note-card-wrapper { break-inside: avoid; margin-bottom: 20px; }
-@media (max-width: 1200px) { .notes-grid { column-count: 2; } }
-@media (max-width: 768px) { .notes-grid { column-count: 1; } }
+.notes-grid { 
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+  align-items: stretch;
+}
+.note-card-wrapper { height: 100%; display: flex; flex-direction: column; }
+.note-card-wrapper > div { flex: 1; }
+@media (max-width: 1200px) { .notes-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) { .notes-grid { grid-template-columns: 1fr; } }
 .note-content-preview { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap; }

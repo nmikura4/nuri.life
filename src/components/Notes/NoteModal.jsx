@@ -5,12 +5,28 @@ import { X, Check, Paperclip, Smile, Meh, Frown, Zap, Coffee, CloudRain, Tag as 
 import '../UI/UI.css';
 
 const COLORS = [
-  { id: 'default', value: 'var(--card-bg)' },
-  { id: 'blue', value: 'rgba(111, 168, 220, 0.2)' },
-  { id: 'peach', value: 'rgba(244, 194, 194, 0.2)' },
-  { id: 'green', value: 'rgba(143, 185, 168, 0.2)' },
-  { id: 'yellow', value: 'rgba(255, 230, 153, 0.2)' },
+  { id: 'default', value: 'transparent', label: 'Default' },
+  { id: 'blue', value: 'rgba(111, 168, 220, 0.2)', label: 'Blue' },
+  { id: 'peach', value: 'rgba(244, 194, 194, 0.2)', label: 'Peach' },
+  { id: 'green', value: 'rgba(143, 185, 168, 0.2)', label: 'Green' },
+  { id: 'yellow', value: 'rgba(255, 230, 153, 0.2)', label: 'Yellow' },
+  { id: 'lavender', value: 'rgba(182, 168, 220, 0.2)', label: 'Lavender' },
+  { id: 'mint', value: 'rgba(168, 220, 182, 0.2)', label: 'Mint' },
+  { id: 'gray', value: 'rgba(150, 150, 150, 0.2)', label: 'Gray' }
 ];
+
+const COLOR_OPTIONS = COLORS.map(c => ({
+  value: c.id,
+  label: (
+    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={{ 
+        width: '14px', height: '14px', borderRadius: '50%', 
+        background: c.value === 'transparent' ? 'var(--text-muted)' : c.value,
+      }}></span> 
+      {c.label}
+    </span>
+  )
+}));
 
 const MOOD_OPTIONS = [
   { value: 'happy', label: <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Smile size={14} /> Happy</span> },
@@ -99,9 +115,15 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
       return;
     }
     
+    const finalTags = [...formData.tags];
+    if (tagInput.trim() && !finalTags.includes(tagInput.trim())) {
+      finalTags.push(tagInput.trim());
+    }
+    
     onSave({
       ...note,
       ...formData,
+      tags: finalTags,
       file: file,
       updatedAt: new Date().toISOString()
     });
@@ -133,7 +155,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
     }
   };
 
-  const currentColorValue = COLORS.find(c => c.id === formData.color)?.value || 'var(--card-bg)';
+  const currentColorValue = COLORS.find(c => c.id === formData.color)?.value || 'transparent';
 
   return (
     <div className="modal-overlay" onClick={onClose} style={{ alignItems: 'center' }}>
@@ -146,7 +168,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
           flexDirection: 'column', 
           gap: '20px',
           padding: '30px',
-          background: currentColorValue,
+          background: `linear-gradient(${currentColorValue}, ${currentColorValue}), var(--solid-card-bg)`,
           boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
           transition: isDragging ? 'none' : 'background 0.3s ease',
           transform: `translate(${position.x}px, ${position.y}px)`,
@@ -174,98 +196,71 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1 }}>
-          <input 
-            type="text" 
-            name="title" 
-            placeholder="Note Title" 
-            value={formData.title} 
-            onChange={handleChange} 
-            className="neu-input" 
-            style={{ 
-              fontSize: '18px', 
-              fontWeight: 700,
-              boxShadow: 'none', 
-              border: '1px solid var(--card-border)',
-              background: 'var(--item-bg)'
-            }} 
-            autoFocus
-          />
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Note Title</label>
+            <input 
+              type="text" 
+              name="title" 
+              placeholder="What's on your mind?" 
+              value={formData.title} 
+              onChange={handleChange} 
+              className="neu-input" 
+              autoFocus
+            />
+          </div>
           
-          <textarea 
-            name="content" 
-            placeholder="Type your thoughts here..." 
-            value={formData.content} 
-            onChange={handleChange} 
-            className="neu-textarea" 
-            style={{ 
-              minHeight: '200px', 
-              resize: 'vertical', 
-              flex: 1,
-              boxShadow: 'none', 
-              border: '1px solid var(--card-border)',
-              background: 'var(--item-bg)'
-            }} 
-          />
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Content</label>
+            <textarea 
+              name="content" 
+              placeholder="Type your thoughts here..." 
+              value={formData.content} 
+              onChange={handleChange} 
+              className="neu-textarea" 
+              style={{ minHeight: '200px', resize: 'vertical' }} 
+            />
+          </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-              <div className="note-color-picker" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-muted)' }}>Color:</span>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  {COLORS.map(c => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => setFormData(prev => ({...prev, color: c.id}))}
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        background: c.value,
-                        border: formData.color === c.id ? '2px solid var(--text-main)' : '2px solid var(--card-border)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: 'none'
-                      }}
-                    >
-                      {formData.color === c.id && <Check size={16} color="var(--text-main)" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Color</label>
+              <CustomSelect 
+                value={formData.color} 
+                onChange={(val) => setFormData(prev => ({...prev, color: val}))}
+                options={COLOR_OPTIONS}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Mood</label>
+              <CustomSelect 
+                value={formData.mood} 
+                onChange={(val) => setFormData(prev => ({ ...prev, mood: val }))}
+                options={MOOD_OPTIONS}
+              />
+            </div>
+          </div>
 
-              <div className="note-mood-picker" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-muted)' }}>Mood:</span>
-                <div style={{ width: '140px' }}>
-                  <CustomSelect 
-                    value={formData.mood} 
-                    onChange={(val) => setFormData(prev => ({ ...prev, mood: val }))}
-                    options={MOOD_OPTIONS}
-                    style={{ background: 'var(--item-bg)', borderRadius: '16px', border: '1px solid var(--card-border)' }}
-                    innerStyle={{ padding: '8px 16px', background: 'transparent', boxShadow: 'none' }}
-                  />
-                </div>
-              </div>
-              
-              <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Attachment</label>
+              <div className="neu-input" style={{ display: 'flex', alignItems: 'center', minHeight: '44px', padding: '0 16px' }}>
                 <input 
                   type="file" 
                   id="note-file" 
                   style={{ display: 'none' }} 
                   onChange={(e) => setFile(e.target.files[0])} 
                 />
-                <label htmlFor="note-file" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '14px', fontWeight: 600, background: 'var(--item-bg)', padding: '8px 16px', borderRadius: '16px', border: '1px solid var(--card-border)' }}>
-                  <Paperclip size={16} /> {file ? (file.name.length > 15 ? file.name.substring(0, 15) + '...' : file.name) : 'Attach File'}
+                <label htmlFor="note-file" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '14px', width: '100%', margin: 0 }}>
+                  <Paperclip size={16} /> {file ? (file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name) : 'Attach File'}
                 </label>
               </div>
             </div>
 
             <div>
-              <div className="neu-input" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '10px 16px', minHeight: '44px', alignItems: 'center', background: 'var(--item-bg)', boxShadow: 'none', border: '1px solid var(--card-border)' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Tags (Press Enter)</label>
+              <div className="neu-input" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '10px 16px', minHeight: '44px', alignItems: 'center' }}>
                 {formData.tags.map(tag => (
-                  <span key={tag} style={{ background: 'var(--card-bg)', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid var(--card-border)' }}>
+                  <span key={tag} style={{ background: 'var(--item-bg)', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <TagIcon size={12} /> {tag}
                     <button type="button" onClick={() => removeTag(tag)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}><X size={12} /></button>
                   </span>
@@ -275,16 +270,16 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleAddTag}
-                  placeholder={formData.tags.length === 0 ? "Add tags (Press Enter)..." : ""}
-                  style={{ border: 'none', background: 'transparent', outline: 'none', flex: 1, minWidth: '120px', color: 'var(--text-main)', fontSize: '14px' }}
+                  placeholder={formData.tags.length === 0 ? "Add tags..." : ""}
+                  style={{ border: 'none', background: 'transparent', outline: 'none', flex: 1, minWidth: '80px', color: 'var(--text-main)', fontSize: '14px' }}
                 />
               </div>
             </div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', flexWrap: 'wrap', gap: '15px' }}>
-          {note ? (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '10px', flexWrap: 'wrap', gap: '15px' }}>
+          {note && (
             <button 
               type="button" 
               onClick={() => {
@@ -294,18 +289,14 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
                 }
               }} 
               className="pill-btn danger"
-              style={{ boxShadow: 'none' }}
+              style={{ marginRight: 'auto' }}
             >
               Delete Note
             </button>
-          ) : (
-            <div></div>
           )}
           
-          <div style={{ display: 'flex', gap: '15px' }}>
-            <button type="button" onClick={onClose} className="pill-btn" style={{ background: 'var(--item-bg)', boxShadow: 'none' }}>Cancel</button>
-            <button type="button" onClick={handleSave} className="pill-btn primary" style={{ boxShadow: 'none' }}>Save Note</button>
-          </div>
+          <button type="button" onClick={onClose} className="pill-btn">Cancel</button>
+          <button type="button" onClick={handleSave} className="pill-btn primary">Save Note</button>
         </div>
       </GlassCard>
     </div>

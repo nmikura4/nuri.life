@@ -189,7 +189,7 @@ const SettingsView = ({
   const [activeSettingsTab, setActiveSettingsTab] = useState('general');
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto', paddingRight: '10px' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
       <GlassCard className="responsive-card" style={{ padding: '40px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '20px' }}>
           <h1 style={{ fontSize: '28px', fontWeight: 700 }}>Settings</h1>

@@ -133,8 +133,6 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
               <input type="text" name="title" value={formData.title} onChange={handleChange} className="neu-input" placeholder="What needs to be done?" autoFocus />
             </div>
 
-
-
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Project</label>

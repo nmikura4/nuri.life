@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import GlassCard from '../UI/GlassCard';
-import CornerThemeSwitcher from '../UI/CornerThemeSwitcher';
 import { Search, Plus, List, Columns, X, Eye, EyeOff } from 'lucide-react';
 import CustomSelect from '../UI/CustomSelect';
 import Badge from '../UI/Badge';
@@ -40,7 +39,6 @@ const WelcomeCard = ({
       overflow: 'visible', /* Changed to visible so track is not clipped */
       zIndex: 10
     }}>
-      <CornerThemeSwitcher theme={theme} onChange={onThemeChange} />
       
       <svg width="100%" height="100%" style={{ position: 'absolute', bottom: 0, left: 0, zIndex: -1 }} viewBox="0 0 500 200" preserveAspectRatio="none">
         <path d="M0,100 C150,200 350,0 500,100 L500,200 L0,200 Z" fill="var(--accent-blue-wave)" opacity="0.4" />
@@ -104,44 +102,30 @@ const WelcomeCard = ({
         {(sortBy !== undefined) && (
           <div className="welcome-filters" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: 'auto' }}>
             <div className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>Tasks</h2>
               <Badge status="todo">{tasksCount} Tasks</Badge>
             </div>
 
             <div style={{ width: '180px' }}>
               <CustomSelect 
                 value={sortBy} 
-                onChange={setSortBy}
+                onChange={(val) => {
+                  if (val === 'toggle-done') {
+                    setShowDone(!showDone);
+                  } else {
+                    setSortBy(val);
+                  }
+                }}
                 style={{ padding: '0', boxShadow: 'none', background: 'transparent' }}
                 innerStyle={{ padding: '8px 16px', fontSize: '13px', borderRadius: '20px' }}
                 options={[
                   { value: 'date_asc', label: 'Nearest Deadline' },
                   { value: 'date_desc', label: 'Furthest Deadline' },
                   { value: 'priority', label: 'Highest Priority' },
-                  { value: 'overdue', label: 'Overdue Tasks' }
+                  { value: 'overdue', label: 'Overdue Tasks' },
+                  { value: 'toggle-done', label: showDone ? <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Eye size={14} /> Hide Done Tasks</span> : <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><EyeOff size={14} /> Show Done Tasks</span> }
                 ]}
               />
             </div>
-
-            <button 
-              onClick={() => setShowDone(!showDone)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '6px',
-                background: showDone ? 'var(--accent-blue)' : 'var(--card-bg)',
-                color: showDone ? '#fff' : 'var(--text-main)',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '20px',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                boxShadow: showDone ? 'var(--shadow-inner)' : 'var(--shadow-soft)',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              {showDone ? <Eye size={16} /> : <EyeOff size={16} />}
-              Done
-            </button>
           </div>
         )}
 

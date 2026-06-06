@@ -3,8 +3,19 @@ import { collection, doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firesto
 import { db } from '../../firebase';
 import GlassCard from '../UI/GlassCard';
 import NoteModal from './NoteModal';
-import { Plus, Search, FileText, Tag } from 'lucide-react';
+import CustomDatePicker from '../UI/CustomDatePicker';
+import { Plus, Search, FileText, Tag, Calendar, X, Smile, Meh, Frown, Zap, Coffee, CloudRain } from 'lucide-react';
+import React from 'react';
 import '../UI/UI.css';
+
+const MOOD_ICONS = {
+  happy: Smile,
+  neutral: Meh,
+  sad: Frown,
+  energetic: Zap,
+  relaxed: Coffee,
+  gloomy: CloudRain
+};
 
 const COLORS = {
   default: 'var(--card-bg)',
@@ -12,11 +23,15 @@ const COLORS = {
   peach: 'rgba(244, 194, 194, 0.2)',
   green: 'rgba(143, 185, 168, 0.2)',
   yellow: 'rgba(255, 230, 153, 0.2)',
+  lavender: 'rgba(182, 168, 220, 0.2)',
+  mint: 'rgba(168, 220, 182, 0.2)',
+  gray: 'rgba(150, 150, 150, 0.2)'
 };
 
 const NotesView = () => {
   const [notes, setNotes] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDate, setSelectedDate] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
 
@@ -63,13 +78,27 @@ const NotesView = () => {
   };
 
   const filteredNotes = useMemo(() => {
-    if (!searchQuery) return notes;
-    const lowerQ = searchQuery.toLowerCase();
-    return notes.filter(n => 
-      (n.title && n.title.toLowerCase().includes(lowerQ)) || 
-      (n.content && n.content.toLowerCase().includes(lowerQ))
-    );
-  }, [notes, searchQuery]);
+    let result = notes;
+    if (selectedDate) {
+      result = result.filter(n => {
+        if (!n.updatedAt) return false;
+        // updatedAt is ISO string, we want YYYY-MM-DD local
+        const d = new Date(n.updatedAt);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}` === selectedDate;
+      });
+    }
+    if (searchQuery) {
+      const lowerQ = searchQuery.toLowerCase();
+      result = result.filter(n => 
+        (n.title && n.title.toLowerCase().includes(lowerQ)) || 
+        (n.content && n.content.toLowerCase().includes(lowerQ))
+      );
+    }
+    return result;
+  }, [notes, searchQuery, selectedDate]);
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
@@ -89,21 +118,47 @@ const NotesView = () => {
           </button>
         </div>
 
-        <div className="welcome-search-wrapper" style={{
-          background: 'var(--item-bg-hover)', borderRadius: '16px', padding: '10px 16px',
-          display: 'flex', alignItems: 'center', gap: '10px', boxShadow: 'var(--shadow-inner)'
-        }}>
-          <Search size={16} color="var(--text-muted)" />
-          <input 
-            type="text" 
-            placeholder="Search notes..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              border: 'none', background: 'transparent', outline: 'none',
-              fontFamily: 'inherit', fontSize: '14px', color: 'var(--text-main)', width: '100%'
-            }}
-          />
+        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+          <div className="welcome-search-wrapper" style={{
+            background: 'var(--item-bg-hover)', borderRadius: '16px', padding: '10px 16px',
+            display: 'flex', alignItems: 'center', gap: '10px', boxShadow: 'var(--shadow-inner)', flex: 1, minWidth: '250px'
+          }}>
+            <Search size={16} color="var(--text-muted)" />
+            <input 
+              type="text" 
+              placeholder="Search notes..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                border: 'none', background: 'transparent', outline: 'none',
+                fontFamily: 'inherit', fontSize: '14px', color: 'var(--text-main)', width: '100%'
+              }}
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '180px' }}>
+              <CustomDatePicker 
+                value={selectedDate}
+                onChange={setSelectedDate}
+              />
+            </div>
+            {selectedDate && (
+              <button 
+                onClick={() => setSelectedDate('')} 
+                className="pill-btn" 
+                style={{ background: 'var(--item-bg-hover)', border: 'none', padding: '10px', display: 'flex', boxShadow: 'none' }}
+                title="Clear date"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
         </div>
       </GlassCard>
 
@@ -121,7 +176,7 @@ const NotesView = () => {
           {filteredNotes.map(note => {
             const bgColor = COLORS[note.color] || COLORS.default;
             return (
-              <div key={note.id} className="note-card-wrapper">
+              <div key={note.id} className="note-card-wrapper" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <GlassCard 
                   onClick={() => handleEditNote(note)}
                   style={{ 
@@ -130,6 +185,10 @@ const NotesView = () => {
                     background: bgColor,
                     border: '1px solid var(--card-border)',
                     transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    flex: 1,
+                    boxSizing: 'border-box'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-4px)';
@@ -177,8 +236,13 @@ const NotesView = () => {
                     </div>
                   )}
 
-                  <div style={{ marginTop: '16px', fontSize: '11px', color: 'var(--text-muted)', textAlign: 'right' }}>
-                    {new Date(note.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)' }}>
+                      {note.mood && MOOD_ICONS[note.mood] && React.createElement(MOOD_ICONS[note.mood], { size: 14 })}
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'right' }}>
+                      {new Date(note.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </div>
                   </div>
                 </GlassCard>
               </div>

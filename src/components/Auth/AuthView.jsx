@@ -67,7 +67,7 @@ const AuthView = () => {
         display: 'flex',
         flexDirection: 'column',
         gap: '24px',
-        background: 'var(--surface)',
+        background: 'var(--solid-card-bg)',
         borderRadius: '24px',
         boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
       }}>
