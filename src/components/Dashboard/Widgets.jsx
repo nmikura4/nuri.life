@@ -213,12 +213,11 @@ export const WeeklyCalendarWidget = ({ tasks = [], onAddTask, selectedDate, onSe
 
   const getDaysOfWeek = () => {
     const date = new Date(referenceDate);
-    const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-    const startOfWeek = new Date(date.setDate(diff));
+    const startOfWindow = new Date(date);
+    startOfWindow.setDate(date.getDate() - 3);
     
     return Array.from({ length: 7 }).map((_, i) => {
-      const d = new Date(startOfWeek);
+      const d = new Date(startOfWindow);
       d.setDate(d.getDate() + i);
       const isSelected = selectedDate ? d.toDateString() === selectedDate.toDateString() : d.toDateString() === new Date().toDateString();
       return {
