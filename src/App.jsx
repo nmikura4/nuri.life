@@ -15,6 +15,10 @@ import KanbanView from './components/Kanban/KanbanView';
 import FinancesView from './components/Finances/FinancesView';
 import NotesView from './components/Notes/NotesView';
 import HabitsView from './components/Habits/HabitsView';
+import { AIAssistantProvider } from './context/AIAssistantContext';
+import AICoachView from './components/AI/AICoachView';
+import ChatInterface from './components/AI/ChatInterface';
+import { MessageCircle, X } from 'lucide-react';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -23,20 +27,28 @@ function App() {
   const [projects, setProjects] = useState(['Work', 'Personal', 'Shopping']);
   const [priorities, setPriorities] = useState(['low', 'medium', 'high']);
   const [statuses, setStatuses] = useState(['todo', 'progress', 'done']);
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [theme, setTheme] = useState('light');
-  const [activeTab, setActiveTab] = useState('home');
-  const [viewMode, setViewMode] = useState('list');
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [theme, setTheme] = useState(() => localStorage.getItem('nuri_theme') || 'light');
+  const [avatarUrl, setAvatarUrl] = useState(() => localStorage.getItem('nuri_avatar') || null);
+  const [geminiApiKey, setGeminiApiKey] = useState('');
   
-  // New States for Sorting & Filtering
-  const [showDone, setShowDone] = useState(false);
+  // UI State
+  const [activeTab, setActiveTab] = useState('home');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'kanban'
   const [sortBy, setSortBy] = useState('date_asc');
+  const [showDone, setShowDone] = useState(false);
   const [calendarType, setCalendarType] = useState('weekly');
+  const [isAIChatOpen, setIsAIChatOpen] = useState(false);
 
-  // Auth state listener
+  useEffect(() => {
+    document.body.className = theme === 'dark' ? 'dark-theme' : '';
+    localStorage.setItem('nuri_theme', theme);
+  }, [theme]);
+
+  // Auth & DB Initialization
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -58,15 +70,24 @@ function App() {
         if (data.projects) setProjects(data.projects);
         if (data.priorities) setPriorities(data.priorities);
         if (data.statuses) setStatuses(data.statuses);
-        if (data.theme) setTheme(data.theme);
-        if (data.avatarUrl !== undefined) setAvatarUrl(data.avatarUrl);
+        if (data.theme) {
+          setTheme(data.theme);
+          localStorage.setItem('nuri_theme', data.theme);
+        }
+        if (data.avatarUrl !== undefined) {
+          setAvatarUrl(data.avatarUrl);
+          if (data.avatarUrl) localStorage.setItem('nuri_avatar', data.avatarUrl);
+          else localStorage.removeItem('nuri_avatar');
+        }
+        if (data.geminiApiKey !== undefined) setGeminiApiKey(data.geminiApiKey);
       } else {
         setDoc(doc(db, "users", user.uid, "settings", "global"), {
           projects: ['Work', 'Personal', 'Shopping'],
           priorities: ['low', 'medium', 'high'],
           statuses: ['todo', 'progress', 'done'],
           theme: 'light',
-          avatarUrl: null
+          avatarUrl: null,
+          geminiApiKey: ''
         });
       }
     });
@@ -101,10 +122,6 @@ function App() {
   const handleThemeChange = (newTheme) => {
     syncSettings({ theme: newTheme });
   };
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState(null);
-
   const handleOpenNewTask = () => {
     setEditingTask(null);
     setIsModalOpen(true);
@@ -118,6 +135,16 @@ function App() {
     } catch (e) {
       alert("Ошибка при сохранении задачи: " + e.message);
       console.error(e);
+    }
+  };
+
+  const handleSaveNote = async (noteData) => {
+    if (!user) return;
+    try {
+      const id = noteData.id || crypto.randomUUID();
+      await setDoc(doc(db, "notes", id.toString()), { ...noteData, id });
+    } catch (e) {
+      console.error("Ошибка при сохранении заметки: ", e);
     }
   };
 
@@ -319,7 +346,7 @@ function App() {
   }
 
   return (
-    <>
+    <AIAssistantProvider apiKey={geminiApiKey} user={user} onSaveTask={handleSaveTask} onSaveNote={handleSaveNote}>
       <div className="bg-blobs">
         <div className="blob blob-1"></div>
         <div className="blob blob-2"></div>
@@ -337,6 +364,7 @@ function App() {
             priorities={priorities} setPriorities={(arr) => syncSettings({ priorities: arr })} onRenamePriority={handleRenamePriority} onDeletePriority={handleDeletePriority}
             statuses={statuses} setStatuses={(arr) => syncSettings({ statuses: arr })} onRenameStatus={handleRenameStatus} onDeleteStatus={handleDeleteStatus}
             avatarUrl={avatarUrl} setAvatarUrl={handleSetAvatarUrl}
+            geminiApiKey={geminiApiKey} setGeminiApiKey={(k) => { setGeminiApiKey(k); syncSettings({ geminiApiKey: k }); }}
           />
         ) : activeTab === 'finances' ? (
           <FinancesView />
@@ -344,6 +372,8 @@ function App() {
           <NotesView />
         ) : activeTab === 'habits' ? (
           <HabitsView />
+        ) : activeTab === 'ai' ? (
+          <AICoachView />
         ) : (
           <div className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
             <WelcomeCard 
@@ -399,7 +429,66 @@ function App() {
           </div>
         )}
         </div>
+        
+        {/* Floating AI Button & Popup Container */}
+        <div style={{
+          position: 'sticky',
+          bottom: '30px',
+          alignSelf: 'flex-end',
+          zIndex: 1100,
+          pointerEvents: 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          marginTop: 'auto',
+        }}>
+          {/* AI Chat Popup */}
+          {isAIChatOpen && (
+            <div className="glass-panel" style={{
+              width: '400px',
+              height: '600px',
+              maxHeight: 'calc(100vh - 140px)',
+              animation: 'slideUp 0.3s ease',
+              padding: 0,
+              pointerEvents: 'auto',
+              marginBottom: '20px'
+            }}>
+              <ChatInterface isPopup={true} />
+            </div>
+          )}
+
+          <button 
+            onClick={() => setIsAIChatOpen(!isAIChatOpen)}
+            style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, var(--accent-coral), var(--accent-pink))',
+              color: 'white',
+              border: 'none',
+              boxShadow: 'var(--shadow-card)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              pointerEvents: 'auto',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            {isAIChatOpen ? <X size={28} /> : <MessageCircle size={28} />}
+          </button>
+        </div>
+
       </div>
+
+      <style>{`
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
 
       <TaskModal 
         isOpen={isModalOpen} 
@@ -411,7 +500,19 @@ function App() {
         priorities={priorities}
         statuses={statuses}
       />
-    </>
+
+      {/* Global Modals */}
+      <TaskModal 
+        isOpen={isModalOpen || !!editingTask} 
+        onClose={() => { setIsModalOpen(false); setEditingTask(null); }} 
+        onSave={handleSaveTask} 
+        onDelete={(id) => deleteDoc(doc(db, "users", user?.uid, "tasks", id.toString()))} 
+        task={editingTask} 
+        projects={projects}
+        priorities={priorities}
+        statuses={statuses}
+      />
+    </AIAssistantProvider>
   );
 }
 

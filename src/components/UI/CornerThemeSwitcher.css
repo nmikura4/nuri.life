@@ -46,7 +46,7 @@ body.dark-theme .offset-track-path {
     Arc: to (92, 112) with radius 44
     End at right straight: (92, 140)
   */
-  offset-path: path('M 10 48 L 68 48 A 44 44 0 0 1 112 92 L 112 150');
+  offset-path: path('M 50 48 L 68 48 A 44 44 0 0 1 112 92 L 112 110');
   offset-rotate: 0deg; /* Keep icon upright */
   
   /* offsetDistance is set inline based on state */

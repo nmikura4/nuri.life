@@ -152,7 +152,8 @@ const SettingsView = ({
   projects, setProjects, onRenameProject, onDeleteProject,
   priorities, setPriorities, onRenamePriority, onDeletePriority,
   statuses, setStatuses, onRenameStatus, onDeleteStatus,
-  avatarUrl, setAvatarUrl
+  avatarUrl, setAvatarUrl,
+  geminiApiKey, setGeminiApiKey
 }) => {
 
   const handleAvatarUpload = (e) => {
@@ -232,6 +233,21 @@ const SettingsView = ({
                 )}
               </div>
             </div>
+
+          <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '20px' }}>AI Coach Integration</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <label style={{ fontSize: '14px', fontWeight: 600 }}>Google Gemini API Key</label>
+              <input 
+                type="password" 
+                value={geminiApiKey} 
+                onChange={(e) => setGeminiApiKey(e.target.value)} 
+                className="neu-input" 
+                placeholder="Paste your Gemini API Key here..."
+              />
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Get your free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-blue)' }}>Google AI Studio</a>. The key is saved locally and synced to your secure database.</p>
+            </div>
+          </div>
           </div>
 
           <ListManager 
