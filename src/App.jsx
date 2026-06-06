@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { collection, doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
-import { db } from './firebase';
+import { db, auth } from './firebase';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import AuthView from './components/Auth/AuthView';
 
 import Sidebar from './components/Sidebar';
 import WelcomeCard from './components/Dashboard/WelcomeCard';
@@ -14,6 +16,8 @@ import NotesView from './components/Notes/NotesView';
 import HabitsView from './components/Habits/HabitsView';
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [tasks, setTasks] = useState([]);
   const [projects, setProjects] = useState(['Work', 'Personal', 'Shopping']);
   const [priorities, setPriorities] = useState(['low', 'medium', 'high']);
@@ -31,9 +35,23 @@ function App() {
   const [sortBy, setSortBy] = useState('date_asc');
   const [calendarType, setCalendarType] = useState('weekly');
 
+  // Auth state listener
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
   // Load data from Firebase
   useEffect(() => {
-    const unsubSettings = onSnapshot(doc(db, "settings", "global"), (docSnap) => {
+    if (!user) {
+      setTasks([]);
+      return;
+    }
+
+    const unsubSettings = onSnapshot(doc(db, "users", user.uid, "settings", "global"), (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         if (data.projects) setProjects(data.projects);
@@ -42,7 +60,7 @@ function App() {
         if (data.theme) setTheme(data.theme);
         if (data.avatarUrl !== undefined) setAvatarUrl(data.avatarUrl);
       } else {
-        setDoc(doc(db, "settings", "global"), {
+        setDoc(doc(db, "users", user.uid, "settings", "global"), {
           projects: ['Work', 'Personal', 'Shopping'],
           priorities: ['low', 'medium', 'high'],
           statuses: ['todo', 'progress', 'done'],
@@ -52,7 +70,7 @@ function App() {
       }
     });
 
-    const unsubTasks = onSnapshot(collection(db, "tasks"), (snapshot) => {
+    const unsubTasks = onSnapshot(collection(db, "users", user.uid, "tasks"), (snapshot) => {
       const loadedTasks = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
       setTasks(loadedTasks);
     }, (error) => {
@@ -64,10 +82,11 @@ function App() {
       unsubSettings();
       unsubTasks();
     };
-  }, []);
+  }, [user]);
 
   const syncSettings = (updates) => {
-    setDoc(doc(db, "settings", "global"), updates, { merge: true }).catch(console.error);
+    if (!user) return;
+    setDoc(doc(db, "users", user.uid, "settings", "global"), updates, { merge: true }).catch(console.error);
   };
 
   useEffect(() => {
@@ -91,9 +110,10 @@ function App() {
   };
 
   const handleSaveTask = async (taskData) => {
+    if (!user) return;
     try {
       const id = taskData.id || crypto.randomUUID();
-      await setDoc(doc(db, "tasks", id.toString()), { ...taskData, id });
+      await setDoc(doc(db, "users", user.uid, "tasks", id.toString()), { ...taskData, id });
     } catch (e) {
       alert("Ошибка при сохранении задачи: " + e.message);
       console.error(e);
@@ -130,13 +150,13 @@ function App() {
 
     const isBecomingDone = newStatus === (statuses.length > 0 ? statuses[statuses.length - 1] : 'done');
 
-    await setDoc(doc(db, "tasks", id.toString()), { ...task, status: newStatus });
+    await setDoc(doc(db, "users", user?.uid, "tasks", id.toString()), { ...task, status: newStatus });
 
     if (isBecomingDone && task.recurrence && task.recurrence !== 'none') {
       const nextDeadline = calculateNextDeadline(task.deadline, task.recurrence);
       if (nextDeadline) {
         const newId = crypto.randomUUID();
-        await setDoc(doc(db, "tasks", newId.toString()), {
+        await setDoc(doc(db, "users", user?.uid, "tasks", newId.toString()), {
           ...task,
           id: newId,
           status: statuses[0] || 'todo',
@@ -161,7 +181,7 @@ function App() {
     const updated = projects.map(p => p === oldName ? newName : p);
     syncSettings({ projects: updated });
     tasks.filter(t => t.project === oldName).forEach(t => {
-      setDoc(doc(db, "tasks", t.id.toString()), { ...t, project: newName });
+      setDoc(doc(db, "users", user?.uid, "tasks", t.id.toString()), { ...t, project: newName });
     });
   };
 
@@ -169,7 +189,7 @@ function App() {
     const updated = projects.filter(p => p !== proj);
     syncSettings({ projects: updated });
     tasks.filter(t => t.project === proj).forEach(t => {
-      setDoc(doc(db, "tasks", t.id.toString()), { ...t, project: '' });
+      setDoc(doc(db, "users", user?.uid, "tasks", t.id.toString()), { ...t, project: '' });
     });
   };
 
@@ -178,7 +198,7 @@ function App() {
     const updated = priorities.map(p => p === oldName ? newName : p);
     syncSettings({ priorities: updated });
     tasks.filter(t => t.priority === oldName).forEach(t => {
-      setDoc(doc(db, "tasks", t.id.toString()), { ...t, priority: newName });
+      setDoc(doc(db, "users", user?.uid, "tasks", t.id.toString()), { ...t, priority: newName });
     });
   };
 
@@ -187,7 +207,7 @@ function App() {
     const fallback = updated[0] || 'low';
     syncSettings({ priorities: updated });
     tasks.filter(t => t.priority === pri).forEach(t => {
-      setDoc(doc(db, "tasks", t.id.toString()), { ...t, priority: fallback });
+      setDoc(doc(db, "users", user?.uid, "tasks", t.id.toString()), { ...t, priority: fallback });
     });
   };
 
@@ -196,7 +216,7 @@ function App() {
     const updated = statuses.map(s => s === oldName ? newName : s);
     syncSettings({ statuses: updated });
     tasks.filter(t => t.status === oldName).forEach(t => {
-      setDoc(doc(db, "tasks", t.id.toString()), { ...t, status: newName });
+      setDoc(doc(db, "users", user?.uid, "tasks", t.id.toString()), { ...t, status: newName });
     });
   };
 
@@ -205,7 +225,7 @@ function App() {
     const fallback = updated[0] || 'todo';
     syncSettings({ statuses: updated });
     tasks.filter(t => t.status === stat).forEach(t => {
-      setDoc(doc(db, "tasks", t.id.toString()), { ...t, status: fallback });
+      setDoc(doc(db, "users", user?.uid, "tasks", t.id.toString()), { ...t, status: fallback });
     });
   };
 
@@ -276,6 +296,27 @@ function App() {
     return result;
   }, [tasks, searchQuery, selectedDate, showDone, sortBy, activeTab, viewMode, statuses]);
 
+  const handleLogout = async () => {
+    await signOut(auth);
+  };
+
+  if (authLoading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--text-primary)' }}>Загрузка...</div>;
+  }
+
+  if (!user) {
+    return (
+      <>
+        <div className="bg-blobs">
+          <div className="blob blob-1"></div>
+          <div className="blob blob-2"></div>
+          <div className="blob blob-3"></div>
+        </div>
+        <AuthView />
+      </>
+    );
+  }
+
   return (
     <>
       <div className="bg-blobs">
@@ -285,7 +326,7 @@ function App() {
       </div>
 
       <div className="app-container" style={{ maxWidth: '1400px', margin: '0 auto', padding: '80px 30px 30px 30px', display: 'flex', gap: '30px', minHeight: '100vh' }}>
-        <Sidebar theme={theme} onThemeChange={handleThemeChange} activeTab={activeTab} setActiveTab={setActiveTab} avatarUrl={avatarUrl} />
+        <Sidebar theme={theme} onThemeChange={handleThemeChange} activeTab={activeTab} setActiveTab={setActiveTab} avatarUrl={avatarUrl} onLogout={handleLogout} />
 
         {activeTab === 'settings' ? (
           <SettingsView 
@@ -360,7 +401,7 @@ function App() {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onSave={handleSaveTask} 
-        onDelete={(id) => deleteDoc(doc(db, "tasks", id.toString()))} 
+        onDelete={(id) => deleteDoc(doc(db, "users", user?.uid, "tasks", id.toString()))} 
         task={editingTask} 
         projects={projects}
         priorities={priorities}

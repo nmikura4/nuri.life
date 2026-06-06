@@ -3,7 +3,7 @@ import { collection, doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firesto
 import { db } from '../../firebase';
 import GlassCard from '../UI/GlassCard';
 import NoteModal from './NoteModal';
-import { Plus, Search, FileText } from 'lucide-react';
+import { Plus, Search, FileText, Tag } from 'lucide-react';
 import '../UI/UI.css';
 
 const COLORS = {
@@ -159,6 +159,21 @@ const NotesView = () => {
                   {!note.title && !note.content && (
                     <div style={{ fontSize: '14px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
                       Empty note
+                    </div>
+                  )}
+
+                  {note.tags && note.tags.length > 0 && (
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '12px' }}>
+                      {note.tags.map(tag => (
+                        <span key={tag} style={{ 
+                          display: 'inline-flex', alignItems: 'center', gap: '4px', 
+                          fontSize: '11px', background: 'var(--card-bg)', 
+                          padding: '2px 8px', borderRadius: '8px', color: 'var(--text-muted)',
+                          border: '1px solid var(--card-border)'
+                        }}>
+                          <Tag size={10} /> {tag}
+                        </span>
+                      ))}
                     </div>
                   )}
 

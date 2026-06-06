@@ -1,9 +1,9 @@
 
 import GlassCard from './UI/GlassCard';
 import NeumorphicButton from './UI/NeumorphicButton';
-import { Home, CheckSquare, Settings, Wallet, StickyNote, Activity } from 'lucide-react';
+import { Home, CheckSquare, Settings, Wallet, StickyNote, Activity, LogOut } from 'lucide-react';
 
-const Sidebar = ({ activeTab, setActiveTab, avatarUrl }) => {
+const Sidebar = ({ activeTab, setActiveTab, avatarUrl, onLogout }) => {
   return (
     <GlassCard className="sidebar" style={{
       width: '80px',
@@ -58,6 +58,9 @@ const Sidebar = ({ activeTab, setActiveTab, avatarUrl }) => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <NeumorphicButton active={activeTab === 'settings'} onClick={() => setActiveTab('settings')}>
           <Settings size={20} />
+        </NeumorphicButton>
+        <NeumorphicButton active={false} onClick={onLogout} style={{ color: 'var(--accent-coral)' }}>
+          <LogOut size={20} />
         </NeumorphicButton>
       </div>
     </GlassCard>

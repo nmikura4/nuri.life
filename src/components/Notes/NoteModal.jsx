@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
-import { X, Check, Paperclip, Smile, Meh, Frown, Zap, Coffee, CloudRain } from 'lucide-react';
+import { X, Check, Paperclip, Smile, Meh, Frown, Zap, Coffee, CloudRain, Tag as TagIcon } from 'lucide-react';
 import '../UI/UI.css';
 
 const COLORS = [
@@ -26,10 +26,12 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
     title: '',
     content: '',
     color: 'default',
-    mood: 'happy'
+    mood: 'happy',
+    tags: []
   });
   
   const [file, setFile] = useState(null);
+  const [tagInput, setTagInput] = useState('');
 
   // Dragging state
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -38,21 +40,21 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
 
   useEffect(() => {
     if (note) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         title: note.title || '',
         content: note.content || '',
         color: note.color || 'default',
-        mood: note.mood || 'happy'
+        mood: note.mood || 'happy',
+        tags: note.tags || []
       });
       setFile(note.file || null);
     } else {
-       
       setFormData({
         title: '',
         content: '',
         color: 'default',
-        mood: 'happy'
+        mood: 'happy',
+        tags: []
       });
       setFile(null);
     }
@@ -74,6 +76,21 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddTag = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const newTag = tagInput.trim();
+      if (newTag && !formData.tags.includes(newTag)) {
+        setFormData(prev => ({ ...prev, tags: [...prev.tags, newTag] }));
+      }
+      setTagInput('');
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setFormData(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tagToRemove) }));
   };
 
   const handleSave = () => {
@@ -130,7 +147,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
           gap: '20px',
           padding: '30px',
           background: currentColorValue,
-          boxShadow: '0 10px 30px rgba(0,0,0,0.15)', // Removed excessive glow
+          boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
           transition: isDragging ? 'none' : 'background 0.3s ease',
           transform: `translate(${position.x}px, ${position.y}px)`,
           cursor: isDragging ? 'grabbing' : 'auto'
@@ -190,57 +207,78 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
             }} 
           />
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-            <div className="note-color-picker" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-muted)' }}>Color:</span>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                {COLORS.map(c => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => setFormData(prev => ({...prev, color: c.id}))}
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      background: c.value,
-                      border: formData.color === c.id ? '2px solid var(--text-main)' : '2px solid var(--card-border)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: 'none'
-                    }}
-                  >
-                    {formData.color === c.id && <Check size={16} color="var(--text-main)" />}
-                  </button>
-                ))}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+              <div className="note-color-picker" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-muted)' }}>Color:</span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {COLORS.map(c => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setFormData(prev => ({...prev, color: c.id}))}
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        background: c.value,
+                        border: formData.color === c.id ? '2px solid var(--text-main)' : '2px solid var(--card-border)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: 'none'
+                      }}
+                    >
+                      {formData.color === c.id && <Check size={16} color="var(--text-main)" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="note-mood-picker" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-muted)' }}>Mood:</span>
+                <div style={{ width: '140px' }}>
+                  <CustomSelect 
+                    value={formData.mood} 
+                    onChange={(val) => setFormData(prev => ({ ...prev, mood: val }))}
+                    options={MOOD_OPTIONS}
+                    style={{ background: 'var(--item-bg)', borderRadius: '16px', border: '1px solid var(--card-border)' }}
+                    innerStyle={{ padding: '8px 16px', background: 'transparent', boxShadow: 'none' }}
+                  />
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <input 
+                  type="file" 
+                  id="note-file" 
+                  style={{ display: 'none' }} 
+                  onChange={(e) => setFile(e.target.files[0])} 
+                />
+                <label htmlFor="note-file" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '14px', fontWeight: 600, background: 'var(--item-bg)', padding: '8px 16px', borderRadius: '16px', border: '1px solid var(--card-border)' }}>
+                  <Paperclip size={16} /> {file ? (file.name.length > 15 ? file.name.substring(0, 15) + '...' : file.name) : 'Attach File'}
+                </label>
               </div>
             </div>
 
-            <div className="note-mood-picker" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-muted)' }}>Mood:</span>
-              <div style={{ width: '140px' }}>
-                <CustomSelect 
-                  value={formData.mood} 
-                  onChange={(val) => setFormData(prev => ({ ...prev, mood: val }))}
-                  options={MOOD_OPTIONS}
-                  style={{ background: 'var(--item-bg)', borderRadius: '16px', border: '1px solid var(--card-border)' }}
-                  innerStyle={{ padding: '8px 16px', background: 'transparent', boxShadow: 'none' }}
+            <div>
+              <div className="neu-input" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '10px 16px', minHeight: '44px', alignItems: 'center', background: 'var(--item-bg)', boxShadow: 'none', border: '1px solid var(--card-border)' }}>
+                {formData.tags.map(tag => (
+                  <span key={tag} style={{ background: 'var(--card-bg)', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid var(--card-border)' }}>
+                    <TagIcon size={12} /> {tag}
+                    <button type="button" onClick={() => removeTag(tag)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}><X size={12} /></button>
+                  </span>
+                ))}
+                <input 
+                  type="text" 
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={handleAddTag}
+                  placeholder={formData.tags.length === 0 ? "Add tags (Press Enter)..." : ""}
+                  style={{ border: 'none', background: 'transparent', outline: 'none', flex: 1, minWidth: '120px', color: 'var(--text-main)', fontSize: '14px' }}
                 />
               </div>
-            </div>
-            
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <input 
-                type="file" 
-                id="note-file" 
-                style={{ display: 'none' }} 
-                onChange={(e) => setFile(e.target.files[0])} 
-              />
-              <label htmlFor="note-file" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '14px', fontWeight: 600, background: 'var(--item-bg)', padding: '8px 16px', borderRadius: '16px', border: '1px solid var(--card-border)' }}>
-                <Paperclip size={16} /> {file ? (file.name.length > 15 ? file.name.substring(0, 15) + '...' : file.name) : 'Attach File'}
-              </label>
             </div>
           </div>
         </div>
@@ -275,4 +313,3 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
 };
 
 export default NoteModal;
-

@@ -1,16 +1,117 @@
+import { useState, useEffect, createContext, useContext, useMemo } from 'react';
+import { collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
+import FinancesDashboard from './FinancesDashboard';
+import TransactionsToolbar from './TransactionsToolbar';
+import TransactionsTable from './TransactionsTable';
+import TransactionModal from './TransactionModal';
 
-import GlassCard from '../UI/GlassCard';
+export const FinanceContext = createContext();
+
+export const useFinance = () => useContext(FinanceContext);
 
 const FinancesView = () => {
+  const [transactions, setTransactions] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().substring(0, 7)); // YYYY-MM
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currency, setCurrency] = useState('USD');
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState(null);
+
+  useEffect(() => {
+    // Load categories
+    const unsubCat = onSnapshot(collection(db, "categories"), (snap) => {
+      setCategories(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+
+    // Load transactions
+    const unsubTx = onSnapshot(collection(db, "transactions"), (snap) => {
+      setTransactions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+
+    // Load currency
+    const unsubSettings = onSnapshot(doc(db, "settings", "global"), (docSnap) => {
+      if (docSnap.exists() && docSnap.data().currency) {
+        setCurrency(docSnap.data().currency);
+      }
+    });
+
+    return () => {
+      unsubCat();
+      unsubTx();
+      unsubSettings();
+    };
+  }, []);
+
+  const handleSaveTransaction = async (data) => {
+    const id = data.id || crypto.randomUUID();
+    const payload = { ...data, id };
+    if (!data.id) {
+      payload.createdAt = new Date().toISOString();
+    }
+    await setDoc(doc(db, "transactions", id), payload, { merge: true });
+    setIsModalOpen(false);
+  };
+
+  const handleDeleteTransaction = async (id) => {
+    if (window.confirm("Are you sure you want to delete this transaction?")) {
+      await deleteDoc(doc(db, "transactions", id));
+    }
+  };
+
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(t => {
+      if (!t.date.startsWith(selectedMonth)) return false;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const catName = categories.find(c => c.id === t.categoryId)?.name?.toLowerCase() || '';
+        return (
+          catName.includes(q) ||
+          (t.comment && t.comment.toLowerCase().includes(q)) ||
+          (t.person && t.person.toLowerCase().includes(q)) ||
+          (t.counterparty && t.counterparty.toLowerCase().includes(q)) ||
+          (t.tags && t.tags.some(tag => tag.toLowerCase().includes(q)))
+        );
+      }
+      return true;
+    }).sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
+  }, [transactions, selectedMonth, searchQuery, categories]);
+
+  const value = {
+    transactions: filteredTransactions,
+    allTransactions: transactions,
+    categories,
+    selectedMonth,
+    setSelectedMonth,
+    searchQuery,
+    setSearchQuery,
+    currency,
+    openNewTransaction: () => { setEditingTransaction(null); setIsModalOpen(true); },
+    openEditTransaction: (tx) => { setEditingTransaction(tx); setIsModalOpen(true); },
+    handleDeleteTransaction,
+    handleSaveTransaction
+  };
+
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
-      <GlassCard style={{ padding: '30px', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>Finances</h2>
-        <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>
-          This is where your financial dashboard will live.
-        </p>
-      </GlassCard>
-    </div>
+    <FinanceContext.Provider value={value}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
+        <FinancesDashboard />
+        <TransactionsToolbar />
+        <TransactionsTable />
+        
+        {isModalOpen && (
+          <TransactionModal 
+            isOpen={isModalOpen} 
+            onClose={() => setIsModalOpen(false)} 
+            transaction={editingTransaction} 
+            onSave={handleSaveTransaction} 
+            categories={categories}
+          />
+        )}
+      </div>
+    </FinanceContext.Provider>
   );
 };
 

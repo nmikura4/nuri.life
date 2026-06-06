@@ -1,0 +1,29 @@
+/* Neumorphic Square Icon Button */
+.neu-icon-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  border: none;
+  background: var(--card-bg);
+  box-shadow: 
+    6px 6px 12px var(--shadow-color),
+    -6px -6px 12px var(--highlight-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-muted);
+}
+.neu-icon-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    8px 8px 16px var(--shadow-color),
+    -8px -8px 16px var(--highlight-color);
+}
+.neu-icon-btn.selected {
+  box-shadow: var(--shadow-inner);
+  background: var(--item-bg);
+  color: var(--accent-blue);
+  transform: translateY(1px);
+}

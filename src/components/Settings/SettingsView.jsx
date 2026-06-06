@@ -2,6 +2,7 @@ import { useState } from 'react';
 import GlassCard from '../UI/GlassCard';
 import { Plus, Trash2, Edit2, Check, X, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from 'lucide-react';
 import '../UI/UI.css';
+import FinanceCategoriesManager from './FinanceCategoriesManager';
 
 const ListManager = ({ title, items, setItems, onRename, onDelete, placeholder }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -185,11 +186,30 @@ const SettingsView = ({
     setAvatarUrl(null);
   };
 
+  const [activeSettingsTab, setActiveSettingsTab] = useState('general');
+
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto', paddingRight: '10px' }}>
       <GlassCard className="responsive-card" style={{ padding: '40px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '30px' }}>Settings</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '20px' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 700 }}>Settings</h1>
+          <div style={{ display: 'flex', gap: '10px', background: 'var(--item-bg)', padding: '5px', borderRadius: '20px', boxShadow: 'var(--shadow-inner)' }}>
+            <button 
+              onClick={() => setActiveSettingsTab('general')}
+              style={{ padding: '8px 16px', borderRadius: '16px', border: 'none', cursor: 'pointer', background: activeSettingsTab === 'general' ? 'var(--solid-card-bg)' : 'transparent', fontWeight: activeSettingsTab === 'general' ? 600 : 400, color: 'var(--text-main)', boxShadow: activeSettingsTab === 'general' ? 'var(--shadow-card)' : 'none', transition: 'all 0.3s ease' }}
+            >
+              General
+            </button>
+            <button 
+              onClick={() => setActiveSettingsTab('finances')}
+              style={{ padding: '8px 16px', borderRadius: '16px', border: 'none', cursor: 'pointer', background: activeSettingsTab === 'finances' ? 'var(--solid-card-bg)' : 'transparent', fontWeight: activeSettingsTab === 'finances' ? 600 : 400, color: 'var(--text-main)', boxShadow: activeSettingsTab === 'finances' ? 'var(--shadow-card)' : 'none', transition: 'all 0.3s ease' }}
+            >
+              Finances
+            </button>
+          </div>
+        </div>
         
+        {activeSettingsTab === 'general' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
           
           <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
@@ -230,6 +250,9 @@ const SettingsView = ({
             placeholder="Enter new status (e.g. Review)..." 
           />
         </div>
+        ) : (
+          <FinanceCategoriesManager />
+        )}
       </GlassCard>
     </div>
   );
