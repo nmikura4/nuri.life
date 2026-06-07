@@ -92,35 +92,89 @@ body.dark-theme {
     bottom: 0;
     left: 0;
     z-index: 100;
-    padding: 10px 20px !important;
+    padding: 10px 15px !important;
     border-radius: 24px 24px 0 0 !important;
-    justify-content: space-around !important;
-    background: var(--card-bg) !important;
-    backdrop-filter: blur(20px) !important;
+    justify-content: flex-start !important;
+    overflow-x: auto;
+    background: var(--solid-card-bg) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
   
-  /* Hide the profile picture bubble in sidebar on mobile */
+  /* Remove backdrop-filter globally for performance on mobile */
+  .glass-panel, .custom-select-dropdown, .modal-overlay {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  
+  .glass-panel {
+    background: var(--solid-card-bg) !important;
+  }
+  body.dark-theme .glass-panel {
+    background: #121b2f !important;
+  }
+  
   .sidebar > div:first-child {
     display: none !important;
   }
   
-  /* Align navigation buttons in a row */
+  /* Navigation scrolling containers */
   .sidebar > div:nth-child(2) {
     flex-direction: row !important;
-    flex: unset !important;
+    flex: 1 0 auto !important;
     gap: 10px !important;
+    padding-right: 15px;
   }
   
-  /* Align settings in a row */
   .sidebar > div:nth-child(3) {
     flex-direction: row !important;
+    flex: 0 0 auto !important;
     gap: 10px !important;
+  }
+
+  .sidebar-tooltip {
+    display: none !important;
   }
 
   .main-content {
     grid-template-columns: 1fr !important;
     padding-bottom: 90px !important;
   }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Responsive AI Button & Chat Modal */
+  .ai-chat-btn {
+    bottom: 90px !important;
+    right: 20px !important;
+  }
+  
+  .ai-chat-modal {
+    width: calc(100vw - 40px) !important;
+    max-width: 100% !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  align-content: start;
+}
+
+.ai-chat-btn {
+  bottom: 30px;
+  right: 30px;
+}
+
+.ai-chat-modal {
+  width: 400px;
+  height: 600px;
+  max-height: calc(100vh - 140px);
+  margin-bottom: 20px;
 }
 
 * {

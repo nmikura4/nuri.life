@@ -2,14 +2,40 @@
 import GlassCard from '../UI/GlassCard';
 import Badge from '../UI/Badge';
 
-const TaskList = ({ tasks, onEditTask, onToggleStatus, statuses = [] }) => {
+const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, statuses = [] }) => {
   const isDone = (task) => statuses.length > 0 && task.status === statuses[statuses.length - 1];
 
   return (
     <GlassCard className="responsive-card" style={{ padding: '30px', flex: 1, minHeight: '300px' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {tasks.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '20px' }}>No tasks found.</p>
+          <div style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '40px 20px', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+            <p style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-main)' }}>Задач не найдено</p>
+            <p style={{ fontSize: '14px' }}>На выбранную дату или по вашему запросу нет активных задач.</p>
+            {setSortBy && (
+              <button 
+                onClick={() => {
+                  setSortBy('overdue');
+                  if (onClearDate) onClearDate();
+                }}
+                style={{
+                  marginTop: '15px',
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  border: '1px solid var(--accent-coral)',
+                  background: 'transparent',
+                  color: 'var(--accent-coral)',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-coral)'; e.currentTarget.style.color = '#fff'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--accent-coral)'; }}
+              >
+                Посмотреть просроченные задачи
+              </button>
+            )}
+          </div>
         ) : (
           tasks.map(task => (
               <div className="task-row" key={task.id} 

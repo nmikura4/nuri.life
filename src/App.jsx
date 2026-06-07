@@ -401,9 +401,10 @@ function App() {
                 sortBy={sortBy}
                 setSortBy={setSortBy}
                 statuses={statuses}
+                onClearDate={() => setSelectedDate(null)}
               />
             ) : viewMode === 'list' ? (
-              <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px', alignContent: 'start' }}>
+              <div className="dashboard-grid">
                 <TaskList 
                   tasks={filteredTasks} 
                   onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); }} 
@@ -413,6 +414,7 @@ function App() {
                   sortBy={sortBy}
                   setSortBy={setSortBy}
                   statuses={statuses}
+                  onClearDate={() => setSelectedDate(null)}
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
                   {calendarType === 'weekly' ? (
@@ -431,27 +433,20 @@ function App() {
         </div>
         
         {/* Floating AI Button & Popup Container */}
-        <div style={{
-          position: 'sticky',
-          bottom: '30px',
-          alignSelf: 'flex-end',
-          zIndex: 1100,
+        <div className="ai-chat-btn" style={{
+          position: 'fixed',
+          zIndex: 9999,
           pointerEvents: 'none',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-end',
-          marginTop: 'auto',
         }}>
           {/* AI Chat Popup */}
           {isAIChatOpen && (
-            <div className="glass-panel" style={{
-              width: '400px',
-              height: '600px',
-              maxHeight: 'calc(100vh - 140px)',
+            <div className="glass-panel ai-chat-modal" style={{
               animation: 'slideUp 0.3s ease',
               padding: 0,
               pointerEvents: 'auto',
-              marginBottom: '20px'
             }}>
               <ChatInterface isPopup={true} />
             </div>
