@@ -261,6 +261,13 @@ function App() {
     syncSettings({ avatarUrl: url });
   };
 
+  const handleSelectDate = (date) => {
+    setSelectedDate(date);
+    if (date && sortBy === 'overdue') {
+      setSortBy('date_asc');
+    }
+  };
+
   // Filtering & Sorting
   const filteredTasks = useMemo(() => {
     let result = tasks;
@@ -418,9 +425,9 @@ function App() {
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
                   {calendarType === 'weekly' ? (
-                    <WeeklyCalendarWidget tasks={tasks} onAddTask={handleOpenNewTask} selectedDate={selectedDate} onSelectDate={setSelectedDate} onToggleCalendar={() => setCalendarType('mini')} />
+                    <WeeklyCalendarWidget tasks={tasks} onAddTask={handleOpenNewTask} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('mini')} />
                   ) : (
-                    <MiniCalendarWidget tasks={tasks} selectedDate={selectedDate} onSelectDate={setSelectedDate} onToggleCalendar={() => setCalendarType('weekly')} />
+                    <MiniCalendarWidget tasks={tasks} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('weekly')} />
                   )}
                   <ProgressWidget tasks={tasks} statuses={statuses} />
                 </div>
