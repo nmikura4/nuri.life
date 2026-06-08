@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 import GlassCard from './UI/GlassCard';
 import NeumorphicButton from './UI/NeumorphicButton';
 import { Home, CheckSquare, Settings, Wallet, StickyNote, Activity, LogOut, Brain } from 'lucide-react';
 
-const TooltipButton = ({ icon: Icon, label, active, onClick, color }) => {
+const TooltipButton = ({ icon: Icon, label, to, onClick, color }) => {
+  if (onClick) {
+    return (
+      <div className="sidebar-tooltip-container" title={label}>
+        <NeumorphicButton onClick={onClick}>
+          <Icon size={20} color={color || "currentColor"} />
+        </NeumorphicButton>
+        <div className="sidebar-tooltip">{label}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="sidebar-tooltip-container" title={label}>
-      <NeumorphicButton active={active} onClick={onClick}>
-        <Icon size={20} color={color || "currentColor"} />
-      </NeumorphicButton>
+      <NavLink to={to} style={{ textDecoration: 'none', display: 'block', width: '100%' }}>
+        {({ isActive }) => (
+          <NeumorphicButton active={isActive}>
+            <Icon size={20} color={color || "currentColor"} />
+          </NeumorphicButton>
+        )}
+      </NavLink>
       <div className="sidebar-tooltip">
         {label}
       </div>
@@ -16,7 +32,7 @@ const TooltipButton = ({ icon: Icon, label, active, onClick, color }) => {
   );
 };
 
-const Sidebar = ({ activeTab, setActiveTab, avatarUrl, onLogout }) => {
+const Sidebar = ({ avatarUrl, onLogout }) => {
   return (
     <GlassCard className="sidebar" style={{
       width: '72px',
@@ -52,16 +68,16 @@ const Sidebar = ({ activeTab, setActiveTab, avatarUrl, onLogout }) => {
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1, width: '100%' }}>
-        <TooltipButton label="Dashboard" icon={Home} active={activeTab === 'home'} onClick={() => setActiveTab('home')} />
-        <TooltipButton label="Tasks" icon={CheckSquare} active={activeTab === 'tasks'} onClick={() => setActiveTab('tasks')} />
-        <TooltipButton label="Finances" icon={Wallet} active={activeTab === 'finances'} onClick={() => setActiveTab('finances')} />
-        <TooltipButton label="Notes" icon={StickyNote} active={activeTab === 'notes'} onClick={() => setActiveTab('notes')} />
-        <TooltipButton label="Habits" icon={Activity} active={activeTab === 'habits'} onClick={() => setActiveTab('habits')} />
-        <TooltipButton label="AI Coach" icon={Brain} active={activeTab === 'ai'} onClick={() => setActiveTab('ai')} />
+        <TooltipButton label="Dashboard" icon={Home} to="/" />
+        <TooltipButton label="Tasks" icon={CheckSquare} to="/tasks" />
+        <TooltipButton label="Finances" icon={Wallet} to="/finances" />
+        <TooltipButton label="Notes" icon={StickyNote} to="/notes" />
+        <TooltipButton label="Habits" icon={Activity} to="/habits" />
+        <TooltipButton label="AI Coach" icon={Brain} to="/ai" />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
-        <TooltipButton label="Settings" icon={Settings} active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
+        <TooltipButton label="Settings" icon={Settings} to="/settings" />
         <TooltipButton label="Logout" icon={LogOut} onClick={onLogout} color="var(--accent-coral)" />
       </div>
     </GlassCard>

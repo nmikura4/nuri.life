@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
-import { Mail, Lock, UserPlus, LogIn } from 'lucide-react';
 
 const AuthView = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -56,174 +56,196 @@ const AuthView = () => {
       justifyContent: 'center',
       alignItems: 'center',
       minHeight: '100vh',
+      width: '100%',
       padding: '20px',
-      position: 'relative',
-      zIndex: 10
+      background: 'var(--solid-card-bg)', // Matches project design
     }}>
-      <div className="card" style={{
-        maxWidth: '400px',
-        width: '100%',
+      <div style={{
+        width: '380px',
         padding: '40px 30px',
+        background: 'var(--solid-card-bg)',
+        borderRadius: '30px',
+        boxShadow: 'var(--shadow-soft)', // Uses project's neumorphic shadow
         display: 'flex',
         flexDirection: 'column',
-        gap: '24px',
-        background: 'var(--solid-card-bg)',
-        borderRadius: '24px',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
       }}>
-        <div style={{ textAlign: 'center' }}>
-          <h1 style={{ fontSize: '28px', marginBottom: '8px', color: 'var(--text-primary)' }}>
-            {isLogin ? 'С возвращением!' : 'Создать аккаунт'}
-          </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
-            {isLogin ? 'Войдите, чтобы продолжить работу' : 'Зарегистрируйтесь для начала работы'}
-          </p>
-        </div>
-
-        {error && (
-          <div style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            color: '#ef4444',
-            padding: '12px',
-            borderRadius: '12px',
-            fontSize: '14px',
-            textAlign: 'center'
+        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+          <h1 style={{ 
+            fontSize: '28px', 
+            fontWeight: '700', 
+            color: 'var(--text-main)',
+            marginBottom: '5px' 
           }}>
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-secondary)' }}>Email</label>
-            <div style={{ position: 'relative' }}>
-              <Mail style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} size={18} />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="ваша@почта.com"
-                required
-                style={{
-                  width: '100%',
-                  padding: '12px 12px 12px 40px',
-                  borderRadius: '12px',
-                  border: '1px solid var(--border)',
-                  background: 'var(--background)',
-                  color: 'var(--text-primary)',
-                  fontSize: '15px'
-                }}
-              />
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-secondary)' }}>Пароль</label>
-            <div style={{ position: 'relative' }}>
-              <Lock style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} size={18} />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                style={{
-                  width: '100%',
-                  padding: '12px 12px 12px 40px',
-                  borderRadius: '12px',
-                  border: '1px solid var(--border)',
-                  background: 'var(--background)',
-                  color: 'var(--text-primary)',
-                  fontSize: '15px'
-                }}
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              background: 'var(--primary)',
-              color: 'white',
-              padding: '14px',
-              borderRadius: '12px',
-              border: 'none',
-              fontWeight: '600',
-              fontSize: '16px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '8px',
-              marginTop: '8px',
-              opacity: loading ? 0.7 : 1
-            }}
-          >
-            {isLogin ? <LogIn size={20} /> : <UserPlus size={20} />}
-            {loading ? 'Подождите...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}
-          </button>
-        </form>
-
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          color: 'var(--text-secondary)',
-          fontSize: '14px'
-        }}>
-          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }}></div>
-          <span>Или</span>
-          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }}></div>
-        </div>
-
-        <button
-          onClick={handleGoogleSignIn}
-          disabled={loading}
-          style={{
-            background: 'var(--surface)',
-            color: 'var(--text-primary)',
-            border: '1px solid var(--border)',
-            padding: '12px',
-            borderRadius: '12px',
-            fontWeight: '600',
-            fontSize: '15px',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '12px',
-            opacity: loading ? 0.7 : 1,
-            transition: 'background 0.2s'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.background = 'var(--background)'}
-          onMouseOut={(e) => e.currentTarget.style.background = 'var(--surface)'}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H17.92C17.67 15.63 16.89 16.79 15.72 17.57V20.31H19.28C21.36 18.39 22.56 15.6 22.56 12.25Z" fill="#4285F4"/>
-            <path d="M12 23C14.97 23 17.46 22.02 19.28 20.31L15.72 17.57C14.74 18.23 13.48 18.63 12 18.63C9.14 18.63 6.71 16.7 5.84 14.09H2.17V16.94C4.03 20.63 7.69 23 12 23Z" fill="#34A853"/>
-            <path d="M5.84 14.09C5.62 13.43 5.49 12.73 5.49 12C5.49 11.27 5.62 10.57 5.84 9.91V7.06H2.17C1.41 8.59 1 10.26 1 12C1 13.74 1.41 15.41 2.17 16.94L5.84 14.09Z" fill="#FBBC05"/>
-            <path d="M12 5.38C13.62 5.38 15.06 5.93 16.2 7.02L19.36 3.86C17.46 2.09 14.97 1 12 1C7.69 1 4.03 3.37 2.17 7.06L5.84 9.91C6.71 7.3 9.14 5.38 12 5.38Z" fill="#EA4335"/>
-          </svg>
-          Войти через Google
-        </button>
-
-        <div style={{ textAlign: 'center', marginTop: '8px' }}>
+            {isLogin ? 'Sign In' : 'Sign Up'}
+          </h1>
           <button
             type="button"
             onClick={() => { setIsLogin(!isLogin); setError(''); }}
             style={{
               background: 'none',
               border: 'none',
-              color: 'var(--primary)',
+              color: 'var(--text-muted)',
               fontSize: '14px',
-              fontWeight: '500',
               cursor: 'pointer',
-              textDecoration: 'underline'
+              padding: 0
             }}
           >
-            {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
+            {isLogin ? 'Create a new account' : 'Already have an account? Sign In'}
           </button>
+        </div>
+
+        {error && (
+          <div style={{
+            color: '#ef4444',
+            padding: '10px',
+            fontSize: '14px',
+            textAlign: 'center',
+            marginBottom: '20px'
+          }}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          
+          {/* Username / Email */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ fontSize: '14px', color: 'var(--text-muted)', paddingLeft: '5px' }}>Username</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="info@nuri.life"
+              required
+              className="neu-input"
+              style={{
+                width: '100%',
+                padding: '16px 20px',
+                borderRadius: '25px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+
+          {/* Password */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ fontSize: '14px', color: 'var(--text-muted)', paddingLeft: '5px' }}>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter Password"
+              required
+              className="neu-input"
+              style={{
+                width: '100%',
+                padding: '16px 20px',
+                borderRadius: '25px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+
+          {/* Remember Me & Forget Password */}
+          {isLogin && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 5px', marginTop: '-8px' }}>
+              <div 
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+                onClick={() => setRememberMe(!rememberMe)}
+              >
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '6px',
+                  background: 'var(--solid-card-bg)',
+                  boxShadow: 'var(--shadow-soft)',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                  {rememberMe && (
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  )}
+                </div>
+                <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Remember me</span>
+              </div>
+              <a href="#" style={{ fontSize: '13px', color: 'var(--text-muted)', textDecoration: 'none' }}>Forget password?</a>
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '16px',
+              borderRadius: '25px',
+              border: 'none',
+              background: 'var(--text-main)',
+              color: 'var(--solid-card-bg)',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              boxShadow: 'var(--shadow-soft)',
+              marginTop: '10px',
+              opacity: loading ? 0.8 : 1,
+              transition: 'all 0.2s ease',
+            }}
+            onMouseOver={(e) => !loading && (e.currentTarget.style.transform = 'translateY(-2px)')}
+            onMouseOut={(e) => !loading && (e.currentTarget.style.transform = 'translateY(0)')}
+            onMouseDown={(e) => !loading && (e.currentTarget.style.transform = 'translateY(2px)')}
+            onMouseUp={(e) => !loading && (e.currentTarget.style.transform = 'translateY(-2px)')}
+          >
+            {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Sign Up')}
+          </button>
+        </form>
+
+        <div style={{ textAlign: 'center', marginTop: '30px', marginBottom: '20px' }}>
+          <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>or sign in with</span>
+        </div>
+
+        {/* Social Buttons */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
+          {[
+            { id: 'facebook', icon: <span style={{ fontWeight: 'bold', fontSize: '18px', fontFamily: 'serif' }}>f</span>, action: () => {} },
+            { id: 'google', icon: <span style={{ fontWeight: 'bold', fontSize: '18px', fontFamily: 'sans-serif' }}>G</span>, action: handleGoogleSignIn },
+            { id: 'linkedin', icon: <span style={{ fontWeight: 'bold', fontSize: '18px', fontFamily: 'sans-serif' }}>in</span>, action: () => {} },
+            { id: 'twitter', icon: (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+              </svg>
+            ), action: () => {} }
+          ].map((social) => (
+            <button
+              key={social.id}
+              onClick={social.action}
+              style={{
+                width: '45px',
+                height: '45px',
+                borderRadius: '50%',
+                border: 'none',
+                background: 'var(--solid-card-bg)',
+                color: 'var(--text-main)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                cursor: 'pointer',
+                boxShadow: 'var(--shadow-soft)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.boxShadow = 'var(--shadow-inner)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.boxShadow = 'var(--shadow-soft)';
+              }}
+            >
+              {social.icon}
+            </button>
+          ))}
         </div>
       </div>
     </div>
@@ -231,3 +253,4 @@ const AuthView = () => {
 };
 
 export default AuthView;
+

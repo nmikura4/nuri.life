@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { collection, doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
 import { db, auth } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+
 import AuthView from './components/Auth/AuthView';
 import CornerThemeSwitcher from './components/UI/CornerThemeSwitcher';
 
@@ -32,7 +34,6 @@ function App() {
   const [geminiApiKey, setGeminiApiKey] = useState('');
   
   // UI State
-  const [activeTab, setActiveTab] = useState('home');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -42,6 +43,8 @@ function App() {
   const [showDone, setShowDone] = useState(false);
   const [calendarType, setCalendarType] = useState('weekly');
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
+
+  const location = useLocation();
 
   useEffect(() => {
     document.body.className = theme === 'dark' ? 'dark-theme' : '';
@@ -273,7 +276,7 @@ function App() {
     let result = tasks;
 
     // Filter out Done tasks if showDone is false, unless in Kanban view
-    if (!showDone && !(activeTab === 'home' && viewMode === 'kanban')) {
+    if (!showDone && !(location.pathname === '/' && viewMode === 'kanban')) {
       const doneStatus = statuses.length > 0 ? statuses[statuses.length - 1] : 'done';
       result = result.filter(t => t.status !== doneStatus);
     }
@@ -329,7 +332,7 @@ function App() {
     });
 
     return result;
-  }, [tasks, searchQuery, selectedDate, showDone, sortBy, activeTab, viewMode, statuses]);
+  }, [tasks, searchQuery, selectedDate, showDone, sortBy, location.pathname, viewMode, statuses]);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -361,57 +364,73 @@ function App() {
       </div>
 
       <div className="app-container" style={{ maxWidth: '1400px', margin: '0 auto', padding: '80px 30px 30px 30px', display: 'flex', gap: '30px', minHeight: '100vh' }}>
-        <Sidebar theme={theme} onThemeChange={handleThemeChange} activeTab={activeTab} setActiveTab={setActiveTab} avatarUrl={avatarUrl} onLogout={handleLogout} />
+        <Sidebar theme={theme} onThemeChange={handleThemeChange} avatarUrl={avatarUrl} onLogout={handleLogout} />
 
         <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', width: '100%' }}>
           <CornerThemeSwitcher theme={theme} onChange={handleThemeChange} />
-          {activeTab === 'settings' ? (
-          <SettingsView 
-            projects={projects} setProjects={(arr) => syncSettings({ projects: arr })} onRenameProject={handleRenameProject} onDeleteProject={handleDeleteProject}
-            priorities={priorities} setPriorities={(arr) => syncSettings({ priorities: arr })} onRenamePriority={handleRenamePriority} onDeletePriority={handleDeletePriority}
-            statuses={statuses} setStatuses={(arr) => syncSettings({ statuses: arr })} onRenameStatus={handleRenameStatus} onDeleteStatus={handleDeleteStatus}
-            avatarUrl={avatarUrl} setAvatarUrl={handleSetAvatarUrl}
-            geminiApiKey={geminiApiKey} setGeminiApiKey={(k) => { setGeminiApiKey(k); syncSettings({ geminiApiKey: k }); }}
-          />
-        ) : activeTab === 'finances' ? (
-          <FinancesView />
-        ) : activeTab === 'notes' ? (
-          <NotesView />
-        ) : activeTab === 'habits' ? (
-          <HabitsView />
-        ) : activeTab === 'ai' ? (
-          <AICoachView />
-        ) : (
-          <div className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
-            <WelcomeCard 
-              onAddTask={handleOpenNewTask} 
-              tasksCount={tasks.filter(t => t.status !== (statuses.length > 0 ? statuses[statuses.length - 1] : 'done')).length}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              viewMode={activeTab === 'tasks' ? 'list' : viewMode}
-              setViewMode={activeTab === 'tasks' ? null : setViewMode}
-              theme={theme}
-              onThemeChange={handleThemeChange}
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-              showDone={showDone}
-              setShowDone={setShowDone}
-            />
-            
-            {activeTab === 'tasks' ? (
-              <TaskList 
-                tasks={filteredTasks} 
-                onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); }} 
-                onToggleStatus={handleToggleTaskStatus}
-                showDone={showDone}
-                setShowDone={setShowDone}
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-                statuses={statuses}
-                onClearDate={() => setSelectedDate(null)}
-              />
-            ) : viewMode === 'list' ? (
-              <div className="dashboard-grid">
+          
+          <Routes>
+            <Route path="/" element={
+              <div className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                <WelcomeCard 
+                  onAddTask={handleOpenNewTask} 
+                  tasksCount={tasks.filter(t => t.status !== (statuses.length > 0 ? statuses[statuses.length - 1] : 'done')).length}
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  viewMode={viewMode}
+                  setViewMode={setViewMode}
+                  theme={theme}
+                  onThemeChange={handleThemeChange}
+                  sortBy={sortBy}
+                  setSortBy={setSortBy}
+                  showDone={showDone}
+                  setShowDone={setShowDone}
+                />
+                
+                {viewMode === 'list' ? (
+                  <div className="dashboard-grid">
+                    <TaskList 
+                      tasks={filteredTasks} 
+                      onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); }} 
+                      onToggleStatus={handleToggleTaskStatus}
+                      showDone={showDone}
+                      setShowDone={setShowDone}
+                      sortBy={sortBy}
+                      setSortBy={setSortBy}
+                      statuses={statuses}
+                      onClearDate={() => setSelectedDate(null)}
+                    />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                      {calendarType === 'weekly' ? (
+                        <WeeklyCalendarWidget tasks={tasks} onAddTask={handleOpenNewTask} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('mini')} />
+                      ) : (
+                        <MiniCalendarWidget tasks={tasks} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('weekly')} />
+                      )}
+                      <ProgressWidget tasks={tasks} statuses={statuses} />
+                    </div>
+                  </div>
+                ) : (
+                  <KanbanView tasks={filteredTasks} setTasks={setTasks} onStatusChange={updateTaskStatus} onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); }} statuses={statuses} />
+                )}
+              </div>
+            } />
+
+            <Route path="/tasks" element={
+              <div className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                <WelcomeCard 
+                  onAddTask={handleOpenNewTask} 
+                  tasksCount={tasks.filter(t => t.status !== (statuses.length > 0 ? statuses[statuses.length - 1] : 'done')).length}
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  viewMode={'list'}
+                  setViewMode={null}
+                  theme={theme}
+                  onThemeChange={handleThemeChange}
+                  sortBy={sortBy}
+                  setSortBy={setSortBy}
+                  showDone={showDone}
+                  setShowDone={setShowDone}
+                />
                 <TaskList 
                   tasks={filteredTasks} 
                   onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); }} 
@@ -423,20 +442,26 @@ function App() {
                   statuses={statuses}
                   onClearDate={() => setSelectedDate(null)}
                 />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-                  {calendarType === 'weekly' ? (
-                    <WeeklyCalendarWidget tasks={tasks} onAddTask={handleOpenNewTask} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('mini')} />
-                  ) : (
-                    <MiniCalendarWidget tasks={tasks} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('weekly')} />
-                  )}
-                  <ProgressWidget tasks={tasks} statuses={statuses} />
-                </div>
               </div>
-            ) : (
-              <KanbanView tasks={filteredTasks} setTasks={setTasks} onStatusChange={updateTaskStatus} onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); }} statuses={statuses} />
-            )}
-          </div>
-        )}
+            } />
+
+            <Route path="/settings" element={
+              <SettingsView 
+                projects={projects} setProjects={(arr) => syncSettings({ projects: arr })} onRenameProject={handleRenameProject} onDeleteProject={handleDeleteProject}
+                priorities={priorities} setPriorities={(arr) => syncSettings({ priorities: arr })} onRenamePriority={handleRenamePriority} onDeletePriority={handleDeletePriority}
+                statuses={statuses} setStatuses={(arr) => syncSettings({ statuses: arr })} onRenameStatus={handleRenameStatus} onDeleteStatus={handleDeleteStatus}
+                avatarUrl={avatarUrl} setAvatarUrl={handleSetAvatarUrl}
+                geminiApiKey={geminiApiKey} setGeminiApiKey={(k) => { setGeminiApiKey(k); syncSettings({ geminiApiKey: k }); }}
+              />
+            } />
+
+            <Route path="/finances" element={<FinancesView />} />
+            <Route path="/notes" element={<NotesView />} />
+            <Route path="/habits" element={<HabitsView />} />
+            <Route path="/ai" element={<AICoachView />} />
+            
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </div>
         
         {/* Floating AI Button & Popup Container */}

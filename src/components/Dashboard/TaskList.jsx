@@ -96,11 +96,22 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
                     </div>
                   )}
 
-                  {task.subtasks && task.subtasks.length > 0 && (
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px', fontWeight: 600 }}>
-                      Subtasks: {task.subtasks.filter(s => s.isCompleted).length} / {task.subtasks.length}
-                    </div>
-                  )}
+                  {task.subtasks && task.subtasks.length > 0 && (() => {
+                    const completed = task.subtasks.filter(s => s.isCompleted).length;
+                    const total = task.subtasks.length;
+                    const progress = (completed / total) * 100;
+                    return (
+                      <div style={{ marginTop: '12px', width: '100%', maxWidth: '200px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
+                          <span>Subtasks</span>
+                          <span>{completed} / {total}</span>
+                        </div>
+                        <div style={{ height: '6px', background: 'var(--item-bg)', borderRadius: '3px', overflow: 'hidden', boxShadow: 'var(--shadow-inner)' }}>
+                          <div style={{ height: '100%', background: 'var(--accent-blue)', width: `${progress}%`, transition: 'width 0.3s ease', borderRadius: '3px' }}></div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
 
