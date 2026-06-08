@@ -19,6 +19,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
   });
 
   const [newSubtask, setNewSubtask] = useState('');
+  const [editingSubtaskId, setEditingSubtaskId] = useState(null);
   const [isDescOpen, setIsDescOpen] = useState(false);
   const dialogRef = useRef(null);
 
@@ -96,6 +97,13 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
     setFormData(prev => ({
       ...prev,
       subtasks: prev.subtasks.filter(s => s.id !== id)
+    }));
+  };
+
+  const handleSubtaskChange = (id, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      subtasks: prev.subtasks.map(s => s.id === id ? { ...s, [field]: value } : s)
     }));
   };
 
@@ -219,14 +227,64 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
                 />
                 <button type="button" onClick={handleAddSubtask} className="pill-btn" style={{ padding: '8px 12px' }}>Add</button>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '120px', overflowY: 'auto' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
                 {formData.subtasks.map(sub => (
-                  <div key={sub.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--item-bg)', padding: '8px 12px', borderRadius: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <input type="checkbox" checked={sub.isCompleted} onChange={() => handleToggleSubtask(sub.id)} style={{ cursor: 'pointer' }} />
-                      <span style={{ fontSize: '13px', textDecoration: sub.isCompleted ? 'line-through' : 'none', color: sub.isCompleted ? 'var(--text-muted)' : 'inherit' }}>{sub.title}</span>
+                  <div key={sub.id} style={{ display: 'flex', flexDirection: 'column', background: 'var(--item-bg)', padding: '8px 12px', borderRadius: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+                        <input type="checkbox" checked={sub.isCompleted} onChange={() => handleToggleSubtask(sub.id)} style={{ cursor: 'pointer' }} />
+                        <span 
+                          onClick={() => setEditingSubtaskId(editingSubtaskId === sub.id ? null : sub.id)} 
+                          style={{ fontSize: '13px', textDecoration: sub.isCompleted ? 'line-through' : 'none', color: sub.isCompleted ? 'var(--text-muted)' : 'inherit', cursor: 'pointer', flex: 1 }}
+                        >
+                          {sub.title}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <button type="button" onClick={() => setEditingSubtaskId(editingSubtaskId === sub.id ? null : sub.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                           {editingSubtaskId === sub.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </button>
+                        <button type="button" onClick={() => handleDeleteSubtask(sub.id)} style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><X size={14}/></button>
+                      </div>
                     </div>
-                    <button type="button" onClick={() => handleDeleteSubtask(sub.id)} style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer' }}><X size={14}/></button>
+                    {editingSubtaskId === sub.id && (
+                      <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 600 }}>Title</label>
+                          <input 
+                            type="text" 
+                            value={sub.title}
+                            onChange={(e) => handleSubtaskChange(sub.id, 'title', e.target.value)}
+                            className="neu-input"
+                          />
+                        </div>
+                        <div className="responsive-grid-2">
+                          <div>
+                            <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 600 }}>Deadline</label>
+                            <CustomDatePicker 
+                              value={sub.deadline || ''} 
+                              onChange={(val) => handleSubtaskChange(sub.id, 'deadline', val)} 
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 600 }}>Priority</label>
+                            <CustomSelect 
+                              value={sub.priority || priorities[0] || 'low'} 
+                              onChange={(val) => handleSubtaskChange(sub.id, 'priority', val)}
+                              options={priorities.map(p => ({ value: p, label: p }))}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 600 }}>Status</label>
+                            <CustomSelect 
+                              value={sub.status || statuses[0] || 'todo'} 
+                              onChange={(val) => handleSubtaskChange(sub.id, 'status', val)}
+                              options={statuses.map(s => ({ value: s, label: s }))}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
