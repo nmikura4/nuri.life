@@ -492,17 +492,6 @@ function App() {
         }
       `}</style>
 
-      <TaskModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSave={handleSaveTask} 
-        onDelete={(id) => deleteDoc(doc(db, "users", user?.uid, "tasks", id.toString()))} 
-        task={editingTask} 
-        projects={projects}
-        priorities={priorities}
-        statuses={statuses}
-      />
-
       {/* Global Modals */}
       <TaskModal 
         isOpen={isModalOpen || !!editingTask} 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
 import CustomDatePicker from '../UI/CustomDatePicker';
@@ -20,6 +20,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
 
   const [newSubtask, setNewSubtask] = useState('');
   const [isDescOpen, setIsDescOpen] = useState(false);
+  const dialogRef = useRef(null);
 
   useEffect(() => {
     const d = new Date();
@@ -60,15 +61,18 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
   }, [task, isOpen]);
 
   useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+    if (isOpen && dialogRef.current && !dialogRef.current.open) {
+      dialogRef.current.showModal();
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const handleBackdropClick = (e) => {
+    if (e.target === dialogRef.current) {
+      onClose();
+    }
+  };
 
   const handleAddSubtask = (e) => {
     e.preventDefault();
@@ -116,8 +120,8 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={task ? 'Edit Task' : 'New Task'}>
-      <div onClick={e => e.stopPropagation()} style={{ margin: 'auto', width: '100%', maxWidth: '500px' }}>
+    <dialog ref={dialogRef} className="native-modal" onClick={handleBackdropClick} onCancel={(e) => { e.preventDefault(); onClose(); }} aria-label={task ? 'Edit Task' : 'New Task'}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%' }}>
         <GlassCard style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)' }}>
           <button onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
             <X size={24} />
@@ -133,7 +137,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
               <input type="text" name="title" value={formData.title} onChange={handleChange} className="neu-input" placeholder="What needs to be done?" autoFocus />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div className="responsive-grid-2">
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Project</label>
                 <CustomSelect 
@@ -154,7 +158,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+            <div className="responsive-grid-2">
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Priority</label>
                 <CustomSelect 
@@ -173,7 +177,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+            <div className="responsive-grid-2">
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Recurrence</label>
                 <CustomSelect 
@@ -237,7 +241,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
                 {isDescOpen ? <ChevronUp size={16} color="var(--text-muted)" /> : <ChevronDown size={16} color="var(--text-muted)" />}
               </div>
               {isDescOpen && (
-                <textarea name="desc" value={formData.desc} onChange={handleChange} className="neu-textarea" placeholder="Add details..." rows="3" style={{ resize: 'none' }} />
+                <textarea name="desc" value={formData.desc} onChange={handleChange} className="neu-textarea" placeholder="Add details..." rows="1" style={{ resize: 'none', fieldSizing: 'content' }} />
               )}
             </div>
 
@@ -253,7 +257,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
           </form>
         </GlassCard>
       </div>
-    </div>
+    </dialog>
   );
 };
 
