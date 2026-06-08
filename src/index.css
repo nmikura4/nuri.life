@@ -41,6 +41,7 @@
 }
 
 body.dark-theme {
+  color-scheme: dark;
   --bg-gradient-start: #0a0f1c; /* Deep Midnight Blue */
   --bg-gradient-end: #121b2f;
   
@@ -89,7 +90,8 @@ body.dark-theme {
     height: 70px !important;
     flex-direction: row !important;
     position: fixed !important;
-    bottom: 0;
+    top: auto !important;
+    bottom: 0 !important;
     left: 0;
     z-index: 100;
     padding: 10px 15px !important;
@@ -207,6 +209,7 @@ dialog.native-modal {
   padding: 0;
   border: none;
   background: transparent;
+  color: var(--text-main);
   max-width: 500px;
   width: 90vw;
   overflow: visible;

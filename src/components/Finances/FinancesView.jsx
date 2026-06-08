@@ -2,7 +2,6 @@ import { useState, useEffect, createContext, useContext, useMemo } from 'react';
 import { collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import FinancesDashboard from './FinancesDashboard';
-import TransactionsToolbar from './TransactionsToolbar';
 import TransactionsTable from './TransactionsTable';
 import TransactionModal from './TransactionModal';
 
@@ -98,7 +97,6 @@ const FinancesView = () => {
     <FinanceContext.Provider value={value}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
         <FinancesDashboard />
-        <TransactionsToolbar />
         <TransactionsTable />
         
         {isModalOpen && (

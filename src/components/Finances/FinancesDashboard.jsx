@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import GlassCard from '../UI/GlassCard';
 import { useFinance } from './FinancesView';
+import TransactionsToolbar from './TransactionsToolbar';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
 import { ArrowUpRight, ArrowDownRight, Wallet } from 'lucide-react';
 
@@ -38,7 +39,7 @@ const FinancesDashboard = () => {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
       
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }}>
         <GlassCard style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div style={{ background: 'var(--accent-cream)', padding: '16px', borderRadius: '50%', boxShadow: 'var(--shadow-inner)' }}>
             <Wallet size={28} color="var(--text-main)" />
@@ -71,6 +72,10 @@ const FinancesDashboard = () => {
             </div>
             <h3 style={{ fontSize: '24px', fontWeight: 700 }}>{formatMoney(stats.expense)}</h3>
           </GlassCard>
+        </div>
+
+        <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'flex-end', paddingTop: '10px' }}>
+          <TransactionsToolbar />
         </div>
       </div>
 
