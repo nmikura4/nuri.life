@@ -54,7 +54,7 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
               onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
               onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
                 <div 
                   onClick={(e) => onToggleStatus(task.id, e)}
                   style={{
@@ -63,25 +63,26 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
                     background: isDone(task) ? 'var(--accent-blue)' : 'transparent',
                     boxShadow: 'var(--shadow-inner)',
                     cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff'
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff',
+                    flexShrink: 0
                   }}>
                     {isDone(task) && (
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     )}
                   </div>
                 
-                <div>
-                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: isDone(task) ? 'var(--text-muted)' : 'var(--text-main)', textDecoration: isDone(task) ? 'line-through' : 'none' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: isDone(task) ? 'var(--text-muted)' : 'var(--text-main)', textDecoration: isDone(task) ? 'line-through' : 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {task.title}
                   </h3>
                   
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '4px' }}>
                     {task.project && (
-                      <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--accent-blue)' }}>#{task.project}</span>
+                      <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--accent-blue)', flexShrink: 0 }}>#{task.project}</span>
                     )}
                     {task.desc && (
-                      <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                        {task.desc.length > 40 ? task.desc.substring(0, 40) + '...' : task.desc}
+                      <p style={{ fontSize: '13px', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {task.desc}
                       </p>
                     )}
                   </div>
@@ -101,7 +102,7 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
                     const total = task.subtasks.length;
                     const progress = (completed / total) * 100;
                     return (
-                      <div style={{ marginTop: '12px', width: '100%', maxWidth: '200px' }}>
+                      <div style={{ marginTop: '12px', width: '200px', maxWidth: '100%' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
                           <span>Subtasks</span>
                           <span>{completed} / {total}</span>

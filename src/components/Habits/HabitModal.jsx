@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import GlassCard from '../UI/GlassCard';
-import NeumorphicButton from '../UI/NeumorphicButton';
+import CustomSelect from '../UI/CustomSelect';
 import { X, Save, Activity, Trash2 } from 'lucide-react';
+import '../UI/UI.css';
 
 const HabitModal = ({ isOpen, onClose, habit, onSave, onDelete }) => {
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [frequency, setFrequency] = useState('daily');
   const [color, setColor] = useState('default');
+  const dialogRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -22,12 +24,23 @@ const HabitModal = ({ isOpen, onClose, habit, onSave, onDelete }) => {
         setFrequency('daily');
         setColor('default');
       }
+      
+      if (dialogRef.current && !dialogRef.current.open) {
+        dialogRef.current.showModal();
+      }
     }
   }, [isOpen, habit]);
 
   if (!isOpen) return null;
 
-  const handleSave = () => {
+  const handleBackdropClick = (e) => {
+    if (e.target === dialogRef.current) {
+      onClose();
+    }
+  };
+
+  const handleSave = (e) => {
+    e.preventDefault();
     if (!name.trim()) {
       alert("Name is required");
       return;
@@ -45,98 +58,95 @@ const HabitModal = ({ isOpen, onClose, habit, onSave, onDelete }) => {
   };
 
   return (
-    <div className="modal-overlay">
-      <GlassCard className="modal-content" style={{ maxWidth: '500px', width: '100%', padding: '30px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '24px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Activity size={24} color="var(--accent-primary)" />
+    <dialog ref={dialogRef} className="native-modal" onClick={handleBackdropClick} onCancel={(e) => { e.preventDefault(); onClose(); }} aria-label={habit ? 'Edit Habit' : 'New Habit'}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '500px', margin: '0 auto' }}>
+        <GlassCard style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)' }}>
+          <button type="button" onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+            <X size={24} />
+          </button>
+
+          <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Activity size={24} color="var(--accent-blue)" />
             {habit ? 'Edit Habit' : 'New Habit'}
           </h2>
-          <NeumorphicButton onClick={onClose}>
-            <X size={20} />
-          </NeumorphicButton>
-        </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div className="form-group">
-            <label>Habit Name</label>
-            <input 
-              type="text" 
-              className="neumorphic-input" 
-              value={name} 
-              onChange={(e) => setName(e.target.value)} 
-              placeholder="e.g. Drink Water"
-              autoFocus
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Description (Optional)</label>
-            <textarea 
-              className="neumorphic-input" 
-              value={desc} 
-              onChange={(e) => setDesc(e.target.value)} 
-              placeholder="Why are you doing this?"
-              style={{ minHeight: '80px', resize: 'vertical' }}
-            />
-          </div>
-
-          <div style={{ display: 'flex', gap: '20px' }}>
-            <div className="form-group" style={{ flex: 1 }}>
-              <label>Frequency</label>
-              <select 
-                className="neumorphic-input"
-                value={frequency}
-                onChange={(e) => setFrequency(e.target.value)}
-              >
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-              </select>
+          <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Habit Name</label>
+              <input 
+                type="text" 
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
+                className="neu-input" 
+                placeholder="e.g. Drink Water"
+                style={{ width: '100%', boxSizing: 'border-box' }}
+                autoFocus
+              />
             </div>
 
-            <div className="form-group" style={{ flex: 1 }}>
-              <label>Color Tag</label>
-              <select 
-                className="neumorphic-input"
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-              >
-                <option value="default">Default</option>
-                <option value="blue">Blue</option>
-                <option value="green">Green</option>
-                <option value="peach">Peach</option>
-                <option value="lavender">Lavender</option>
-              </select>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Description (Optional)</label>
+              <textarea 
+                value={desc} 
+                onChange={(e) => setDesc(e.target.value)} 
+                className="neu-textarea" 
+                placeholder="Why are you doing this?"
+                style={{ minHeight: '80px', resize: 'vertical', width: '100%', boxSizing: 'border-box' }}
+              />
             </div>
-          </div>
-        </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px' }}>
-          {habit ? (
-            <button 
-              className="pill-btn" 
-              style={{ background: 'var(--accent-coral)', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}
-              onClick={() => {
-                if (window.confirm("Delete this habit?")) {
-                  onDelete(habit.id);
-                  onClose();
-                }
-              }}
-            >
-              <Trash2 size={16} /> Delete
-            </button>
-          ) : <div></div>}
-          
-          <button 
-            className="pill-btn primary" 
-            onClick={handleSave}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-          >
-            <Save size={16} /> Save Habit
-          </button>
-        </div>
-      </GlassCard>
-    </div>
+            <div className="responsive-grid-2">
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Frequency</label>
+                <CustomSelect 
+                  value={frequency}
+                  onChange={(val) => setFrequency(val)}
+                  options={[
+                    { value: 'daily', label: 'Daily' },
+                    { value: 'weekly', label: 'Weekly' }
+                  ]}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Color Tag</label>
+                <CustomSelect 
+                  value={color}
+                  onChange={(val) => setColor(val)}
+                  options={[
+                    { value: 'default', label: 'Default' },
+                    { value: 'blue', label: 'Blue' },
+                    { value: 'green', label: 'Green' },
+                    { value: 'peach', label: 'Peach' },
+                    { value: 'lavender', label: 'Lavender' }
+                  ]}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '10px' }}>
+              {habit && (
+                <button 
+                  type="button"
+                  className="pill-btn danger" 
+                  style={{ marginRight: 'auto' }}
+                  onClick={() => {
+                    if (window.confirm("Are you sure you want to delete this habit?")) {
+                      onDelete(habit.id);
+                      onClose();
+                    }
+                  }}
+                >
+                  Delete
+                </button>
+              )}
+              <button type="button" className="pill-btn" onClick={onClose}>Cancel</button>
+              <button type="submit" className="pill-btn primary">Save Habit</button>
+            </div>
+          </form>
+        </GlassCard>
+      </div>
+    </dialog>
   );
 };
 

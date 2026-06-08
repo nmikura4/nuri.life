@@ -18,7 +18,7 @@ const TooltipButton = ({ icon: Icon, label, to, onClick, color }) => {
 
   return (
     <div className="sidebar-tooltip-container" title={label}>
-      <NavLink to={to} style={{ textDecoration: 'none', display: 'block', width: '100%' }}>
+      <NavLink to={to} style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center', width: '100%' }}>
         {({ isActive }) => (
           <NeumorphicButton active={isActive}>
             <Icon size={20} color={color || "currentColor"} />

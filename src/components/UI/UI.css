@@ -12,6 +12,8 @@
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+  padding: 0;
+  margin: 0;
 }
 
 .neu-btn::before {

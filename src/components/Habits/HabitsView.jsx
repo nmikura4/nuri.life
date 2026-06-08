@@ -102,7 +102,7 @@ const HabitsView = () => {
     if (!user) return;
     const newLogs = { ...(habit.logs || {}) };
     if (newLogs[dateStr]) {
-      delete newLogs[dateStr];
+      newLogs[dateStr] = false;
     } else {
       newLogs[dateStr] = true;
     }
@@ -155,7 +155,7 @@ const HabitsView = () => {
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div style={{ cursor: 'pointer' }} onClick={() => handleEditHabit(habit)}>
+                  <div style={{ cursor: 'pointer', flex: 1 }} onClick={() => handleEditHabit(habit)}>
                     <h3 style={{ margin: '0 0 4px 0', fontSize: '18px', color: 'var(--text-main)', fontWeight: 600 }}>{habit.name}</h3>
                     {habit.desc && <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)' }}>{habit.desc}</p>}
                   </div>
@@ -166,8 +166,25 @@ const HabitsView = () => {
                   </div>
                 </div>
 
+                {/* Progress Bar */}
+                {(() => {
+                  const completedInLast7Days = last7Days.filter(({dateStr}) => habit.logs && habit.logs[dateStr]).length;
+                  const progressPercent = (completedInLast7Days / 7) * 100;
+                  return (
+                    <div style={{ marginTop: 'auto', marginBottom: '4px', width: '100%' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
+                        <span>Weekly Progress</span>
+                        <span>{completedInLast7Days} / 7 days</span>
+                      </div>
+                      <div style={{ height: '6px', background: 'var(--item-bg)', borderRadius: '3px', overflow: 'hidden', boxShadow: 'var(--shadow-inner)' }}>
+                        <div style={{ height: '100%', background: 'var(--accent-blue)', width: `${progressPercent}%`, transition: 'width 0.3s ease', borderRadius: '3px' }}></div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {/* 7 Days Row */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'auto' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   {last7Days.map(({ dateStr, dateObj }) => {
                     const isDone = habit.logs && habit.logs[dateStr];
                     const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' }).charAt(0);
@@ -181,7 +198,7 @@ const HabitsView = () => {
                             height: '32px',
                             borderRadius: '50%',
                             border: 'none',
-                            background: isDone ? 'var(--accent-primary)' : 'var(--item-bg)',
+                            background: isDone ? 'var(--accent-blue)' : 'var(--item-bg)',
                             color: isDone ? 'white' : 'transparent',
                             boxShadow: isDone ? 'var(--shadow-soft)' : 'var(--shadow-inner)',
                             display: 'flex',
@@ -191,7 +208,7 @@ const HabitsView = () => {
                             transition: 'all 0.2s ease'
                           }}
                         >
-                          <Check size={16} />
+                          <Check size={16} strokeWidth={3} />
                         </button>
                       </div>
                     );
