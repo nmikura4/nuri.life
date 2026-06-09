@@ -1,8 +1,16 @@
-
+import React, { useState, useEffect } from 'react';
 import { Sun, Moon } from 'lucide-react';
 import './CornerThemeSwitcher.css';
 
 const CornerThemeSwitcher = ({ theme, onChange }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 900);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const getThemeOffset = () => {
     if (theme === 'light') return '0%';
     return '100%';
@@ -13,7 +21,36 @@ const CornerThemeSwitcher = ({ theme, onChange }) => {
     onChange(theme === 'light' ? 'dark' : 'light');
   };
 
-  const Icon = theme === 'light' ? Sun : Moon;
+  const DesktopIcon = theme === 'light' ? Sun : Moon;
+  const MobileIcon = theme === 'light' ? Moon : Sun;
+
+  if (isMobile) {
+    return (
+      <button 
+        onClick={toggleTheme}
+        style={{
+          position: 'absolute',
+          top: '0px',
+          right: '5px',
+          zIndex: 1000,
+          background: 'var(--card-bg)',
+          border: '1px solid var(--card-border)',
+          borderRadius: '50%',
+          width: '40px',
+          height: '40px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: 'var(--shadow-soft)',
+          color: theme === 'light' ? 'var(--text-muted)' : '#FDB813',
+          cursor: 'pointer',
+          transition: 'background 0.3s, border 0.3s'
+        }}
+      >
+        <MobileIcon size={20} />
+      </button>
+    );
+  }
 
   return (
     <div className="offset-track-container">
@@ -32,7 +69,7 @@ const CornerThemeSwitcher = ({ theme, onChange }) => {
         style={{ offsetDistance: getThemeOffset() }}
       >
         <div className="offset-thumb-glow"></div>
-        <Icon size={14} className="offset-thumb-icon" />
+        <DesktopIcon size={14} className="offset-thumb-icon" />
       </div>
     </div>
   );
