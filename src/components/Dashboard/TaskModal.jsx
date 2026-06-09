@@ -7,16 +7,9 @@ import '../UI/UI.css';
 
 const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = [] }) => {
   const [formData, setFormData] = useState(subtask);
-  const dialogRef = useRef(null);
-
-  useEffect(() => {
-    if (dialogRef.current && !dialogRef.current.open) {
-      dialogRef.current.showModal();
-    }
-  }, []);
 
   const handleBackdropClick = (e) => {
-    if (e.target === dialogRef.current) {
+    if (e.target === e.currentTarget) {
       onClose();
     }
   };
@@ -31,9 +24,17 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
   };
 
   return (
-    <dialog ref={dialogRef} className="native-modal" onClick={handleBackdropClick} onCancel={(e) => { e.preventDefault(); onClose(); }} aria-label="Edit Subtask">
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%' }}>
-        <GlassCard style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)', zIndex: 1000 }}>
+    <div 
+      onClick={handleBackdropClick} 
+      style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        background: 'rgba(0, 0, 0, 0.5)',
+        zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '20px'
+      }}
+    >
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '500px' }}>
+        <GlassCard style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)', overflow: 'visible' }}>
           <button type="button" onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
             <X size={24} />
           </button>
@@ -51,7 +52,6 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
                 onChange={(e) => handleChange('title', e.target.value)}
                 className="neu-input"
                 style={{ width: '100%', boxSizing: 'border-box' }}
-                autoFocus
               />
             </div>
             
@@ -89,7 +89,7 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
           </form>
         </GlassCard>
       </div>
-    </dialog>
+    </div>
   );
 };
 
@@ -370,17 +370,17 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
             </form>
           </GlassCard>
         </div>
-      </dialog>
 
-      {editingSubtask && (
-        <SubtaskModal 
-          subtask={editingSubtask} 
-          onClose={() => setEditingSubtask(null)} 
-          onSave={handleSaveSubtask} 
-          priorities={priorities} 
-          statuses={statuses} 
-        />
-      )}
+        {editingSubtask && (
+          <SubtaskModal 
+            subtask={editingSubtask} 
+            onClose={() => setEditingSubtask(null)} 
+            onSave={handleSaveSubtask} 
+            priorities={priorities} 
+            statuses={statuses} 
+          />
+        )}
+      </dialog>
     </>
   );
 };

@@ -78,23 +78,28 @@ body.dark-theme {
     inset 0 0 0 1px var(--card-border);
 }
 
+.app-container {
+  padding: 80px 30px 30px 30px;
+}
+
 @media (max-width: 900px) {
   .app-container {
     flex-direction: column !important;
-    padding: 15px !important;
+    padding: 15px 15px 100px 15px !important;
   }
   
   /* Make sidebar a bottom navigation bar */
   .sidebar {
     width: 100% !important;
-    height: 70px !important;
+    height: auto !important;
+    min-height: 70px !important;
     flex-direction: row !important;
     position: fixed !important;
     top: auto !important;
     bottom: 0 !important;
     left: 0;
     z-index: 100;
-    padding: 10px 15px !important;
+    padding: 10px 15px calc(10px + env(safe-area-inset-bottom)) !important;
     border-radius: 24px 24px 0 0 !important;
     justify-content: flex-start !important;
     overflow-x: auto;
@@ -198,7 +203,7 @@ body.dark-theme {
   }
 }
 
-@container (max-width: 500px) {
+@media (max-width: 600px) {
   .responsive-grid-2 {
     grid-template-columns: 1fr !important;
   }

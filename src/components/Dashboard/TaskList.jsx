@@ -58,7 +58,7 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
                 <div 
                   onClick={(e) => onToggleStatus(task.id, e)}
                   style={{
-                    width: '32px', height: '32px', borderRadius: '8px',
+                    width: '32px', height: '32px', minWidth: '32px', minHeight: '32px', borderRadius: '8px',
                     border: '2px solid var(--accent-blue)',
                     background: isDone(task) ? 'var(--accent-blue)' : 'transparent',
                     boxShadow: 'var(--shadow-inner)',

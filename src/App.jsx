@@ -363,7 +363,7 @@ function App() {
         <div className="blob blob-3"></div>
       </div>
 
-      <div className="app-container" style={{ maxWidth: '1400px', margin: '0 auto', padding: '80px 30px 30px 30px', display: 'flex', gap: '30px', minHeight: '100vh' }}>
+      <div className="app-container" style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '30px', minHeight: '100vh' }}>
         <Sidebar theme={theme} onThemeChange={handleThemeChange} avatarUrl={avatarUrl} onLogout={handleLogout} />
 
         <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', width: '100%' }}>

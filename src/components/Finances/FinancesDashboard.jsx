@@ -37,7 +37,7 @@ const FinancesDashboard = () => {
   const COLORS = ['#ef9a8a', '#a4c9e5', '#fbbba1', '#b7d5ec', '#f4c2c2', '#d46f5b', '#5b8fb9'];
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '30px' }}>
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }}>
         <GlassCard style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>

@@ -4,7 +4,7 @@ import { X, Tag as TagIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import CustomDatePicker from '../UI/CustomDatePicker';
 import '../UI/UI.css';
 
-const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories }) => {
+const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, counterparties = [], persons = [] }) => {
   const [formData, setFormData] = useState({
     type: 'expense',
     amount: '',
@@ -122,7 +122,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories }) 
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div className="responsive-grid-2" style={{ gap: '20px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Amount</label>
                 <input type="number" step="0.01" name="amount" required className="neu-input" value={formData.amount} onChange={handleChange} placeholder="0.00" autoFocus />
@@ -149,14 +149,20 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories }) 
               )}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+            <div className="responsive-grid-2" style={{ gap: '15px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Counterparty</label>
-                <input type="text" name="counterparty" className="neu-input" value={formData.counterparty} onChange={handleChange} placeholder="e.g. Netflix" />
+                <input type="text" name="counterparty" list="counterparty-list" className="neu-input" value={formData.counterparty || ''} onChange={handleChange} placeholder="e.g. Netflix" style={{ width: '100%', boxSizing: 'border-box' }} />
+                <datalist id="counterparty-list">
+                  {counterparties.map(c => <option key={c} value={c} />)}
+                </datalist>
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Person (Who)</label>
-                <input type="text" name="person" className="neu-input" value={formData.person} onChange={handleChange} placeholder="e.g. John" />
+                <input type="text" name="person" list="person-list" className="neu-input" value={formData.person || ''} onChange={handleChange} placeholder="e.g. John" style={{ width: '100%', boxSizing: 'border-box' }} />
+                <datalist id="person-list">
+                  {persons.map(p => <option key={p} value={p} />)}
+                </datalist>
               </div>
             </div>
 

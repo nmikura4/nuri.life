@@ -4,7 +4,7 @@ import { Plus, Trash2, Edit2, Check, X, ChevronDown, ChevronUp, ArrowUp, ArrowDo
 import '../UI/UI.css';
 import FinanceCategoriesManager from './FinanceCategoriesManager';
 
-const ListManager = ({ title, items, setItems, onRename, onDelete, placeholder }) => {
+export const ListManager = ({ title, items, setItems, onRename, onDelete, placeholder }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [newItem, setNewItem] = useState('');
   const [editingItem, setEditingItem] = useState(null);

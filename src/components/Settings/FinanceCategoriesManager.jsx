@@ -3,6 +3,7 @@ import { collection, doc, setDoc, deleteDoc, onSnapshot } from 'firebase/firesto
 import { db } from '../../firebase';
 import { Plus, Trash2, Edit2, Check, X, Tag, ChevronDown, ChevronUp } from 'lucide-react';
 import { ICON_OPTIONS } from './icons';
+import { ListManager } from './SettingsView';
 import '../UI/UI.css';
 
 const CURRENCIES = [
@@ -29,6 +30,8 @@ const FinanceCategoriesManager = () => {
   const [isEditIconPickerOpen, setIsEditIconPickerOpen] = useState(false);
 
   const [currency, setCurrency] = useState('USD');
+  const [counterparties, setCounterparties] = useState([]);
+  const [persons, setPersons] = useState([]);
 
   useEffect(() => {
     const unsubCat = onSnapshot(collection(db, "categories"), (snapshot) => {
@@ -36,8 +39,11 @@ const FinanceCategoriesManager = () => {
     });
     
     const unsubSettings = onSnapshot(doc(db, "settings", "global"), (docSnap) => {
-      if (docSnap.exists() && docSnap.data().currency) {
-        setCurrency(docSnap.data().currency);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.currency) setCurrency(data.currency);
+        if (data.counterparties) setCounterparties(data.counterparties);
+        if (data.persons) setPersons(data.persons);
       }
     });
 
@@ -47,6 +53,32 @@ const FinanceCategoriesManager = () => {
   const handleCurrencyChange = async (e) => {
     const val = e.target.value;
     await setDoc(doc(db, "settings", "global"), { currency: val }, { merge: true });
+  };
+
+  const syncFinanceSettings = async (updates) => {
+    await setDoc(doc(db, "settings", "global"), updates, { merge: true });
+  };
+
+  const handleRenameCounterparty = (oldName, newName) => {
+    if (counterparties.includes(newName)) return;
+    const updated = counterparties.map(p => p === oldName ? newName : p);
+    syncFinanceSettings({ counterparties: updated });
+  };
+
+  const handleDeleteCounterparty = (name) => {
+    const updated = counterparties.filter(p => p !== name);
+    syncFinanceSettings({ counterparties: updated });
+  };
+
+  const handleRenamePerson = (oldName, newName) => {
+    if (persons.includes(newName)) return;
+    const updated = persons.map(p => p === oldName ? newName : p);
+    syncFinanceSettings({ persons: updated });
+  };
+
+  const handleDeletePerson = (name) => {
+    const updated = persons.filter(p => p !== name);
+    syncFinanceSettings({ persons: updated });
   };
 
   const handleAdd = async (e) => {
@@ -190,6 +222,20 @@ const FinanceCategoriesManager = () => {
           ))}
         </select>
       </div>
+
+      <ListManager 
+        title="Manage Counterparties" 
+        items={counterparties} setItems={(arr) => syncFinanceSettings({ counterparties: arr })} 
+        onRename={handleRenameCounterparty} onDelete={handleDeleteCounterparty} 
+        placeholder="Enter new counterparty (e.g. Netflix)..." 
+      />
+
+      <ListManager 
+        title="Manage Persons" 
+        items={persons} setItems={(arr) => syncFinanceSettings({ persons: arr })} 
+        onRename={handleRenamePerson} onDelete={handleDeletePerson} 
+        placeholder="Enter new person (e.g. John)..." 
+      />
 
       {/* Categories Manager */}
       <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>

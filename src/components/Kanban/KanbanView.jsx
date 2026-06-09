@@ -1,5 +1,15 @@
 import { useState, useMemo } from 'react';
-import { DndContext, useDroppable, useDraggable, DragOverlay, closestCorners } from '@dnd-kit/core';
+import { 
+  DndContext, 
+  useDroppable, 
+  useDraggable, 
+  DragOverlay, 
+  closestCorners,
+  useSensor,
+  useSensors,
+  PointerSensor,
+  TouchSensor 
+} from '@dnd-kit/core';
 import GlassCard from '../UI/GlassCard';
 import Badge from '../UI/Badge';
 
@@ -117,7 +127,7 @@ const DroppableColumn = ({ col, tasks, isCollapsed, toggleCollapse, onEditTask, 
       }}
       style={{ 
         flex: isCollapsed ? 0 : 1, 
-        minWidth: isCollapsed ? '60px' : '320px', 
+        minWidth: isCollapsed ? '60px' : 'min(320px, 85vw)', 
         padding: isCollapsed ? '20px 10px' : '20px', 
         display: 'flex', 
         flexDirection: 'column', 
@@ -185,6 +195,20 @@ const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, statuses = []
     return statuses.length > 0 ? [statuses[statuses.length - 1]] : ['done'];
   });
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  );
+
   const handleDragStart = (event) => {
     setActiveId(event.active.id);
   };
@@ -231,7 +255,7 @@ const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, statuses = []
   const activeTask = useMemo(() => tasks.find(t => t.id === activeId), [activeId, tasks]);
 
   return (
-    <DndContext collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div style={{ flex: 1, display: 'flex', gap: '20px', minHeight: 'calc(100vh - 60px)', overflowX: 'auto', paddingBottom: '20px' }}>
         {columns.map(col => {
           const columnTasks = tasks.filter(t => t.status === col.id);

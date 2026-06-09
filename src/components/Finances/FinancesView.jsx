@@ -15,6 +15,8 @@ const FinancesView = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().substring(0, 7)); // YYYY-MM
   const [searchQuery, setSearchQuery] = useState('');
   const [currency, setCurrency] = useState('USD');
+  const [counterparties, setCounterparties] = useState([]);
+  const [persons, setPersons] = useState([]);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
@@ -30,10 +32,13 @@ const FinancesView = () => {
       setTransactions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
 
-    // Load currency
+    // Load global finance settings
     const unsubSettings = onSnapshot(doc(db, "settings", "global"), (docSnap) => {
-      if (docSnap.exists() && docSnap.data().currency) {
-        setCurrency(docSnap.data().currency);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.currency) setCurrency(data.currency);
+        if (data.counterparties) setCounterparties(data.counterparties);
+        if (data.persons) setPersons(data.persons);
       }
     });
 
@@ -82,6 +87,8 @@ const FinancesView = () => {
     transactions: filteredTransactions,
     allTransactions: transactions,
     categories,
+    counterparties,
+    persons,
     selectedMonth,
     setSelectedMonth,
     searchQuery,
@@ -106,6 +113,8 @@ const FinancesView = () => {
             transaction={editingTransaction} 
             onSave={handleSaveTransaction} 
             categories={categories}
+            counterparties={counterparties}
+            persons={persons}
           />
         )}
       </div>
