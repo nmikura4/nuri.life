@@ -20,7 +20,7 @@ import HabitsView from './components/Habits/HabitsView';
 import { AIAssistantProvider } from './context/AIAssistantContext';
 import AICoachView from './components/AI/AICoachView';
 import ChatInterface from './components/AI/ChatInterface';
-import { MessageCircle, X } from 'lucide-react';
+import { Brain, X } from 'lucide-react';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -43,6 +43,7 @@ function App() {
   const [showDone, setShowDone] = useState(false);
   const [calendarType, setCalendarType] = useState('weekly');
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
+  const [isSidebarMenuOpen, setIsSidebarMenuOpen] = useState(false);
 
   const location = useLocation();
 
@@ -364,14 +365,14 @@ function App() {
       </div>
 
       <div className="app-container" style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '30px', minHeight: '100vh' }}>
-        <Sidebar theme={theme} onThemeChange={handleThemeChange} avatarUrl={avatarUrl} onLogout={handleLogout} />
+        <Sidebar theme={theme} onThemeChange={handleThemeChange} avatarUrl={avatarUrl} onLogout={handleLogout} onMenuToggle={setIsSidebarMenuOpen} />
 
         <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', width: '100%' }}>
           <CornerThemeSwitcher theme={theme} onChange={handleThemeChange} />
           
           <Routes>
             <Route path="/" element={
-              <div className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
+              <div className="main-content dashboard-page" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
                 <WelcomeCard 
                   onAddTask={handleOpenNewTask} 
                   tasksCount={tasks.filter(t => t.status !== (statuses.length > 0 ? statuses[statuses.length - 1] : 'done')).length}
@@ -400,13 +401,15 @@ function App() {
                       statuses={statuses}
                       onClearDate={() => setSelectedDate(null)}
                     />
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                    <div className="dashboard-right-col" style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
                       {calendarType === 'weekly' ? (
                         <WeeklyCalendarWidget tasks={tasks} onAddTask={handleOpenNewTask} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('mini')} />
                       ) : (
                         <MiniCalendarWidget tasks={tasks} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('weekly')} />
                       )}
-                      <ProgressWidget tasks={tasks} statuses={statuses} />
+                      <div className="progress-widget-container">
+                        <ProgressWidget tasks={tasks} statuses={statuses} />
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -484,8 +487,12 @@ function App() {
             </div>
           )}
 
-          <button 
-            onClick={() => setIsAIChatOpen(!isAIChatOpen)}
+          <div style={{
+            transform: isSidebarMenuOpen ? 'translateX(-80px)' : 'translateX(0)',
+            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}>
+            <button 
+              onClick={() => setIsAIChatOpen(!isAIChatOpen)}
             style={{
               width: '60px',
               height: '60px',
@@ -501,11 +508,12 @@ function App() {
               pointerEvents: 'auto',
               transition: 'transform 0.2s ease, box-shadow 0.2s ease'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          >
-            {isAIChatOpen ? <X size={28} /> : <MessageCircle size={28} />}
-          </button>
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              {isAIChatOpen ? <X size={28} /> : <Brain size={28} />}
+            </button>
+          </div>
         </div>
 
       </div>

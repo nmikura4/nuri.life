@@ -34,7 +34,7 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
       }}
     >
       <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '500px' }}>
-        <GlassCard style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)', overflow: 'visible' }}>
+        <GlassCard className="responsive-card" style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)', overflow: 'visible' }}>
           <button type="button" onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
             <X size={24} />
           </button>
@@ -220,7 +220,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
     <>
       <dialog ref={dialogRef} className="native-modal" onClick={handleBackdropClick} onCancel={(e) => { e.preventDefault(); onClose(); }} aria-label={task ? 'Edit Task' : 'New Task'}>
         <div onClick={e => e.stopPropagation()} style={{ width: '100%' }}>
-          <GlassCard style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)' }}>
+          <GlassCard className="responsive-card" style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)' }}>
             <button type="button" onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
               <X size={24} />
             </button>

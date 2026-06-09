@@ -36,6 +36,7 @@ const WelcomeCard = ({
       justifyContent: 'center',
       position: 'relative',
       minHeight: '140px',
+      width: '100%',
       overflow: 'visible', /* Changed to visible so track is not clipped */
       zIndex: 10
     }}>
