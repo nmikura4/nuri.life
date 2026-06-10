@@ -20,6 +20,7 @@ import HabitsView from './components/Habits/HabitsView';
 import { AIAssistantProvider } from './context/AIAssistantContext';
 import AICoachView from './components/AI/AICoachView';
 import ChatInterface from './components/AI/ChatInterface';
+import NoteModal from './components/Notes/NoteModal';
 import { Brain, X } from 'lucide-react';
 
 function App() {
@@ -45,6 +46,9 @@ function App() {
   const [calendarType, setCalendarType] = useState('weekly');
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
   const [isSidebarMenuOpen, setIsSidebarMenuOpen] = useState(false);
+
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [editingNote, setEditingNote] = useState(null);
 
   const location = useLocation();
 
@@ -512,7 +516,7 @@ function App() {
             } />
 
             <Route path="/finances" element={<FinancesView />} />
-            <Route path="/notes" element={<NotesView tasks={tasks} notes={notes} onSaveNote={handleSaveNote} onDeleteNote={handleDeleteNote} />} />
+            <Route path="/notes" element={<NotesView tasks={tasks} notes={notes} onSaveNote={handleSaveNote} onDeleteNote={handleDeleteNote} onAddNote={() => { setEditingNote(null); setIsNoteModalOpen(true); }} onEditNote={(n) => { setEditingNote(n); setIsNoteModalOpen(true); }} />} />
             <Route path="/habits" element={<HabitsView />} />
             <Route path="/ai" element={<AICoachView />} />
             
@@ -589,6 +593,29 @@ function App() {
         priorities={priorities}
         statuses={statuses}
         notes={notes}
+        onOpenNote={(noteId) => {
+          const n = notes.find(x => x.id === noteId);
+          if (n) {
+            setEditingNote(n);
+            setIsNoteModalOpen(true);
+          }
+        }}
+      />
+
+      <NoteModal 
+        isOpen={isNoteModalOpen || !!editingNote}
+        onClose={() => { setIsNoteModalOpen(false); setEditingNote(null); }}
+        onSave={handleSaveNote}
+        onDelete={handleDeleteNote}
+        note={editingNote}
+        tasks={tasks}
+        onOpenTask={(taskId) => {
+          const t = tasks.find(x => x.id === taskId);
+          if (t) {
+            setEditingTask(t);
+            setIsModalOpen(true);
+          }
+        }}
       />
     </AIAssistantProvider>
   );

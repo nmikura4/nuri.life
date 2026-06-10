@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { collection, doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import GlassCard from '../UI/GlassCard';
-import NoteModal from './NoteModal';
 import CustomDatePicker from '../UI/CustomDatePicker';
 import { Plus, Search, FileText, Tag, Calendar, X, Smile, Meh, Frown, Zap, Coffee, CloudRain, CheckSquare } from 'lucide-react';
 import React from 'react';
@@ -28,21 +27,9 @@ const COLORS = {
   gray: 'rgba(150, 150, 150, 0.2)'
 };
 
-const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote }) => {
+const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote, onAddNote, onEditNote }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingNote, setEditingNote] = useState(null);
-
-  const handleOpenNewNote = () => {
-    setEditingNote(null);
-    setIsModalOpen(true);
-  };
-
-  const handleEditNote = (note) => {
-    setEditingNote(note);
-    setIsModalOpen(true);
-  };
 
   const filteredNotes = useMemo(() => {
     let result = notes;
@@ -80,7 +67,7 @@ const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote }) => {
             </p>
           </div>
           
-          <button className="pill-btn primary" onClick={handleOpenNewNote} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button className="pill-btn primary" onClick={onAddNote} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Plus size={18} /> New Note
           </button>
         </div>
@@ -145,7 +132,7 @@ const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote }) => {
             return (
               <div key={note.id} className="note-card-wrapper" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <GlassCard 
-                  onClick={() => handleEditNote(note)}
+                  onClick={() => onEditNote(note)}
                   style={{ 
                     padding: '24px', 
                     cursor: 'pointer', 
@@ -222,16 +209,6 @@ const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote }) => {
           })}
         </div>
       )}
-
-      <NoteModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={onSaveNote}
-        onDelete={onDeleteNote}
-        note={editingNote}
-        tasks={tasks}
-      />
-
     </div>
   );
 };

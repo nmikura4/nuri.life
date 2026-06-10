@@ -37,7 +37,7 @@ const MOOD_OPTIONS = [
   { value: 'gloomy', label: <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><CloudRain size={14} /> Gloomy</span> },
 ];
 
-const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [] }) => {
+const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [], onOpenTask }) => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -290,7 +290,10 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [] 
                     if (!linkedTask) return null;
                     return (
                       <span key={taskId} style={{ background: 'var(--item-bg)', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <span 
+                          style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', textDecoration: 'underline' }}
+                          onClick={() => onOpenTask && onOpenTask(taskId)}
+                        >
                           {linkedTask.title || 'Untitled Task'}
                         </span>
                         <button type="button" onClick={() => setFormData(prev => ({ ...prev, linkedTasks: prev.linkedTasks.filter(id => id !== taskId) }))} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}><X size={12} /></button>

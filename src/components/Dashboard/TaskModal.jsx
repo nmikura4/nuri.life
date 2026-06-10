@@ -85,7 +85,7 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
   );
 };
 
-const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = [], priorities = [], statuses = [], notes = [] }) => {
+const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = [], priorities = [], statuses = [], notes = [], onOpenNote }) => {
   const defaultStatus = statuses.length > 0 ? statuses[0] : 'todo';
   
   const [formData, setFormData] = useState({
@@ -330,7 +330,10 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
                         if (!linkedNote) return null;
                         return (
                           <span key={noteId} style={{ background: 'var(--item-bg)', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <span 
+                              style={{ maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', textDecoration: 'underline' }}
+                              onClick={() => onOpenNote && onOpenNote(noteId)}
+                            >
                               {linkedNote.title || 'Untitled Note'}
                             </span>
                             <button type="button" onClick={() => setFormData(prev => ({ ...prev, linkedNotes: prev.linkedNotes.filter(id => id !== noteId) }))} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}><X size={12} /></button>
