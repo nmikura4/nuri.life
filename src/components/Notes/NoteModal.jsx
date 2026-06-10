@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
-import { X, Check, Paperclip, Smile, Meh, Frown, Zap, Coffee, CloudRain, Tag as TagIcon, Undo, Redo, Trash2, Eraser, PenTool } from 'lucide-react';
-import { ReactSketchCanvas } from 'react-sketch-canvas';
+import { X, Check, Paperclip, Smile, Meh, Frown, Zap, Coffee, CloudRain, Tag as TagIcon } from 'lucide-react';
+import { Tldraw, exportToBlob } from 'tldraw';
+import 'tldraw/tldraw.css';
 import '../UI/UI.css';
 
 const COLORS = [
@@ -52,8 +53,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
   
   const [file, setFile] = useState(null);
   const [tagInput, setTagInput] = useState('');
-  const canvasRef = useRef(null);
-  const [isEraser, setIsEraser] = useState(false);
+  const [editor, setEditor] = useState(null);
 
   // Dragging state
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -88,24 +88,18 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
     }
     // Reset position when opened
     setPosition({ x: 0, y: 0 });
-    setIsEraser(false);
   }, [note, isOpen]);
 
-  useEffect(() => {
-    if (isOpen && formData.type === 'drawing' && note?.canvasPaths && canvasRef.current) {
-      setTimeout(() => {
-        if (canvasRef.current) {
-          canvasRef.current.loadPaths(note.canvasPaths);
-        }
-      }, 200);
+  const handleMount = (editorInstance) => {
+    setEditor(editorInstance);
+    if (note?.tldrawSnapshot) {
+      try {
+        editorInstance.store.loadSnapshot(note.tldrawSnapshot);
+      } catch (e) {
+        console.error("Failed to load tldraw snapshot", e);
+      }
     }
-  }, [isOpen, formData.type, note]);
-
-  useEffect(() => {
-    if (canvasRef.current) {
-      canvasRef.current.eraseMode(isEraser);
-    }
-  }, [isEraser]);
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -145,12 +139,28 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
     }
     
     let canvasImage = note?.canvasImage || null;
-    let canvasPaths = note?.canvasPaths || [];
+    let tldrawSnapshot = note?.tldrawSnapshot || null;
 
-    if (formData.type === 'drawing' && canvasRef.current) {
+    if (formData.type === 'drawing' && editor) {
       try {
-        canvasPaths = await canvasRef.current.exportPaths();
-        canvasImage = await canvasRef.current.exportImage('png');
+        tldrawSnapshot = editor.store.getSnapshot();
+        const shapeIds = Array.from(editor.getCurrentPageShapeIds());
+        
+        if (shapeIds.length > 0) {
+          const blob = await exportToBlob({
+            editor,
+            ids: shapeIds,
+            format: 'png',
+          });
+          const base64data = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = () => resolve(reader.result);
+          });
+          canvasImage = base64data;
+        } else {
+          canvasImage = null;
+        }
       } catch (e) {
         console.error("Canvas export failed", e);
       }
@@ -167,7 +177,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
       tags: finalTags,
       file: file,
       canvasImage,
-      canvasPaths,
+      tldrawSnapshot,
       updatedAt: new Date().toISOString()
     });
     onClose();
@@ -256,36 +266,8 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: 600 }}>Drawing</label>
               
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'var(--item-bg)', padding: '8px', borderRadius: '12px', flexWrap: 'wrap' }}>
-                <input 
-                  type="color" 
-                  value={formData.strokeColor} 
-                  onChange={(e) => setFormData(prev => ({...prev, strokeColor: e.target.value}))}
-                  style={{ width: '30px', height: '30px', border: 'none', borderRadius: '50%', cursor: 'pointer', padding: 0 }}
-                  title="Pen Color"
-                />
-                <button type="button" className={`pill-btn ${!isEraser ? 'primary' : ''}`} onClick={() => setIsEraser(false)} style={{ padding: '6px 10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <PenTool size={14} /> Pen
-                </button>
-                <button type="button" className={`pill-btn ${isEraser ? 'primary' : ''}`} onClick={() => setIsEraser(true)} style={{ padding: '6px 10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Eraser size={14} /> Eraser
-                </button>
-                
-                <div style={{ flex: 1 }}></div>
-                
-                <button type="button" onClick={() => canvasRef.current?.undo()} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }} title="Undo"><Undo size={16} /></button>
-                <button type="button" onClick={() => canvasRef.current?.redo()} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }} title="Redo"><Redo size={16} /></button>
-                <button type="button" onClick={() => canvasRef.current?.clearCanvas()} style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer', marginLeft: '8px' }} title="Clear All"><Trash2 size={16} /></button>
-              </div>
-
-              <div style={{ height: '300px', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--card-border)', background: '#ffffff', touchAction: 'none' }}>
-                <ReactSketchCanvas
-                  ref={canvasRef}
-                  strokeWidth={3}
-                  eraserWidth={20}
-                  strokeColor={formData.strokeColor}
-                  canvasColor="#ffffff"
-                />
+              <div style={{ height: '500px', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--card-border)', background: '#ffffff', touchAction: 'none' }}>
+                <Tldraw onMount={handleMount} />
               </div>
             </div>
           ) : (
