@@ -37,7 +37,7 @@ const MOOD_OPTIONS = [
   { value: 'gloomy', label: <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><CloudRain size={14} /> Gloomy</span> },
 ];
 
-const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [], onOpenTask }) => {
+const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [], onOpenTask, zIndex }) => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -161,7 +161,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
   const currentColorValue = COLORS.find(c => c.id === formData.color)?.value || 'transparent';
 
   return (
-    <div className="modal-overlay" onClick={onClose} style={{ alignItems: 'center' }}>
+    <div className="modal-overlay" onClick={onClose} style={{ alignItems: 'center', zIndex }}>
       <GlassCard 
         style={{ 
           width: '100%', 

@@ -49,6 +49,7 @@ function App() {
 
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
+  const [topModal, setTopModal] = useState(null);
 
   const location = useLocation();
 
@@ -143,6 +144,7 @@ function App() {
   const handleOpenNewTask = () => {
     setEditingTask(null);
     setIsModalOpen(true);
+    setTopModal('task');
   };
 
   const handleSaveTask = async (taskData) => {
@@ -449,7 +451,7 @@ function App() {
                   <div className="dashboard-grid">
                     <TaskList 
                       tasks={filteredTasks} 
-                      onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); }} 
+                      onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); setTopModal('task'); }} 
                       onToggleStatus={handleToggleTaskStatus}
                       showDone={showDone}
                       setShowDone={setShowDone}
@@ -470,7 +472,7 @@ function App() {
                     </div>
                   </div>
                 ) : (
-                  <KanbanView tasks={filteredTasks} setTasks={setTasks} onStatusChange={updateTaskStatus} onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); }} statuses={statuses} />
+                  <KanbanView tasks={filteredTasks} setTasks={setTasks} onStatusChange={updateTaskStatus} onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); setTopModal('task'); }} statuses={statuses} />
                 )}
               </div>
             } />
@@ -493,7 +495,7 @@ function App() {
                 />
                 <TaskList 
                   tasks={filteredTasks} 
-                  onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); }} 
+                  onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); setTopModal('task'); }} 
                   onToggleStatus={handleToggleTaskStatus}
                   showDone={showDone}
                   setShowDone={setShowDone}
@@ -516,7 +518,7 @@ function App() {
             } />
 
             <Route path="/finances" element={<FinancesView />} />
-            <Route path="/notes" element={<NotesView tasks={tasks} notes={notes} onSaveNote={handleSaveNote} onDeleteNote={handleDeleteNote} onAddNote={() => { setEditingNote(null); setIsNoteModalOpen(true); }} onEditNote={(n) => { setEditingNote(n); setIsNoteModalOpen(true); }} />} />
+            <Route path="/notes" element={<NotesView tasks={tasks} notes={notes} onSaveNote={handleSaveNote} onDeleteNote={handleDeleteNote} onAddNote={() => { setEditingNote(null); setIsNoteModalOpen(true); setTopModal('note'); }} onEditNote={(n) => { setEditingNote(n); setIsNoteModalOpen(true); setTopModal('note'); }} />} />
             <Route path="/habits" element={<HabitsView />} />
             <Route path="/ai" element={<AICoachView />} />
             
@@ -585,6 +587,7 @@ function App() {
       {/* Global Modals */}
       <TaskModal 
         isOpen={isModalOpen || !!editingTask} 
+        zIndex={topModal === 'task' ? 2000 : 1000}
         onClose={() => { setIsModalOpen(false); setEditingTask(null); }} 
         onSave={handleSaveTask} 
         onDelete={(id) => deleteDoc(doc(db, "users", user?.uid, "tasks", id.toString()))} 
@@ -598,12 +601,14 @@ function App() {
           if (n) {
             setEditingNote(n);
             setIsNoteModalOpen(true);
+            setTopModal('note');
           }
         }}
       />
 
       <NoteModal 
         isOpen={isNoteModalOpen || !!editingNote}
+        zIndex={topModal === 'note' ? 2000 : 1000}
         onClose={() => { setIsNoteModalOpen(false); setEditingNote(null); }}
         onSave={handleSaveNote}
         onDelete={handleDeleteNote}
@@ -614,6 +619,7 @@ function App() {
           if (t) {
             setEditingTask(t);
             setIsModalOpen(true);
+            setTopModal('task');
           }
         }}
       />

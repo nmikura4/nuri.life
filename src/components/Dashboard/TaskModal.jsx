@@ -85,7 +85,7 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
   );
 };
 
-const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = [], priorities = [], statuses = [], notes = [], onOpenNote }) => {
+const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = [], priorities = [], statuses = [], notes = [], onOpenNote, zIndex }) => {
   const defaultStatus = statuses.length > 0 ? statuses[0] : 'todo';
   
   const [formData, setFormData] = useState({
@@ -227,7 +227,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
 
   return (
     <>
-      <div className="modal-overlay" onClick={handleBackdropClick} role="dialog" aria-modal="true" aria-label={task ? 'Edit Task' : 'New Task'}>
+      <div className="modal-overlay" onClick={handleBackdropClick} role="dialog" aria-modal="true" aria-label={task ? 'Edit Task' : 'New Task'} style={{ alignItems: 'center', zIndex }}>
         <div onClick={e => e.stopPropagation()} style={{ margin: 'auto', width: '100%', maxWidth: '500px' }}>
           <GlassCard className="responsive-card" style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)' }}>
             <button type="button" onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
