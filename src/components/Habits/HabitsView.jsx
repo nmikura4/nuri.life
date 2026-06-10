@@ -15,18 +15,26 @@ const COLORS = {
   lavender: 'rgba(182, 168, 220, 0.2)'
 };
 
-const getLast7Days = () => {
+const getCurrentWeekDays = () => {
   const dates = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
+  const curr = new Date();
+  const day = curr.getDay();
+  const diff = curr.getDate() - day + (day === 0 ? -6 : 1);
+  
+  const monday = new Date(curr);
+  monday.setDate(diff);
+  
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    dates.push({ dateStr: `${y}-${m}-${day}`, dateObj: d });
+    const dayStr = String(d.getDate()).padStart(2, '0');
+    dates.push({ dateStr: `${y}-${m}-${dayStr}`, dateObj: d });
   }
   return dates;
 };
+
 
 const calculateStreak = (logs) => {
   if (!logs) return 0;
@@ -109,7 +117,7 @@ const HabitsView = () => {
     await handleSaveHabit({ ...habit, logs: newLogs });
   };
 
-  const last7Days = useMemo(() => getLast7Days(), []);
+  const currentWeekDays = useMemo(() => getCurrentWeekDays(), []);
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
@@ -166,15 +174,15 @@ const HabitsView = () => {
                   </div>
                 </div>
 
-                {/* Progress Bar */}
+                {/* 7 Days Row */}
                 {(() => {
-                  const completedInLast7Days = last7Days.filter(({dateStr}) => habit.logs && habit.logs[dateStr]).length;
-                  const progressPercent = (completedInLast7Days / 7) * 100;
+                  const completedInCurrentWeek = currentWeekDays.filter(({dateStr}) => habit.logs && habit.logs[dateStr]).length;
+                  const progressPercent = (completedInCurrentWeek / 7) * 100;
                   return (
                     <div style={{ marginTop: 'auto', marginBottom: '4px', width: '100%' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
                         <span>Weekly Progress</span>
-                        <span>{completedInLast7Days} / 7 days</span>
+                        <span>{completedInCurrentWeek} / 7 days</span>
                       </div>
                       <div style={{ height: '6px', background: 'var(--item-bg)', borderRadius: '3px', overflow: 'hidden', boxShadow: 'var(--shadow-inner)' }}>
                         <div style={{ height: '100%', background: 'var(--accent-blue)', width: `${progressPercent}%`, transition: 'width 0.3s ease', borderRadius: '3px' }}></div>
@@ -183,9 +191,8 @@ const HabitsView = () => {
                   );
                 })()}
 
-                {/* 7 Days Row */}
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  {last7Days.map(({ dateStr, dateObj }) => {
+                  {currentWeekDays.map(({ dateStr, dateObj }) => {
                     const isDone = habit.logs && habit.logs[dateStr];
                     const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' }).charAt(0);
                     return (
