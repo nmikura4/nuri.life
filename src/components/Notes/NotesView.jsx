@@ -4,7 +4,7 @@ import { db } from '../../firebase';
 import GlassCard from '../UI/GlassCard';
 import NoteModal from './NoteModal';
 import CustomDatePicker from '../UI/CustomDatePicker';
-import { Plus, Search, FileText, Tag, Calendar, X, Smile, Meh, Frown, Zap, Coffee, CloudRain } from 'lucide-react';
+import { Plus, Search, FileText, Tag, Calendar, X, Smile, Meh, Frown, Zap, Coffee, CloudRain, CheckSquare } from 'lucide-react';
 import React from 'react';
 import '../UI/UI.css';
 
@@ -28,25 +28,11 @@ const COLORS = {
   gray: 'rgba(150, 150, 150, 0.2)'
 };
 
-const NotesView = () => {
-  const [notes, setNotes] = useState([]);
+const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
-
-  useEffect(() => {
-    const unsub = onSnapshot(collection(db, "notes"), (snapshot) => {
-      const loadedNotes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-      // Sort notes by updatedAt, newest first
-      loadedNotes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-      setNotes(loadedNotes);
-    }, (error) => {
-      console.error("Error reading notes:", error);
-    });
-
-    return () => unsub();
-  }, []);
 
   const handleOpenNewNote = () => {
     setEditingNote(null);
@@ -56,25 +42,6 @@ const NotesView = () => {
   const handleEditNote = (note) => {
     setEditingNote(note);
     setIsModalOpen(true);
-  };
-
-  const handleSaveNote = async (noteData) => {
-    try {
-      const id = noteData.id || crypto.randomUUID();
-      await setDoc(doc(db, "notes", id.toString()), { ...noteData, id });
-    } catch (e) {
-      alert("Error saving note: " + e.message);
-      console.error(e);
-    }
-  };
-
-  const handleDeleteNote = async (id) => {
-    try {
-      await deleteDoc(doc(db, "notes", id.toString()));
-    } catch (e) {
-      alert("Error deleting note: " + e.message);
-      console.error(e);
-    }
   };
 
   const filteredNotes = useMemo(() => {
@@ -239,6 +206,11 @@ const NotesView = () => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)' }}>
                       {note.mood && MOOD_ICONS[note.mood] && React.createElement(MOOD_ICONS[note.mood], { size: 14 })}
+                      {note.linkedTasks && note.linkedTasks.length > 0 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, marginLeft: '4px' }}>
+                          <CheckSquare size={14} /> {note.linkedTasks.length}
+                        </div>
+                      )}
                     </div>
                     <div style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'right' }}>
                       {new Date(note.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -254,9 +226,10 @@ const NotesView = () => {
       <NoteModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveNote}
-        onDelete={handleDeleteNote}
+        onSave={onSaveNote}
+        onDelete={onDeleteNote}
         note={editingNote}
+        tasks={tasks}
       />
 
     </div>

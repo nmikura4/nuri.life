@@ -9,7 +9,6 @@ const HabitModal = ({ isOpen, onClose, habit, onSave, onDelete }) => {
   const [desc, setDesc] = useState('');
   const [frequency, setFrequency] = useState('daily');
   const [color, setColor] = useState('default');
-  const dialogRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -24,17 +23,13 @@ const HabitModal = ({ isOpen, onClose, habit, onSave, onDelete }) => {
         setFrequency('daily');
         setColor('default');
       }
-      
-      if (dialogRef.current && !dialogRef.current.open) {
-        dialogRef.current.showModal();
-      }
     }
   }, [isOpen, habit]);
 
   if (!isOpen) return null;
 
   const handleBackdropClick = (e) => {
-    if (e.target === dialogRef.current) {
+    if (e.target.classList.contains('modal-overlay')) {
       onClose();
     }
   };
@@ -58,8 +53,8 @@ const HabitModal = ({ isOpen, onClose, habit, onSave, onDelete }) => {
   };
 
   return (
-    <dialog ref={dialogRef} className="native-modal" onClick={handleBackdropClick} onCancel={(e) => { e.preventDefault(); onClose(); }} aria-label={habit ? 'Edit Habit' : 'New Habit'}>
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '500px', margin: '0 auto' }}>
+    <div className="modal-overlay" onClick={handleBackdropClick} role="dialog" aria-modal="true" aria-label={habit ? 'Edit Habit' : 'New Habit'}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '500px', margin: 'auto' }}>
         <GlassCard style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)' }}>
           <button type="button" onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
             <X size={24} />
@@ -146,7 +141,7 @@ const HabitModal = ({ isOpen, onClose, habit, onSave, onDelete }) => {
           </form>
         </GlassCard>
       </div>
-    </dialog>
+    </div>
   );
 };
 

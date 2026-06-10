@@ -38,23 +38,29 @@ const CustomSelect = ({ options, value, onChange, placeholder = 'Select...', sty
       
       {isOpen && (
         <div className="custom-select-dropdown">
-          {options.map((opt) => (
-            <div 
-              key={opt.value}
-              onClick={() => { onChange(opt.value); setIsOpen(false); }}
-              className="custom-select-option"
-              style={{
-                padding: '12px 16px',
-                cursor: 'pointer',
-                color: opt.value === value ? 'var(--accent-blue)' : 'var(--text-main)',
-                fontWeight: opt.value === value ? 700 : 500,
-                fontSize: '13px',
-                transition: 'background 0.2s ease',
-              }}
-            >
-              {opt.label}
+          {options && options.length > 0 ? (
+            options.map((opt) => (
+              <div 
+                key={opt.value}
+                onClick={() => { onChange(opt.value); setIsOpen(false); }}
+                className="custom-select-option"
+                style={{
+                  padding: '12px 16px',
+                  cursor: 'pointer',
+                  color: opt.value === value ? 'var(--accent-blue)' : 'var(--text-main)',
+                  fontWeight: opt.value === value ? 700 : 500,
+                  fontSize: '13px',
+                  transition: 'background 0.2s ease',
+                }}
+              >
+                {opt.label}
+              </div>
+            ))
+          ) : (
+            <div style={{ padding: '12px 16px', color: 'var(--text-muted)', fontSize: '13px', textAlign: 'center' }}>
+              No options available
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>

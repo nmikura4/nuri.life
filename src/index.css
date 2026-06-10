@@ -162,6 +162,7 @@ body.dark-theme {
   .ai-chat-btn {
     bottom: 90px !important;
     right: 20px !important;
+    display: flex !important;
   }
   
   .ai-chat-modal {
@@ -232,6 +233,7 @@ dialog.native-modal {
   max-height: 90vh;
   overflow-y: auto;
   overflow-x: hidden;
+  border-radius: 32px;
 }
 
 dialog.native-modal::backdrop {
@@ -258,6 +260,7 @@ dialog.native-modal::backdrop {
 .ai-chat-btn {
   bottom: 30px;
   right: 30px;
+  display: none !important;
 }
 
 .ai-chat-modal {

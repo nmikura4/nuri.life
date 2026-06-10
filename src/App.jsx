@@ -26,6 +26,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [tasks, setTasks] = useState([]);
+  const [notes, setNotes] = useState([]);
   const [projects, setProjects] = useState(['Work', 'Personal', 'Shopping']);
   const [priorities, setPriorities] = useState(['low', 'medium', 'high']);
   const [statuses, setStatuses] = useState(['todo', 'progress', 'done']);
@@ -100,13 +101,22 @@ function App() {
       const loadedTasks = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
       setTasks(loadedTasks);
     }, (error) => {
-      alert("Ошибка чтения базы данных: " + error.message);
+      alert("Ошибка чтения задач: " + error.message);
       console.error(error);
+    });
+
+    const unsubNotes = onSnapshot(collection(db, "users", user.uid, "notes"), (snapshot) => {
+      const loadedNotes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      loadedNotes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+      setNotes(loadedNotes);
+    }, (error) => {
+      console.error("Ошибка чтения заметок:", error);
     });
 
     return () => {
       unsubSettings();
       unsubTasks();
+      unsubNotes();
     };
   }, [user]);
 
@@ -135,7 +145,24 @@ function App() {
     if (!user) return;
     try {
       const id = taskData.id || crypto.randomUUID();
-      await setDoc(doc(db, "users", user.uid, "tasks", id.toString()), { ...taskData, id });
+      const updatedTask = { ...taskData, id };
+      await setDoc(doc(db, "users", user.uid, "tasks", id.toString()), updatedTask);
+
+      // Bidirectional sync for linkedNotes
+      if (updatedTask.linkedNotes && Array.isArray(updatedTask.linkedNotes)) {
+        updatedTask.linkedNotes.forEach(noteId => {
+          const note = notes.find(n => n.id === noteId);
+          if (note) {
+            const currentLinkedTasks = Array.isArray(note.linkedTasks) ? note.linkedTasks : [];
+            if (!currentLinkedTasks.includes(id)) {
+              setDoc(doc(db, "users", user.uid, "notes", noteId.toString()), { 
+                ...note, 
+                linkedTasks: [...currentLinkedTasks, id] 
+              });
+            }
+          }
+        });
+      }
     } catch (e) {
       alert("Ошибка при сохранении задачи: " + e.message);
       console.error(e);
@@ -146,9 +173,35 @@ function App() {
     if (!user) return;
     try {
       const id = noteData.id || crypto.randomUUID();
-      await setDoc(doc(db, "notes", id.toString()), { ...noteData, id });
+      const updatedNote = { ...noteData, id };
+      await setDoc(doc(db, "users", user.uid, "notes", id.toString()), updatedNote);
+
+      // Bidirectional sync for linkedTasks
+      if (updatedNote.linkedTasks && Array.isArray(updatedNote.linkedTasks)) {
+        updatedNote.linkedTasks.forEach(taskId => {
+          const task = tasks.find(t => t.id === taskId);
+          if (task) {
+            const currentLinkedNotes = Array.isArray(task.linkedNotes) ? task.linkedNotes : [];
+            if (!currentLinkedNotes.includes(id)) {
+              setDoc(doc(db, "users", user.uid, "tasks", taskId.toString()), { 
+                ...task, 
+                linkedNotes: [...currentLinkedNotes, id] 
+              });
+            }
+          }
+        });
+      }
     } catch (e) {
       console.error("Ошибка при сохранении заметки: ", e);
+    }
+  };
+
+  const handleDeleteNote = async (id) => {
+    if (!user) return;
+    try {
+      await deleteDoc(doc(db, "users", user.uid, "notes", id.toString()));
+    } catch (e) {
+      console.error("Ошибка при удалении заметки: ", e);
     }
   };
 
@@ -459,7 +512,7 @@ function App() {
             } />
 
             <Route path="/finances" element={<FinancesView />} />
-            <Route path="/notes" element={<NotesView />} />
+            <Route path="/notes" element={<NotesView tasks={tasks} notes={notes} onSaveNote={handleSaveNote} onDeleteNote={handleDeleteNote} />} />
             <Route path="/habits" element={<HabitsView />} />
             <Route path="/ai" element={<AICoachView />} />
             
@@ -535,6 +588,7 @@ function App() {
         projects={projects}
         priorities={priorities}
         statuses={statuses}
+        notes={notes}
       />
     </AIAssistantProvider>
   );

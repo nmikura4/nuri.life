@@ -37,13 +37,14 @@ const MOOD_OPTIONS = [
   { value: 'gloomy', label: <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><CloudRain size={14} /> Gloomy</span> },
 ];
 
-const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
+const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [] }) => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
     color: 'default',
-    mood: 'happy',
-    tags: []
+    mood: 'neutral',
+    tags: [],
+    linkedTasks: []
   });
   
   const [file, setFile] = useState(null);
@@ -60,8 +61,9 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
         title: note.title || '',
         content: note.content || '',
         color: note.color || 'default',
-        mood: note.mood || 'happy',
-        tags: note.tags || []
+        mood: note.mood || 'neutral',
+        tags: note.tags || [],
+        linkedTasks: note.linkedTasks || []
       });
       setFile(note.file || null);
     } else {
@@ -69,8 +71,9 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
         title: '',
         content: '',
         color: 'default',
-        mood: 'happy',
-        tags: []
+        mood: 'neutral',
+        tags: [],
+        linkedTasks: []
       });
       setFile(null);
     }
@@ -221,7 +224,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div className="responsive-grid-2">
             <div>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Color</label>
               <CustomSelect 
@@ -240,7 +243,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div className="responsive-grid-2">
             <div>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Attachment</label>
               <div className="neu-input" style={{ display: 'flex', alignItems: 'center', minHeight: '44px', padding: '0 16px' }}>
@@ -274,6 +277,43 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null }) => {
                   style={{ border: 'none', background: 'transparent', outline: 'none', flex: 1, minWidth: '80px', color: 'var(--text-main)', fontSize: '14px' }}
                 />
               </div>
+            </div>
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Linked Tasks</label>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {formData.linkedTasks.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {formData.linkedTasks.map(taskId => {
+                    const linkedTask = tasks.find(t => t.id === taskId);
+                    if (!linkedTask) return null;
+                    return (
+                      <span key={taskId} style={{ background: 'var(--item-bg)', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {linkedTask.title || 'Untitled Task'}
+                        </span>
+                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, linkedTasks: prev.linkedTasks.filter(id => id !== taskId) }))} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}><X size={12} /></button>
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+              <select 
+                className="neu-select"
+                value=""
+                onChange={(e) => {
+                  if (e.target.value && !formData.linkedTasks.includes(e.target.value)) {
+                    setFormData(prev => ({ ...prev, linkedTasks: [...prev.linkedTasks, e.target.value] }));
+                  }
+                }}
+                style={{ width: '100%', boxSizing: 'border-box', appearance: 'none', cursor: 'pointer' }}
+              >
+                <option value="" disabled>Attach a task...</option>
+                {tasks.filter(t => !formData.linkedTasks.includes(t.id)).map(t => (
+                  <option key={t.id} value={t.id}>{t.title || 'Untitled Task'}</option>
+                ))}
+              </select>
             </div>
           </div>
         </div>

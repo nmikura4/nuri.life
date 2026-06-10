@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
 import CustomDatePicker from '../UI/CustomDatePicker';
-import { X, Edit2 } from 'lucide-react';
+import { X, Edit2, ChevronDown, ChevronUp, Tag as TagIcon } from 'lucide-react';
 import '../UI/UI.css';
 
 const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = [] }) => {
@@ -24,15 +24,7 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
   };
 
   return (
-    <div 
-      onClick={handleBackdropClick} 
-      style={{
-        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-        background: 'rgba(0, 0, 0, 0.5)',
-        zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '20px'
-      }}
-    >
+    <div className="modal-overlay" onClick={handleBackdropClick} style={{ alignItems: 'center' }}>
       <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '500px' }}>
         <GlassCard className="responsive-card" style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)', overflow: 'visible' }}>
           <button type="button" onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
@@ -93,7 +85,7 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
   );
 };
 
-const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = [], priorities = [], statuses = [] }) => {
+const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = [], priorities = [], statuses = [], notes = [] }) => {
   const defaultStatus = statuses.length > 0 ? statuses[0] : 'todo';
   
   const [formData, setFormData] = useState({
@@ -105,13 +97,14 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
     tags: '',
     deadline: '',
     recurrence: 'none',
-    subtasks: []
+    subtasks: [],
+    linkedNotes: []
   });
 
   const [newSubtask, setNewSubtask] = useState('');
   const [editingSubtask, setEditingSubtask] = useState(null);
   const [isDescOpen, setIsDescOpen] = useState(false);
-  const dialogRef = useRef(null);
+  const [tagInput, setTagInput] = useState('');
 
   useEffect(() => {
     const d = new Date();
@@ -130,7 +123,8 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
         tags: Array.isArray(task.tags) ? task.tags.join(', ') : (task.tags || ''),
         deadline: task.deadline || today,
         recurrence: task.recurrence || 'none',
-        subtasks: task.subtasks || []
+        subtasks: task.subtasks || [],
+        linkedNotes: task.linkedNotes || []
       });
       setIsDescOpen(!!task.desc);
     } else {
@@ -140,25 +134,20 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
         status: defaultStatus,
         priority: 'low',
         project: '',
-        tags: '',
+        tags: [],
         deadline: today,
         recurrence: 'none',
-        subtasks: []
+        subtasks: [],
+        linkedNotes: []
       });
       setIsDescOpen(false);
     }
-  }, [task, isOpen, statuses]); // Added statuses to dependency array
-
-  useEffect(() => {
-    if (isOpen && dialogRef.current && !dialogRef.current.open) {
-      dialogRef.current.showModal();
-    }
-  }, [isOpen]);
+  }, [task, isOpen, statuses]);
 
   if (!isOpen) return null;
 
   const handleBackdropClick = (e) => {
-    if (e.target === dialogRef.current) {
+    if (e.target.classList.contains('modal-overlay')) {
       onClose();
     }
   };
@@ -201,11 +190,31 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleAddTag = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const newTag = tagInput.trim();
+      if (newTag && !formData.tags.includes(newTag)) {
+        setFormData(prev => ({ ...prev, tags: [...prev.tags, newTag] }));
+      }
+      setTagInput('');
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setFormData(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tagToRemove) }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.title.trim()) return;
     
-    const tagsArray = formData.tags.split(',').map(t => t.trim()).filter(t => t);
+    let tagsArray = [];
+    if (typeof formData.tags === 'string') {
+      tagsArray = formData.tags.split(',').map(t => t.trim()).filter(t => t);
+    } else {
+      tagsArray = formData.tags;
+    }
     
     onSave({ 
       ...task, 
@@ -218,8 +227,8 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
 
   return (
     <>
-      <dialog ref={dialogRef} className="native-modal" onClick={handleBackdropClick} onCancel={(e) => { e.preventDefault(); onClose(); }} aria-label={task ? 'Edit Task' : 'New Task'}>
-        <div onClick={e => e.stopPropagation()} style={{ width: '100%' }}>
+      <div className="modal-overlay" onClick={handleBackdropClick} role="dialog" aria-modal="true" aria-label={task ? 'Edit Task' : 'New Task'}>
+        <div onClick={e => e.stopPropagation()} style={{ margin: 'auto', width: '100%', maxWidth: '500px' }}>
           <GlassCard className="responsive-card" style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)' }}>
             <button type="button" onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
               <X size={24} />
@@ -291,15 +300,57 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Tags</label>
-                  <input 
-                    type="text" 
-                    name="tags" 
-                    value={formData.tags} 
-                    onChange={handleChange} 
-                    className="neu-input" 
-                    placeholder="e.g. UI, Bug"
-                    style={{ width: '100%', boxSizing: 'border-box' }}
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Tags (Press Enter)</label>
+                  <div className="neu-input" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '10px 16px', minHeight: '44px', alignItems: 'center' }}>
+                    {Array.isArray(formData.tags) && formData.tags.map(tag => (
+                      <span key={tag} style={{ background: 'var(--item-bg)', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <TagIcon size={12} /> {tag}
+                        <button type="button" onClick={() => removeTag(tag)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}><X size={12} /></button>
+                      </span>
+                    ))}
+                    <input 
+                      type="text" 
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={handleAddTag}
+                      placeholder={(!formData.tags || formData.tags.length === 0) ? "Add tags..." : ""}
+                      style={{ border: 'none', background: 'transparent', outline: 'none', flex: 1, minWidth: '80px', color: 'var(--text-main)', fontSize: '14px' }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Linked Notes</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {formData.linkedNotes.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      {formData.linkedNotes.map(noteId => {
+                        const linkedNote = notes.find(n => n.id === noteId);
+                        if (!linkedNote) return null;
+                        return (
+                          <span key={noteId} style={{ background: 'var(--item-bg)', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {linkedNote.title || 'Untitled Note'}
+                            </span>
+                            <button type="button" onClick={() => setFormData(prev => ({ ...prev, linkedNotes: prev.linkedNotes.filter(id => id !== noteId) }))} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}><X size={12} /></button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <CustomSelect 
+                    placeholder="Attach a note..."
+                    value=""
+                    onChange={(val) => {
+                      if (val && !formData.linkedNotes.includes(val)) {
+                        setFormData(prev => ({ ...prev, linkedNotes: [...prev.linkedNotes, val] }));
+                      }
+                    }}
+                    options={notes.filter(n => !formData.linkedNotes.includes(n.id)).map(n => ({
+                      value: n.id,
+                      label: n.title || 'Untitled Note'
+                    }))}
                   />
                 </div>
               </div>
@@ -349,9 +400,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', marginBottom: isDescOpen ? '12px' : '0' }}
                 >
                   <label style={{ fontSize: '14px', fontWeight: 600, cursor: 'pointer', margin: 0 }}>Description</label>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '12px', textDecoration: 'underline' }}>
-                    {isDescOpen ? 'Hide' : 'Show'}
-                  </span>
+                  {isDescOpen ? <ChevronUp size={16} color="var(--text-muted)" /> : <ChevronDown size={16} color="var(--text-muted)" />}
                 </div>
                 {isDescOpen && (
                   <textarea name="desc" value={formData.desc} onChange={handleChange} className="neu-textarea" placeholder="Add details..." rows="3" style={{ resize: 'none', fieldSizing: 'content', width: '100%', boxSizing: 'border-box' }} />
@@ -380,7 +429,7 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, onDelete, projects = 
             statuses={statuses} 
           />
         )}
-      </dialog>
+      </div>
     </>
   );
 };

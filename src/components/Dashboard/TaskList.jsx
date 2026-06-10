@@ -1,6 +1,7 @@
 
 import GlassCard from '../UI/GlassCard';
 import Badge from '../UI/Badge';
+import { FileText } from 'lucide-react';
 
 const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, statuses = [] }) => {
   const isDone = (task) => statuses.length > 0 && task.status === statuses[statuses.length - 1];
@@ -137,6 +138,11 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
                       );
                     })()}
                   <Badge priority={task.priority}>{task.priority}</Badge>
+                  {task.linkedNotes && task.linkedNotes.length > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600 }}>
+                      <FileText size={14} /> {task.linkedNotes.length}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
