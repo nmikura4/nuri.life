@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
-import { X, Check, Paperclip, Smile, Meh, Frown, Zap, Coffee, CloudRain, Tag as TagIcon } from 'lucide-react';
+import { X, Check, Paperclip, Smile, Meh, Frown, Zap, Coffee, CloudRain, Tag as TagIcon, Undo, Redo, Trash2, Eraser, PenTool } from 'lucide-react';
+import { ReactSketchCanvas } from 'react-sketch-canvas';
 import '../UI/UI.css';
 
 const COLORS = [
@@ -44,11 +45,15 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
     color: 'default',
     mood: 'neutral',
     tags: [],
-    linkedTasks: []
+    linkedTasks: [],
+    type: 'text',
+    strokeColor: '#000000'
   });
   
   const [file, setFile] = useState(null);
   const [tagInput, setTagInput] = useState('');
+  const canvasRef = useRef(null);
+  const [isEraser, setIsEraser] = useState(false);
 
   // Dragging state
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -63,7 +68,9 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
         color: note.color || 'default',
         mood: note.mood || 'neutral',
         tags: note.tags || [],
-        linkedTasks: note.linkedTasks || []
+        linkedTasks: note.linkedTasks || [],
+        type: note.type || 'text',
+        strokeColor: note.strokeColor || '#000000'
       });
       setFile(note.file || null);
     } else {
@@ -73,13 +80,32 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
         color: 'default',
         mood: 'neutral',
         tags: [],
-        linkedTasks: []
+        linkedTasks: [],
+        type: 'text',
+        strokeColor: '#000000'
       });
       setFile(null);
     }
     // Reset position when opened
     setPosition({ x: 0, y: 0 });
+    setIsEraser(false);
   }, [note, isOpen]);
+
+  useEffect(() => {
+    if (isOpen && formData.type === 'drawing' && note?.canvasPaths && canvasRef.current) {
+      setTimeout(() => {
+        if (canvasRef.current) {
+          canvasRef.current.loadPaths(note.canvasPaths);
+        }
+      }, 200);
+    }
+  }, [isOpen, formData.type, note]);
+
+  useEffect(() => {
+    if (canvasRef.current) {
+      canvasRef.current.eraseMode(isEraser);
+    }
+  }, [isEraser]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -112,12 +138,24 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
     setFormData(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tagToRemove) }));
   };
 
-  const handleSave = () => {
-    if (!formData.title.trim() && !formData.content.trim()) {
+  const handleSave = async () => {
+    if (!formData.title.trim() && !formData.content.trim() && formData.type !== 'drawing') {
       onClose();
       return;
     }
     
+    let canvasImage = note?.canvasImage || null;
+    let canvasPaths = note?.canvasPaths || [];
+
+    if (formData.type === 'drawing' && canvasRef.current) {
+      try {
+        canvasPaths = await canvasRef.current.exportPaths();
+        canvasImage = await canvasRef.current.exportImage('png');
+      } catch (e) {
+        console.error("Canvas export failed", e);
+      }
+    }
+
     const finalTags = [...formData.tags];
     if (tagInput.trim() && !finalTags.includes(tagInput.trim())) {
       finalTags.push(tagInput.trim());
@@ -128,6 +166,8 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
       ...formData,
       tags: finalTags,
       file: file,
+      canvasImage,
+      canvasPaths,
       updatedAt: new Date().toISOString()
     });
     onClose();
@@ -212,17 +252,55 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
             />
           </div>
           
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Content</label>
-            <textarea 
-              name="content" 
-              placeholder="Type your thoughts here..." 
-              value={formData.content} 
-              onChange={handleChange} 
-              className="neu-textarea" 
-              style={{ minHeight: '200px', resize: 'vertical' }} 
-            />
-          </div>
+          {formData.type === 'drawing' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600 }}>Drawing</label>
+              
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'var(--item-bg)', padding: '8px', borderRadius: '12px', flexWrap: 'wrap' }}>
+                <input 
+                  type="color" 
+                  value={formData.strokeColor} 
+                  onChange={(e) => setFormData(prev => ({...prev, strokeColor: e.target.value}))}
+                  style={{ width: '30px', height: '30px', border: 'none', borderRadius: '50%', cursor: 'pointer', padding: 0 }}
+                  title="Pen Color"
+                />
+                <button type="button" className={`pill-btn ${!isEraser ? 'primary' : ''}`} onClick={() => setIsEraser(false)} style={{ padding: '6px 10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <PenTool size={14} /> Pen
+                </button>
+                <button type="button" className={`pill-btn ${isEraser ? 'primary' : ''}`} onClick={() => setIsEraser(true)} style={{ padding: '6px 10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Eraser size={14} /> Eraser
+                </button>
+                
+                <div style={{ flex: 1 }}></div>
+                
+                <button type="button" onClick={() => canvasRef.current?.undo()} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }} title="Undo"><Undo size={16} /></button>
+                <button type="button" onClick={() => canvasRef.current?.redo()} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }} title="Redo"><Redo size={16} /></button>
+                <button type="button" onClick={() => canvasRef.current?.clearCanvas()} style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer', marginLeft: '8px' }} title="Clear All"><Trash2 size={16} /></button>
+              </div>
+
+              <div style={{ height: '300px', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--card-border)', background: '#ffffff', touchAction: 'none' }}>
+                <ReactSketchCanvas
+                  ref={canvasRef}
+                  strokeWidth={3}
+                  eraserWidth={20}
+                  strokeColor={formData.strokeColor}
+                  canvasColor="#ffffff"
+                />
+              </div>
+            </div>
+          ) : (
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Content</label>
+              <textarea 
+                name="content" 
+                placeholder="Type your thoughts here..." 
+                value={formData.content} 
+                onChange={handleChange} 
+                className="neu-textarea" 
+                style={{ minHeight: '200px', resize: 'vertical' }} 
+              />
+            </div>
+          )}
 
           <div className="responsive-grid-2">
             <div>

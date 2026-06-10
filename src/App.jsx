@@ -518,7 +518,7 @@ function App() {
             } />
 
             <Route path="/finances" element={<FinancesView />} />
-            <Route path="/notes" element={<NotesView tasks={tasks} notes={notes} onSaveNote={handleSaveNote} onDeleteNote={handleDeleteNote} onAddNote={() => { setEditingNote(null); setIsNoteModalOpen(true); setTopModal('note'); }} onEditNote={(n) => { setEditingNote(n); setIsNoteModalOpen(true); setTopModal('note'); }} />} />
+            <Route path="/notes" element={<NotesView tasks={tasks} notes={notes} onSaveNote={handleSaveNote} onDeleteNote={handleDeleteNote} onAddNote={(type = 'text') => { setEditingNote({ type }); setIsNoteModalOpen(true); setTopModal('note'); }} onEditNote={(n) => { setEditingNote(n); setIsNoteModalOpen(true); setTopModal('note'); }} />} />
             <Route path="/habits" element={<HabitsView />} />
             <Route path="/ai" element={<AICoachView />} />
             

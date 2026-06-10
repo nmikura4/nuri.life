@@ -3,7 +3,7 @@ import { collection, doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firesto
 import { db } from '../../firebase';
 import GlassCard from '../UI/GlassCard';
 import CustomDatePicker from '../UI/CustomDatePicker';
-import { Plus, Search, FileText, Tag, Calendar, X, Smile, Meh, Frown, Zap, Coffee, CloudRain, CheckSquare } from 'lucide-react';
+import { Plus, Search, FileText, Tag, Calendar, X, Smile, Meh, Frown, Zap, Coffee, CloudRain, CheckSquare, PenTool } from 'lucide-react';
 import React from 'react';
 import '../UI/UI.css';
 
@@ -30,6 +30,7 @@ const COLORS = {
 const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote, onAddNote, onEditNote }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
+  const [showAddMenu, setShowAddMenu] = useState(false);
 
   const filteredNotes = useMemo(() => {
     let result = notes;
@@ -67,9 +68,31 @@ const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote, onAddNote
             </p>
           </div>
           
-          <button className="pill-btn primary" onClick={onAddNote} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Plus size={18} /> New Note
-          </button>
+          <div style={{ position: 'relative' }}>
+            <button className="pill-btn primary" onClick={() => setShowAddMenu(!showAddMenu)} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Plus size={18} /> New Note
+            </button>
+            {showAddMenu && (
+              <GlassCard style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', zIndex: 100, display: 'flex', flexDirection: 'column', padding: '8px', gap: '4px', minWidth: '160px' }}>
+                <button 
+                  onClick={() => { onAddNote('text'); setShowAddMenu(false); }} 
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', padding: '8px 12px', cursor: 'pointer', color: 'var(--text-main)', fontSize: '14px', borderRadius: '8px' }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--item-bg-hover)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                >
+                  <FileText size={16} /> Text Note
+                </button>
+                <button 
+                  onClick={() => { onAddNote('drawing'); setShowAddMenu(false); }} 
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', padding: '8px 12px', cursor: 'pointer', color: 'var(--text-main)', fontSize: '14px', borderRadius: '8px' }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--item-bg-hover)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                >
+                  <PenTool size={16} /> Canvas Note
+                </button>
+              </GlassCard>
+            )}
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
@@ -159,7 +182,7 @@ const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote, onAddNote
                     </h3>
                   )}
                   
-                  {note.content && (
+                  {note.content && note.type !== 'drawing' && (
                     <div className="note-content-preview" style={{ 
                       fontSize: '14px', 
                       color: 'var(--text-muted)', 
@@ -169,7 +192,13 @@ const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote, onAddNote
                     </div>
                   )}
 
-                  {!note.title && !note.content && (
+                  {note.canvasImage && (
+                    <div style={{ marginTop: '12px', borderRadius: '8px', overflow: 'hidden', background: 'var(--item-bg)' }}>
+                      <img src={note.canvasImage} alt="Canvas Sketch" style={{ width: '100%', display: 'block' }} />
+                    </div>
+                  )}
+
+                  {!note.title && !note.content && !note.canvasImage && (
                     <div style={{ fontSize: '14px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
                       Empty note
                     </div>
