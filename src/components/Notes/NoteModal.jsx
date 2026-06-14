@@ -203,6 +203,20 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
     setEditor(editorInstance);
     globalEditor = editorInstance;
 
+    // Prevent Tldraw from hiding the UI on touch devices
+    if (editorInstance && editorInstance.sideEffects) {
+      try {
+        editorInstance.sideEffects.registerBeforeChangeHandler('instance', (prev, next) => {
+          if (next.isFocusMode || next.isPenMode) {
+            return { ...next, isFocusMode: false, isPenMode: false };
+          }
+          return next;
+        });
+      } catch (e) {
+        console.error("Failed to disable focus mode", e);
+      }
+    }
+
     const savedSize = localStorage.getItem('tldraw_pen_size') || '2';
     const sizes = ['s', 'm', 'l', 'xl'];
     const sizeValue = sizes[parseInt(savedSize, 10) - 1] || 's';
