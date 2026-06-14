@@ -79,7 +79,7 @@ body.dark-theme {
 }
 
 .app-container {
-  padding: 80px 30px 30px 30px;
+  padding: 30px 30px 30px 30px;
 }
 
 @media (max-width: 900px) {
@@ -431,4 +431,282 @@ body.dark-theme .custom-select-dropdown {
 .note-card-wrapper > div { flex: 1; }
 @media (max-width: 1200px) { .notes-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 768px) { .notes-grid { grid-template-columns: 1fr; } }
+dialog.native-modal::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+@media (max-width: 900px) {
+  dialog.native-modal::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  align-content: start;
+}
+
+.ai-chat-btn {
+  bottom: 30px;
+  right: 30px;
+  display: none !important;
+}
+
+.ai-chat-modal {
+  width: 400px;
+  height: 600px;
+  max-height: calc(100vh - 140px);
+  margin-bottom: 20px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Manrope', sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+  min-height: 100vh;
+  color: var(--text-main);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Scrollbar */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--shadow-color);
+  border-radius: 10px;
+}
+
+/* Background floating spheres/blobs */
+.bg-blobs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.6;
+}
+
+.blob-1 {
+  width: 400px;
+  height: 400px;
+  background: var(--accent-peach);
+  top: -100px;
+  left: -100px;
+}
+
+.blob-2 {
+  width: 500px;
+  height: 500px;
+  background: var(--accent-blue);
+  bottom: -150px;
+  right: -150px;
+}
+
+.blob-3 {
+  width: 300px;
+  height: 300px;
+  background: var(--accent-pink);
+  top: 40%;
+  left: 30%;
+}
+
+/* Utilities */
+.glass-panel {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 32px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: visible;
+}
+
+.neu-input, .neu-textarea, .neu-select {
+  background: transparent;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 16px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-main);
+  box-shadow: var(--shadow-inner);
+  transition: all 0.3s ease;
+}
+
+.neu-input:focus, .neu-textarea:focus, .neu-select:focus {
+  outline: none;
+  box-shadow: 
+    inset 2px 2px 5px var(--shadow-color),
+    inset -2px -2px 5px var(--highlight-color),
+    0 0 0 2px var(--accent-blue);
+}
+
+.custom-select-option:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+body.dark-theme .custom-select-option:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.custom-select-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  background: rgba(255, 255, 252, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--card-border);
+  z-index: 100;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+body.dark-theme .custom-select-dropdown {
+  background: rgba(18, 27, 47, 0.98);
+}
+
+/* 3D Sphere Decorators */
+.sphere {
+  border-radius: 50%;
+  box-shadow: 
+    inset -10px -10px 20px rgba(0,0,0,0.1),
+    inset 10px 10px 20px rgba(255,255,255,0.8),
+    10px 10px 20px var(--shadow-color);
+}
+
+/* Notes Grid */
+.notes-grid { 
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+  align-items: stretch;
+}
+.note-card-wrapper { height: 100%; display: flex; flex-direction: column; }
+.note-card-wrapper > div { flex: 1; }
+@media (max-width: 1200px) { .notes-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) { .notes-grid { grid-template-columns: 1fr; } }
 .note-content-preview { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap; }
+
+/* Скрываем выбор размера в Tldraw */
+[data-testid='style.size'], .tlui-style-panel__section[aria-label='size'], button[title*='Small'], button[title*='Medium'], button[title*='Large'] { display: none !important; }
+
+/* Скрываем вотермарку Tldraw */
+.tlui-watermark_container, .tlui-watermark, [class*='watermark'], a[href*='license'] { display: none !important; }
+
+/* Responsive Drawing Modal */
+.drawing-modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100%;
+  max-height: 100%;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.drawing-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: var(--solid-card-bg);
+  border-bottom: 1px solid var(--card-border);
+  z-index: 100000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  flex-wrap: wrap;
+  gap: 15px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.drawing-modal-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+  justify-content: flex-end;
+}
+
+.drawing-modal-options {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.drawing-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+@media (max-width: 900px) {
+  .drawing-modal-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px 15px;
+  }
+  .drawing-modal-controls {
+    justify-content: flex-start;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .drawing-modal-actions {
+    margin-left: 0;
+    justify-content: space-between;
+    width: 100%;
+  }
+  .drawing-modal-options {
+    justify-content: flex-start;
+  }
+}

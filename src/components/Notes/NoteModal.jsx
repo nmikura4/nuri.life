@@ -2,9 +2,106 @@ import { useState, useEffect } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
 import { X, Check, Paperclip, Smile, Meh, Frown, Zap, Coffee, CloudRain, Tag as TagIcon } from 'lucide-react';
-import { Tldraw, exportToBlob } from 'tldraw';
+import { Tldraw, DefaultSizeStyle, DefaultStylePanel } from 'tldraw';
 import 'tldraw/tldraw.css';
 import '../UI/UI.css';
+
+let globalEditor = null;
+let globalBgPattern = 'none';
+
+const CustomGrid = ({ x, y, z, size }) => {
+  const patternType = globalBgPattern || 'none';
+  if (patternType === 'none') return null;
+
+  const baseSize = patternType === 'lines' ? 36 : (patternType === 'grid' ? 30 : 24);
+  const s = baseSize * z;
+  
+  const xo = 0.5 + x * z;
+  const yo = 0.5 + y * z;
+  const gxo = xo > 0 ? xo % s : s + (xo % s);
+  const gyo = yo > 0 ? yo % s : s + (yo % s);
+
+  const strokeColor = 'rgba(0, 0, 0, 0.08)'; 
+  const id = `custom-grid-pattern`;
+
+  return (
+    <svg className="tl-grid" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+      <defs>
+        <pattern id={id} width={s} height={s} patternUnits="userSpaceOnUse">
+          {patternType === 'dots' && <circle cx={gxo} cy={gyo} r={1.5} fill={strokeColor} />}
+          {patternType === 'lines' && <line x1={0} y1={gyo} x2={s} y2={gyo} stroke={strokeColor} strokeWidth={1.5} />}
+          {patternType === 'grid' && (
+            <>
+              <line x1={gxo} y1={0} x2={gxo} y2={s} stroke={strokeColor} strokeWidth={1.5} />
+              <line x1={0} y1={gyo} x2={s} y2={gyo} stroke={strokeColor} strokeWidth={1.5} />
+            </>
+          )}
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill={`url(#${id})`} />
+    </svg>
+  );
+};
+
+const CustomStylePanel = (props) => {
+  const [size, setSize] = useState(() => localStorage.getItem('tldraw_pen_size') || '2');
+
+  const handleChange = (e) => {
+    const val = e.target.value;
+    setSize(val);
+    localStorage.setItem('tldraw_pen_size', val);
+    if (globalEditor) {
+      const sizes = ['s', 'm', 'l', 'xl', 'xl'];
+      const sizeValue = sizes[parseInt(val, 10) - 1] || 's';
+      globalEditor.setStyleForNextShapes(DefaultSizeStyle, sizeValue);
+      globalEditor.setStyleForSelectedShapes(DefaultSizeStyle, sizeValue);
+    }
+  };
+
+  const sliderPercentage = ((size - 1) / 4) * 100;
+
+  return (
+    <div className="custom-tldraw-panel-wrapper" style={{ display: 'flex', flexDirection: 'column', pointerEvents: 'all' }}>
+      <div className="custom-tldraw-panel" style={{ 
+        background: 'var(--color-panel)', 
+        borderRadius: 'var(--radius-4)', 
+        boxShadow: 'var(--shadow-2)',
+        border: '1px solid var(--color-divider)',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden'
+      }}>
+        <DefaultStylePanel {...props} />
+        
+        <div style={{ height: '1px', background: 'var(--color-divider)', margin: '0 12px' }}></div>
+        
+        <div style={{ 
+          padding: '12px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'var(--color-text-1)', fontWeight: 600 }}>
+            <span>Thickness</span>
+            <span style={{ background: 'var(--color-background-1)', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--color-divider)' }}>
+              {size}
+            </span>
+          </div>
+          <input 
+            type="range" 
+            min="1" max="5" step="1" 
+            value={size} 
+            onChange={handleChange} 
+            className="tldraw-like-slider"
+            style={{ 
+              '--slider-percent': `${sliderPercentage}%`
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const COLORS = [
   { id: 'default', value: 'transparent', label: 'Default' },
@@ -70,8 +167,11 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
         tags: note.tags || [],
         linkedTasks: note.linkedTasks || [],
         type: note.type || 'text',
-        strokeColor: note.strokeColor || '#000000'
+        strokeColor: note.strokeColor || '#000000',
+        canvasBg: note.canvasBg || '#ffffff',
+        bgPattern: note.bgPattern || 'none'
       });
+      globalBgPattern = note.bgPattern || 'none';
       setFile(note.file || null);
     } else {
       setFormData({
@@ -82,8 +182,11 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
         tags: [],
         linkedTasks: [],
         type: 'text',
-        strokeColor: '#000000'
+        strokeColor: '#000000',
+        canvasBg: '#ffffff',
+        bgPattern: 'none'
       });
+      globalBgPattern = 'none';
       setFile(null);
     }
     // Reset position when opened
@@ -92,6 +195,23 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
 
   const handleMount = (editorInstance) => {
     setEditor(editorInstance);
+    globalEditor = editorInstance;
+
+    const savedSize = localStorage.getItem('tldraw_pen_size') || '2';
+    const sizes = ['s', 'm', 'l', 'xl'];
+    const sizeValue = sizes[parseInt(savedSize, 10) - 1] || 's';
+    editorInstance.setStyleForNextShapes(DefaultSizeStyle, sizeValue);
+    // Grid toggling via updateInstanceState
+    const isGrid = globalBgPattern !== 'none';
+    if (editorInstance) {
+      if (typeof editorInstance.updateInstanceState === 'function') {
+        try { editorInstance.updateInstanceState({ isGridMode: isGrid }); } catch (e) {}
+      }
+      if (typeof editorInstance.setGridMode === 'function') {
+        try { editorInstance.setGridMode(isGrid); } catch (e) {}
+      }
+    }
+
     if (note?.tldrawSnapshot) {
       try {
         editorInstance.store.loadSnapshot(note.tldrawSnapshot);
@@ -100,6 +220,8 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
       }
     }
   };
+
+
 
   useEffect(() => {
     if (!isOpen) return;
@@ -147,11 +269,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
         const shapeIds = Array.from(editor.getCurrentPageShapeIds());
         
         if (shapeIds.length > 0) {
-          const blob = await exportToBlob({
-            editor,
-            ids: shapeIds,
-            format: 'png',
-          });
+          const { blob } = await editor.toImage(shapeIds, { format: 'png' });
           const base64data = await new Promise((resolve) => {
             const reader = new FileReader();
             reader.readAsDataURL(blob);
@@ -210,6 +328,91 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
 
   const currentColorValue = COLORS.find(c => c.id === formData.color)?.value || 'transparent';
 
+  if (formData.type === 'drawing') {
+    return (
+      <div className="drawing-modal-container" style={{ background: 'var(--bg-main)' }}>
+        <div className="drawing-modal-header">
+          <input 
+            type="text" 
+            name="title" 
+            placeholder="Drawing Title..." 
+            value={formData.title} 
+            onChange={handleChange} 
+            style={{ border: 'none', background: 'transparent', fontSize: '18px', fontWeight: 600, color: 'var(--text-main)', outline: 'none', flex: '1 1 200px' }}
+          />
+          <div className="drawing-modal-controls">
+            <div className="drawing-modal-options">
+              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Background:</span>
+              <button type="button" onClick={() => setFormData(p => ({...p, canvasBg: '#ffffff'}))} style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#ffffff', border: formData.canvasBg === '#ffffff' ? '2px solid var(--accent-blue)' : '1px solid #ddd', cursor: 'pointer', transition: 'all 0.2s' }} title="White"></button>
+              <button type="button" onClick={() => setFormData(p => ({...p, canvasBg: '#fffdf0'}))} style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#fffdf0', border: formData.canvasBg === '#fffdf0' ? '2px solid var(--accent-blue)' : '1px solid #ddd', cursor: 'pointer', transition: 'all 0.2s' }} title="Paper"></button>
+              <button type="button" onClick={() => setFormData(p => ({...p, canvasBg: '#f0f8ff'}))} style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#f0f8ff', border: formData.canvasBg === '#f0f8ff' ? '2px solid var(--accent-blue)' : '1px solid #ddd', cursor: 'pointer', transition: 'all 0.2s' }} title="Light Blue"></button>
+              <button type="button" onClick={() => setFormData(p => ({...p, canvasBg: '#f0fff4'}))} style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#f0fff4', border: formData.canvasBg === '#f0fff4' ? '2px solid var(--accent-blue)' : '1px solid #ddd', cursor: 'pointer', transition: 'all 0.2s' }} title="Mint"></button>
+            </div>
+            
+            <div className="drawing-modal-options">
+              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Pattern:</span>
+              <select 
+                value={formData.bgPattern || 'none'} 
+                onChange={(e) => {
+                  const pat = e.target.value;
+                  setFormData(p => ({...p, bgPattern: pat}));
+                  globalBgPattern = pat;
+                  // Pattern change triggers grid mode toggle
+                  const isGrid = pat !== 'none';
+                  if (globalEditor) {
+                    if (typeof globalEditor.updateInstanceState === 'function') {
+                      try { globalEditor.updateInstanceState({ isGridMode: isGrid }); } catch (e) {}
+                    }
+                    if (typeof globalEditor.setGridMode === 'function') {
+                      try { globalEditor.setGridMode(isGrid); } catch (e) {}
+                    }
+                  }
+                }}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  padding: '4px 8px',
+                  fontSize: '13px',
+                  color: 'var(--text-main)',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                <option value="none">None</option>
+                <option value="dots">Dots</option>
+                <option value="lines">Lines</option>
+                <option value="grid">Grid</option>
+              </select>
+            </div>
+
+            <div className="drawing-modal-actions">
+              {note && (
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    if(window.confirm('Delete this drawing?')) {
+                      onDelete(note.id);
+                      onClose();
+                    }
+                  }} 
+                  className="pill-btn danger"
+                >
+                  Delete
+                </button>
+              )}
+              <button type="button" onClick={onClose} className="pill-btn">Cancel</button>
+              <button type="button" onClick={handleSave} className="pill-btn primary">Save & Exit</button>
+            </div>
+          </div>
+        </div>
+        <div style={{ flex: 1, position: 'relative', touchAction: 'none', background: formData.canvasBg || '#ffffff', transition: 'background 0.3s ease' }}>
+          <Tldraw onMount={handleMount} components={{ StylePanel: CustomStylePanel, Grid: CustomGrid }} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="modal-overlay" onClick={onClose} style={{ alignItems: 'center', zIndex }}>
       <GlassCard 
@@ -262,27 +465,17 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
             />
           </div>
           
-          {formData.type === 'drawing' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600 }}>Drawing</label>
-              
-              <div style={{ height: '500px', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--card-border)', background: '#ffffff', touchAction: 'none' }}>
-                <Tldraw onMount={handleMount} />
-              </div>
-            </div>
-          ) : (
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Content</label>
-              <textarea 
-                name="content" 
-                placeholder="Type your thoughts here..." 
-                value={formData.content} 
-                onChange={handleChange} 
-                className="neu-textarea" 
-                style={{ minHeight: '200px', resize: 'vertical' }} 
-              />
-            </div>
-          )}
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Content</label>
+            <textarea 
+              name="content" 
+              placeholder="Type your thoughts here..." 
+              value={formData.content} 
+              onChange={handleChange} 
+              className="neu-textarea" 
+              style={{ minHeight: '200px', resize: 'vertical' }} 
+            />
+          </div>
 
           <div className="responsive-grid-2">
             <div>
