@@ -9,6 +9,7 @@ import '../UI/UI.css';
 let globalEditor = null;
 let globalBgPattern = 'none';
 
+const customComponents = { StylePanel: CustomStylePanel, Grid: CustomGrid };
 const customAssetUrls = {
   icons: Object.fromEntries(
     iconTypes.map(name => [name, `/tldraw/0_merged.svg#${name}`])
@@ -427,7 +428,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
           </div>
         </div>
         <div style={{ flex: 1, position: 'relative', touchAction: 'none', background: formData.canvasBg || '#ffffff', transition: 'background 0.3s ease' }}>
-          <Tldraw autoFocus={false} onMount={handleMount} components={{ StylePanel: CustomStylePanel, Grid: CustomGrid }} assetUrls={customAssetUrls} />
+          <Tldraw autoFocus={false} forceMobile={false} onMount={handleMount} components={customComponents} assetUrls={customAssetUrls} />
         </div>
       </div>
     );
