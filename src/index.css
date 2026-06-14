@@ -637,10 +637,10 @@ body.dark-theme .custom-select-dropdown {
 /* Responsive Drawing Modal */
 .drawing-modal-container {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100vw !important;
-  height: 100vh !important;
+  height: 100% !important;
+  height: 100dvh !important;
   max-width: 100%;
   max-height: 100%;
   z-index: 99999;

@@ -413,7 +413,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
           </div>
         </div>
         <div style={{ flex: 1, position: 'relative', touchAction: 'none', background: formData.canvasBg || '#ffffff', transition: 'background 0.3s ease' }}>
-          <Tldraw onMount={handleMount} components={{ StylePanel: CustomStylePanel, Grid: CustomGrid }} assetUrls={customAssetUrls} />
+          <Tldraw autoFocus={false} onMount={handleMount} components={{ StylePanel: CustomStylePanel, Grid: CustomGrid }} assetUrls={customAssetUrls} />
         </div>
       </div>
     );
