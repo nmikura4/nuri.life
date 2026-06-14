@@ -76,7 +76,7 @@ const CustomMonthPicker = ({ value, onChange }) => {
           width: '240px', 
           padding: '15px', 
           zIndex: 100,
-          background: 'var(--card-bg)',
+          background: 'var(--solid-card-bg)',
           boxShadow: 'var(--shadow-card)'
         }}>
           <div style={{ background: 'var(--item-bg-hover)', padding: '8px 12px', borderRadius: '8px', marginBottom: '15px', fontWeight: 600, fontSize: '15px' }}>

@@ -73,7 +73,7 @@ const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote, onAddNote
               <Plus size={18} /> New Note
             </button>
             {showAddMenu && (
-              <GlassCard style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', zIndex: 100, display: 'flex', flexDirection: 'column', padding: '8px', gap: '4px', minWidth: '160px' }}>
+              <GlassCard style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', zIndex: 100, display: 'flex', flexDirection: 'column', padding: '8px', gap: '4px', minWidth: '160px', background: 'var(--solid-card-bg)' }}>
                 <button 
                   onClick={() => { onAddNote('text'); setShowAddMenu(false); }} 
                   style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', padding: '8px 12px', cursor: 'pointer', color: 'var(--text-main)', fontSize: '14px', borderRadius: '8px' }}
