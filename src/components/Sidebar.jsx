@@ -82,14 +82,16 @@ const Sidebar = ({ avatarUrl, onLogout, onMenuToggle }) => {
         borderRadius: '24px 24px 0 0',
         background: 'var(--solid-card-bg)',
         backdropFilter: 'none',
-        WebkitBackdropFilter: 'none'
+        WebkitBackdropFilter: 'none',
+        boxSizing: 'border-box',
+        flexWrap: 'nowrap'
       }}>
         <TooltipButton label="Dashboard" icon={Home} to="/" />
         <TooltipButton label="Tasks" icon={CheckSquare} to="/tasks" />
         <TooltipButton label="Finances" icon={Wallet} to="/finances" />
         <TooltipButton label="Notes" icon={StickyNote} to="/notes" />
         
-        <div ref={menuRef} style={{ position: 'relative' }}>
+        <div ref={menuRef} style={{ position: 'relative', flex: 1, display: 'flex', justifyContent: 'center' }}>
           <TooltipButton label="More" icon={Menu} onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)} color={isMoreMenuOpen ? "var(--accent-blue)" : "currentColor"} />
           
           {isMoreMenuOpen && (
@@ -125,6 +127,8 @@ const Sidebar = ({ avatarUrl, onLogout, onMenuToggle }) => {
   return (
     <GlassCard className="sidebar" style={{
       width: '72px',
+      minWidth: '72px',
+      flexShrink: 0,
       height: 'calc(100vh - 60px)',
       display: 'flex',
       flexDirection: 'column',

@@ -9,12 +9,6 @@ import '../UI/UI.css';
 let globalEditor = null;
 let globalBgPattern = 'none';
 
-const customComponents = { StylePanel: CustomStylePanel, Grid: CustomGrid };
-const customAssetUrls = {
-  icons: Object.fromEntries(
-    iconTypes.map(name => [name, `/tldraw/0_merged.svg#${name}`])
-  )
-};
 
 const CustomGrid = ({ x, y, z, size }) => {
   const patternType = globalBgPattern || 'none';
@@ -142,6 +136,13 @@ const MOOD_OPTIONS = [
   { value: 'relaxed', label: <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Coffee size={14} /> Relaxed</span> },
   { value: 'gloomy', label: <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><CloudRain size={14} /> Gloomy</span> },
 ];
+
+const customComponents = { StylePanel: CustomStylePanel, Grid: CustomGrid };
+const customAssetUrls = {
+  icons: Object.fromEntries(
+    iconTypes.map(name => [name, `/tldraw/0_merged.svg#${name}`])
+  )
+};
 
 const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [], onOpenTask, zIndex }) => {
   const [formData, setFormData] = useState({

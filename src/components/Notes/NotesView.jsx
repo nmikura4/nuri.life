@@ -108,7 +108,7 @@ const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote, onAddNote
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
                 border: 'none', background: 'transparent', outline: 'none',
-                fontFamily: 'inherit', fontSize: '14px', color: 'var(--text-main)', width: '100%'
+                fontFamily: 'inherit', fontSize: '16px', color: 'var(--text-main)', width: '100%'
               }}
             />
             {searchQuery && (
