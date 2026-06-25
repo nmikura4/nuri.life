@@ -435,9 +435,10 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose} style={{ alignItems: 'center', zIndex }}>
+    <div className="modal-overlay" onClick={onClose} style={{ zIndex }}>
       <GlassCard 
         style={{ 
+          margin: 'auto',
           width: '100%', 
           maxWidth: '600px', 
           position: 'relative', 
@@ -595,7 +596,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '10px', flexWrap: 'wrap', gap: '15px' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '10px', flexWrap: 'nowrap', gap: '10px' }}>
           {note && (
             <button 
               type="button" 
@@ -608,12 +609,13 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
               className="pill-btn danger"
               style={{ marginRight: 'auto' }}
             >
-              Delete Note
+              Delete
             </button>
           )}
-          
-          <button type="button" onClick={onClose} className="pill-btn">Cancel</button>
-          <button type="button" onClick={handleSave} className="pill-btn primary">Save Note</button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button type="button" onClick={onClose} className="pill-btn">Cancel</button>
+            <button type="button" onClick={handleSave} className="pill-btn primary">Save</button>
+          </div>
         </div>
       </GlassCard>
     </div>

@@ -227,7 +227,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
 
   return (
     <>
-      <div className="modal-overlay" onClick={handleBackdropClick} role="dialog" aria-modal="true" aria-label={task ? 'Edit Task' : 'New Task'} style={{ alignItems: 'center', zIndex }}>
+      <div className="modal-overlay" onClick={handleBackdropClick} role="dialog" aria-modal="true" aria-label={task ? 'Edit Task' : 'New Task'} style={{ zIndex }}>
         <div onClick={e => e.stopPropagation()} style={{ margin: 'auto', width: '100%', maxWidth: '500px' }}>
           <GlassCard className="responsive-card" style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)' }}>
             <button type="button" onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>

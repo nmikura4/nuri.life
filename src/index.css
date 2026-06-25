@@ -394,9 +394,7 @@ body.dark-theme .custom-select-option:hover {
   left: 0;
   right: 0;
   margin-top: 8px;
-  background: rgba(255, 255, 252, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--solid-card-bg);
   border-radius: 16px;
   box-shadow: var(--shadow-card);
   border: 1px solid var(--card-border);
@@ -404,10 +402,6 @@ body.dark-theme .custom-select-option:hover {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-}
-
-body.dark-theme .custom-select-dropdown {
-  background: rgba(18, 27, 47, 0.98);
 }
 
 /* 3D Sphere Decorators */
@@ -589,9 +583,7 @@ body.dark-theme .custom-select-option:hover {
   left: 0;
   right: 0;
   margin-top: 8px;
-  background: rgba(255, 255, 252, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--solid-card-bg);
   border-radius: 16px;
   box-shadow: var(--shadow-card);
   border: 1px solid var(--card-border);
@@ -599,10 +591,6 @@ body.dark-theme .custom-select-option:hover {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-}
-
-body.dark-theme .custom-select-dropdown {
-  background: rgba(18, 27, 47, 0.98);
 }
 
 /* 3D Sphere Decorators */
