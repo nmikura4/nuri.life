@@ -119,6 +119,8 @@ const WelcomeCard = ({
                 style={{ padding: '0', boxShadow: 'none', background: 'transparent' }}
                 innerStyle={{ padding: '8px 16px', fontSize: '13px', borderRadius: '20px' }}
                 options={[
+                  { value: 'created_desc', label: 'Newest First' },
+                  { value: 'created_asc', label: 'Oldest First' },
                   { value: 'date_asc', label: 'Nearest Deadline' },
                   { value: 'date_desc', label: 'Furthest Deadline' },
                   { value: 'priority', label: 'Highest Priority' },

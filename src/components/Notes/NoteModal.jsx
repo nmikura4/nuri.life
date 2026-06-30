@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
 import { X, Check, Paperclip, Smile, Meh, Frown, Zap, Coffee, CloudRain, Tag as TagIcon } from 'lucide-react';
 import { Tldraw, DefaultSizeStyle, DefaultStylePanel, iconTypes } from 'tldraw';
 import 'tldraw/tldraw.css';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import '../UI/UI.css';
 
 let globalEditor = null;
@@ -160,46 +162,51 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
   const [tagInput, setTagInput] = useState('');
   const [editor, setEditor] = useState(null);
 
+  const quillModules = useMemo(() => ({
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
+      [{ 'color': [] }, { 'background': [] }],
+      ['clean']
+    ]
+  }), []);
+
   // Dragging state
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  useEffect(() => {
-    if (note) {
-      setFormData({
-        title: note.title || '',
-        content: note.content || '',
-        color: note.color || 'default',
-        mood: note.mood || 'neutral',
-        tags: note.tags || [],
-        linkedTasks: note.linkedTasks || [],
-        type: note.type || 'text',
-        strokeColor: note.strokeColor || '#000000',
-        canvasBg: note.canvasBg || '#ffffff',
-        bgPattern: note.bgPattern || 'none'
-      });
-      globalBgPattern = note.bgPattern || 'none';
-      setFile(note.file || null);
-    } else {
-      setFormData({
-        title: '',
-        content: '',
-        color: 'default',
-        mood: 'neutral',
-        tags: [],
-        linkedTasks: [],
-        type: 'text',
-        strokeColor: '#000000',
-        canvasBg: '#ffffff',
-        bgPattern: 'none'
-      });
-      globalBgPattern = 'none';
-      setFile(null);
+  const [prevNote, setPrevNote] = useState(null);
+  const [prevIsOpen, setPrevIsOpen] = useState(false);
+
+  // Synchronously update formData when the note prop changes or modal opens
+  if (note !== prevNote || (isOpen && !prevIsOpen)) {
+    let initialContent = note ? note.content || '' : '';
+    if (initialContent && !/<[a-z][\s\S]*>/i.test(initialContent)) {
+      initialContent = initialContent.split('\n').map(line => `<p>${line || '<br/>'}</p>`).join('');
     }
+    
+    setFormData({
+      title: note ? note.title || '' : '',
+      content: initialContent,
+      color: note ? note.color || 'default' : 'default',
+      mood: note ? note.mood || 'neutral' : 'neutral',
+      tags: note ? note.tags || [] : [],
+      linkedTasks: note ? note.linkedTasks || [] : [],
+      type: note ? note.type || 'text' : 'text',
+      strokeColor: note ? note.strokeColor || '#000000' : '#000000',
+      canvasBg: note ? note.canvasBg || '#ffffff' : '#ffffff',
+      bgPattern: note ? note.bgPattern || 'none' : 'none'
+    });
+    setPrevNote(note);
+    setPrevIsOpen(isOpen);
+    globalBgPattern = note ? note.bgPattern || 'none' : 'none';
+    setFile(note ? note.file || null : null);
     // Reset position when opened
     setPosition({ x: 0, y: 0 });
-  }, [note, isOpen]);
+  } else if (!isOpen && prevIsOpen) {
+    setPrevIsOpen(isOpen);
+  }
 
   const handleMount = (editorInstance) => {
     setEditor(editorInstance);
@@ -445,8 +452,8 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
           position: 'relative', 
           display: 'flex', 
           flexDirection: 'column', 
-          gap: '20px',
-          padding: '30px',
+          gap: '16px',
+          padding: '24px',
           background: `linear-gradient(${currentColorValue}, ${currentColorValue}), var(--solid-card-bg)`,
           boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
           transition: isDragging ? 'none' : 'background 0.3s ease',
@@ -474,7 +481,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
           </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Note Title</label>
             <input 
@@ -490,13 +497,13 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
           
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Content</label>
-            <textarea 
-              name="content" 
-              placeholder="Type your thoughts here..." 
-              value={formData.content} 
-              onChange={handleChange} 
-              className="neu-textarea" 
-              style={{ minHeight: '200px', resize: 'vertical' }} 
+            <ReactQuill 
+              theme="snow"
+              value={formData.content}
+              onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
+              modules={quillModules}
+              placeholder="Type your thoughts here..."
+              className="neu-quill-editor"
             />
           </div>
 

@@ -187,9 +187,7 @@ const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote, onAddNote
                       fontSize: '14px', 
                       color: 'var(--text-muted)', 
                       lineHeight: '1.5'
-                    }}>
-                      {note.content}
-                    </div>
+                    }} dangerouslySetInnerHTML={{ __html: note.content }} />
                   )}
 
                   {note.canvasImage && (

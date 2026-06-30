@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import GlassCard from '../UI/GlassCard';
 import { X, Tag as TagIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import CustomDatePicker from '../UI/CustomDatePicker';
+import CustomSelect from '../UI/CustomSelect';
 import '../UI/UI.css';
 
 const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, counterparties = [], persons = [] }) => {
@@ -138,12 +139,12 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
 
             <div>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Category</label>
-              <select name="categoryId" required className="neu-select" value={formData.categoryId} onChange={handleChange}>
-                <option value="" disabled>Select a category</option>
-                {filteredCategories.map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
+              <CustomSelect 
+                options={filteredCategories.map(c => ({ label: c.name, value: c.id }))}
+                value={formData.categoryId}
+                onChange={(val) => setFormData(prev => ({ ...prev, categoryId: val }))}
+                placeholder="Select a category"
+              />
               {filteredCategories.length === 0 && (
                 <p style={{ fontSize: '12px', color: 'var(--accent-coral)', marginTop: '8px' }}>Please create categories in Settings first.</p>
               )}

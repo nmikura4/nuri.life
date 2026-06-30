@@ -41,7 +41,7 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'kanban'
-  const [sortBy, setSortBy] = useState('date_asc');
+  const [sortBy, setSortBy] = useState('created_desc');
   const [showDone, setShowDone] = useState(false);
   const [calendarType, setCalendarType] = useState('weekly');
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
@@ -151,7 +151,11 @@ function App() {
     if (!user) return;
     try {
       const id = taskData.id || crypto.randomUUID();
-      const updatedTask = { ...taskData, id };
+      const updatedTask = { 
+        ...taskData, 
+        id,
+        createdAt: taskData.createdAt || Date.now()
+      };
       await setDoc(doc(db, "users", user.uid, "tasks", id.toString()), updatedTask);
 
       // Bidirectional sync for linkedNotes
@@ -327,7 +331,7 @@ function App() {
   const handleSelectDate = (date) => {
     setSelectedDate(date);
     if (date && sortBy === 'overdue') {
-      setSortBy('date_asc');
+      setSortBy('created_desc');
     }
   };
 
@@ -376,19 +380,34 @@ function App() {
 
     // Sorting
     result = [...result].sort((a, b) => {
+      const aCreated = a.createdAt || 0;
+      const bCreated = b.createdAt || 0;
+      
       if (sortBy === 'date_asc' || sortBy === 'overdue') {
+        if (!a.deadline && !b.deadline) return bCreated - aCreated;
         if (!a.deadline) return 1;
         if (!b.deadline) return -1;
-        return new Date(a.deadline) - new Date(b.deadline);
+        const dateDiff = new Date(a.deadline) - new Date(b.deadline);
+        return dateDiff !== 0 ? dateDiff : bCreated - aCreated;
       } else if (sortBy === 'date_desc') {
+        if (!a.deadline && !b.deadline) return bCreated - aCreated;
         if (!a.deadline) return 1;
         if (!b.deadline) return -1;
-        return new Date(b.deadline) - new Date(a.deadline);
+        const dateDiff = new Date(b.deadline) - new Date(a.deadline);
+        return dateDiff !== 0 ? dateDiff : bCreated - aCreated;
       } else if (sortBy === 'priority') {
         const pMap = { high: 3, medium: 2, low: 1 };
+        const pDiff = (pMap[b.priority] || 0) - (pMap[a.priority] || 0);
+        return pDiff !== 0 ? pDiff : bCreated - aCreated;
+      } else if (sortBy === 'created_desc') {
+        const dateDiff = bCreated - aCreated;
+        if (dateDiff !== 0) return dateDiff;
+        const pMap = { high: 3, medium: 2, low: 1 };
         return (pMap[b.priority] || 0) - (pMap[a.priority] || 0);
+      } else if (sortBy === 'created_asc') {
+        return aCreated - bCreated;
       }
-      return 0;
+      return bCreated - aCreated;
     });
 
     return result;

@@ -693,6 +693,201 @@ body.dark-theme .custom-select-option:hover {
     align-items: stretch;
     gap: 10px;
   }
+}
+
+/* Background floating spheres/blobs */
+.bg-blobs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.6;
+}
+
+.blob-1 {
+  width: 400px;
+  height: 400px;
+  background: var(--accent-peach);
+  top: -100px;
+  left: -100px;
+}
+
+.blob-2 {
+  width: 500px;
+  height: 500px;
+  background: var(--accent-blue);
+  bottom: -150px;
+  right: -150px;
+}
+
+.blob-3 {
+  width: 300px;
+  height: 300px;
+  background: var(--accent-pink);
+  top: 40%;
+  left: 30%;
+}
+
+/* Utilities */
+.glass-panel {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 32px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: visible;
+}
+
+.neu-input, .neu-textarea, .neu-select {
+  background: transparent;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 16px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-main);
+  box-shadow: var(--shadow-inner);
+  transition: all 0.3s ease;
+}
+
+.neu-input:focus, .neu-textarea:focus, .neu-select:focus {
+  outline: none;
+  box-shadow: 
+    inset 2px 2px 5px var(--shadow-color),
+    inset -2px -2px 5px var(--highlight-color),
+    0 0 0 2px var(--accent-blue);
+}
+
+.custom-select-option:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+body.dark-theme .custom-select-option:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.custom-select-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  background: var(--solid-card-bg);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--card-border);
+  z-index: 100;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 3D Sphere Decorators */
+.sphere {
+  border-radius: 50%;
+  box-shadow: 
+    inset -10px -10px 20px rgba(0,0,0,0.1),
+    inset 10px 10px 20px rgba(255,255,255,0.8),
+    10px 10px 20px var(--shadow-color);
+}
+
+/* Notes Grid */
+.notes-grid { 
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+  align-items: stretch;
+}
+.note-card-wrapper { height: 100%; display: flex; flex-direction: column; }
+.note-card-wrapper > div { flex: 1; }
+@media (max-width: 1200px) { .notes-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) { .notes-grid { grid-template-columns: 1fr; } }
+.note-content-preview { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap; }
+
+/* Скрываем выбор размера в Tldraw */
+[data-testid='style.size'], .tlui-style-panel__section[aria-label='size'], button[title*='Small'], button[title*='Medium'], button[title*='Large'] { display: none !important; }
+
+/* Скрываем вотермарку Tldraw */
+.tlui-watermark_container, .tlui-watermark, [class*='watermark'], a[href*='license'] { display: none !important; }
+
+/* Responsive Drawing Modal */
+.drawing-modal-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw !important;
+  height: 100% !important;
+  height: 100dvh !important;
+  max-width: 100%;
+  max-height: 100%;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.drawing-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: var(--solid-card-bg);
+  border-bottom: 1px solid var(--card-border);
+  z-index: 100000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  flex-wrap: wrap;
+  gap: 15px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.drawing-modal-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+  justify-content: flex-end;
+}
+
+.drawing-modal-options {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.drawing-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+@media (max-width: 900px) {
+  .drawing-modal-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px 15px;
+  }
+  .drawing-modal-controls {
+    justify-content: flex-start;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
   .drawing-modal-actions {
     margin-left: 0;
     justify-content: space-between;
@@ -701,4 +896,143 @@ body.dark-theme .custom-select-option:hover {
   .drawing-modal-options {
     justify-content: flex-start;
   }
+}
+
+/* React Quill Styles */
+.neu-quill-editor .ql-container.ql-snow {
+  background: transparent;
+  border: none !important;
+  border-radius: 0 0 16px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-main);
+  box-shadow: var(--shadow-inner);
+  transition: all 0.3s ease;
+  min-height: 200px;
+}
+
+.neu-quill-editor .ql-toolbar.ql-snow {
+  background: var(--card-bg);
+  border: none !important;
+  border-radius: 16px 16px 0 0;
+  box-shadow: var(--shadow-soft);
+  margin-bottom: 4px;
+  padding: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.neu-quill-editor .ql-toolbar.ql-snow button,
+.neu-quill-editor .ql-toolbar.ql-snow .ql-picker {
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.neu-quill-editor .ql-toolbar.ql-snow button:hover,
+.neu-quill-editor .ql-toolbar.ql-snow .ql-picker:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.dark-theme .neu-quill-editor .ql-toolbar.ql-snow button:hover,
+body.dark-theme .neu-quill-editor .ql-toolbar.ql-snow .ql-picker:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.neu-quill-editor .ql-editor {
+  min-height: 200px;
+  padding: 16px 20px;
+}
+
+.neu-quill-editor .ql-editor:focus {
+  outline: none;
+  box-shadow: 
+    inset 2px 2px 5px var(--shadow-color),
+    inset -2px -2px 5px var(--highlight-color),
+    inset 0 0 0 2px var(--accent-blue);
+  border-radius: 0 0 16px 16px;
+}
+
+/* Custom Checkbox Styling for Quill Checklists (Neumorphic) */
+
+/* Custom Checkbox Styling for Quill Checklists (Neumorphic) */
+
+/* Hide the default Quill 2.x checkbox characters and any default list ::before */
+.neu-quill-editor .ql-editor li[data-list="checked"] > .ql-ui::before,
+.neu-quill-editor .ql-editor li[data-list="unchecked"] > .ql-ui::before,
+.note-content-preview li[data-list="checked"] > .ql-ui::before,
+.note-content-preview li[data-list="unchecked"] > .ql-ui::before,
+.neu-quill-editor .ql-editor li[data-list="checked"]::before,
+.neu-quill-editor .ql-editor li[data-list="unchecked"]::before {
+  display: none !important;
+  content: '' !important;
+}
+
+/* Style the .ql-ui container itself as the new checkbox */
+.neu-quill-editor .ql-editor li[data-list="checked"] > .ql-ui,
+.neu-quill-editor .ql-editor li[data-list="unchecked"] > .ql-ui,
+.note-content-preview li[data-list="checked"] > .ql-ui,
+.note-content-preview li[data-list="unchecked"] > .ql-ui {
+  content: '' !important;
+  display: inline-block !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin-left: -1.5em !important;
+  margin-right: calc(1.5em - 18px) !important;
+  border-radius: 6px !important;
+  vertical-align: text-bottom !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  box-sizing: border-box !important;
+  border: none !important;
+  position: relative !important;
+  top: -1px !important;
+}
+
+/* Unchecked state */
+.neu-quill-editor .ql-editor li[data-list="unchecked"] > .ql-ui,
+.note-content-preview li[data-list="unchecked"] > .ql-ui {
+  background: transparent !important;
+  box-shadow: 
+    inset 2px 2px 5px var(--shadow-color),
+    inset -2px -2px 5px var(--highlight-color),
+    inset 0 0 0 1px rgba(150, 150, 150, 0.2) !important;
+}
+
+/* Hover on unchecked */
+.neu-quill-editor .ql-editor li[data-list="unchecked"]:hover > .ql-ui {
+  box-shadow: 
+    inset 3px 3px 6px var(--shadow-color),
+    inset -3px -3px 6px var(--highlight-color),
+    inset 0 0 0 1px var(--accent-blue) !important;
+}
+
+/* Checked state */
+.neu-quill-editor .ql-editor li[data-list="checked"] > .ql-ui,
+.note-content-preview li[data-list="checked"] > .ql-ui {
+  background-color: var(--accent-coral) !important;
+  box-shadow: 
+    2px 2px 5px var(--shadow-color),
+    -2px -2px 5px var(--highlight-color) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-size: 12px 12px !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Strikethrough for checked lists */
+.ql-editor li[data-list="checked"],
+.note-content-preview li[data-list="checked"] {
+  text-decoration: line-through;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+body.dark-theme .ql-toolbar.ql-snow .ql-picker,
+body.dark-theme .ql-toolbar.ql-snow .ql-stroke {
+  color: var(--text-main);
+  stroke: var(--text-main);
+}
+body.dark-theme .ql-toolbar.ql-snow .ql-fill {
+  fill: var(--text-main);
 }
