@@ -298,7 +298,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
         const shapeIds = Array.from(editor.getCurrentPageShapeIds());
         
         if (shapeIds.length > 0) {
-          const { blob } = await editor.toImage(shapeIds, { format: 'png' });
+          const { blob } = await editor.toImage(shapeIds, { format: 'svg' });
           const base64data = await new Promise((resolve) => {
             const reader = new FileReader();
             reader.readAsDataURL(blob);

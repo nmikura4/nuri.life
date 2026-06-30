@@ -1028,6 +1028,14 @@ body.dark-theme .neu-quill-editor .ql-toolbar.ql-snow .ql-picker:hover {
   opacity: 0.6;
 }
 
+/* Prevent Tldraw UI from hiding on mobile/tablet (Focus Mode) */
+.tlui-layout {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  display: flex !important;
+}
+
 body.dark-theme .ql-toolbar.ql-snow .ql-picker,
 body.dark-theme .ql-toolbar.ql-snow .ql-stroke {
   color: var(--text-main);
