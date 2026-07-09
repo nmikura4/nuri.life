@@ -787,7 +787,9 @@ body.dark-theme .custom-select-option:hover {
   box-shadow: var(--shadow-card);
   border: 1px solid var(--card-border);
   z-index: 100;
-  overflow: hidden;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -953,6 +955,34 @@ body.dark-theme .neu-quill-editor .ql-toolbar.ql-snow .ql-picker:hover {
   border-radius: 0 0 16px 16px;
 }
 
+/* Quill Picker Dropdowns (Color/Background Pickers) */
+.neu-quill-editor .ql-toolbar.ql-snow .ql-picker-options {
+  background: var(--solid-card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  padding: 8px;
+  margin-top: 8px;
+  z-index: 1000;
+}
+
+.neu-quill-editor .ql-toolbar.ql-snow .ql-color-picker .ql-picker-item,
+.neu-quill-editor .ql-toolbar.ql-snow .ql-icon-picker .ql-picker-item {
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+}
+
+.neu-quill-editor .ql-toolbar.ql-snow .ql-color-picker .ql-picker-item:hover,
+.neu-quill-editor .ql-toolbar.ql-snow .ql-icon-picker .ql-picker-item:hover {
+  transform: scale(1.15);
+  border-color: var(--accent-blue);
+}
+
+body.dark-theme .neu-quill-editor .ql-toolbar.ql-snow .ql-color-picker .ql-picker-item {
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
 /* Custom Checkbox Styling for Quill Checklists (Neumorphic) */
 
 /* Custom Checkbox Styling for Quill Checklists (Neumorphic) */
@@ -1026,6 +1056,15 @@ body.dark-theme .neu-quill-editor .ql-toolbar.ql-snow .ql-picker:hover {
   text-decoration: line-through;
   color: var(--text-muted);
   opacity: 0.6;
+}
+
+/* Force vertical spacing between paragraphs and list items */
+.ql-editor li {
+  padding-top: 3px !important;
+  padding-bottom: 3px !important;
+}
+.ql-editor p {
+  padding-bottom: 6px !important;
 }
 
 /* Prevent Tldraw UI from hiding on mobile/tablet (Focus Mode) */

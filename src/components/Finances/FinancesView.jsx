@@ -1,15 +1,18 @@
 import { useState, useEffect, createContext, useContext, useMemo } from 'react';
 import { collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { ref, deleteObject } from 'firebase/storage';
+import { db, storage } from '../../firebase';
 import FinancesDashboard from './FinancesDashboard';
 import TransactionsTable from './TransactionsTable';
 import TransactionModal from './TransactionModal';
+import { useConfirm } from '../../hooks/useConfirm';
 
 export const FinanceContext = createContext();
 
 export const useFinance = () => useContext(FinanceContext);
 
-const FinancesView = () => {
+const FinancesView = ({ user }) => {
+  const confirm = useConfirm();
   const [transactions, setTransactions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().substring(0, 7)); // YYYY-MM
@@ -22,18 +25,20 @@ const FinancesView = () => {
   const [editingTransaction, setEditingTransaction] = useState(null);
 
   useEffect(() => {
+    if (!user) return;
+
     // Load categories
-    const unsubCat = onSnapshot(collection(db, "categories"), (snap) => {
+    const unsubCat = onSnapshot(collection(db, "users", user.uid, "categories"), (snap) => {
       setCategories(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
 
     // Load transactions
-    const unsubTx = onSnapshot(collection(db, "transactions"), (snap) => {
+    const unsubTx = onSnapshot(collection(db, "users", user.uid, "transactions"), (snap) => {
       setTransactions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
 
     // Load global finance settings
-    const unsubSettings = onSnapshot(doc(db, "settings", "global"), (docSnap) => {
+    const unsubSettings = onSnapshot(doc(db, "users", user.uid, "settings", "global"), (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         if (data.currency) setCurrency(data.currency);
@@ -47,7 +52,7 @@ const FinancesView = () => {
       unsubTx();
       unsubSettings();
     };
-  }, []);
+  }, [user]);
 
   const handleSaveTransaction = async (data) => {
     const id = data.id || crypto.randomUUID();
@@ -55,13 +60,22 @@ const FinancesView = () => {
     if (!data.id) {
       payload.createdAt = new Date().toISOString();
     }
-    await setDoc(doc(db, "transactions", id), payload, { merge: true });
+    await setDoc(doc(db, "users", user.uid, "transactions", id), payload, { merge: true });
     setIsModalOpen(false);
   };
 
   const handleDeleteTransaction = async (id) => {
-    if (window.confirm("Are you sure you want to delete this transaction?")) {
-      await deleteDoc(doc(db, "transactions", id));
+    if (await confirm("Are you sure you want to delete this transaction?")) {
+      const txToDelete = transactions.find(t => t.id === id);
+      if (txToDelete?.file?.path) {
+        try {
+          const fileRef = ref(storage, txToDelete.file.path);
+          await deleteObject(fileRef);
+        } catch (err) {
+          console.error("Failed to delete attached file: ", err);
+        }
+      }
+      await deleteDoc(doc(db, "users", user.uid, "transactions", id));
     }
   };
 
@@ -80,7 +94,14 @@ const FinancesView = () => {
         );
       }
       return true;
-    }).sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
+    }).sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      if (dateB.getTime() !== dateA.getTime()) {
+        return dateB - dateA;
+      }
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    });
   }, [transactions, selectedMonth, searchQuery, categories]);
 
   const value = {

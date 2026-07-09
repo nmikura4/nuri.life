@@ -103,7 +103,7 @@ const DraggableTask = ({ task, onEditTask, statuses }) => {
           const isOverdue = deadlineDate < today;
           return (
             <span style={{ fontSize: '11px', color: isOverdue ? 'var(--accent-coral)' : 'var(--text-muted)' }}>
-              {deadlineDate.toLocaleDateString()}
+              {deadlineDate.toLocaleDateString()}{task.deadlineTime ? ` ${task.deadlineTime}` : ''}
             </span>
           );
         })()}

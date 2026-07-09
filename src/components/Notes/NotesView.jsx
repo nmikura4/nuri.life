@@ -5,6 +5,7 @@ import GlassCard from '../UI/GlassCard';
 import CustomDatePicker from '../UI/CustomDatePicker';
 import { Plus, Search, FileText, Tag, Calendar, X, Smile, Meh, Frown, Zap, Coffee, CloudRain, CheckSquare, PenTool } from 'lucide-react';
 import React from 'react';
+import DOMPurify from 'dompurify';
 import '../UI/UI.css';
 
 const MOOD_ICONS = {
@@ -187,7 +188,7 @@ const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote, onAddNote
                       fontSize: '14px', 
                       color: 'var(--text-muted)', 
                       lineHeight: '1.5'
-                    }} dangerouslySetInnerHTML={{ __html: note.content }} />
+                    }} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(note.content) }} />
                   )}
 
                   {note.canvasImage && (

@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { collection, doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
-import { db, auth } from './firebase';
+import { db, auth, storage } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { ref, deleteObject } from 'firebase/storage';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import AuthView from './components/Auth/AuthView';
@@ -209,6 +210,15 @@ function App() {
   const handleDeleteNote = async (id) => {
     if (!user) return;
     try {
+      const noteToDelete = notes.find(n => n.id === id);
+      if (noteToDelete?.file?.path) {
+        try {
+          const fileRef = ref(storage, noteToDelete.file.path);
+          await deleteObject(fileRef);
+        } catch (err) {
+          console.error("Failed to delete attached file: ", err);
+        }
+      }
       await deleteDoc(doc(db, "users", user.uid, "notes", id.toString()));
     } catch (e) {
       console.error("Ошибка при удалении заметки: ", e);
@@ -387,13 +397,17 @@ function App() {
         if (!a.deadline && !b.deadline) return bCreated - aCreated;
         if (!a.deadline) return 1;
         if (!b.deadline) return -1;
-        const dateDiff = new Date(a.deadline) - new Date(b.deadline);
+        const aDateStr = a.deadlineTime ? `${a.deadline}T${a.deadlineTime}:00` : `${a.deadline}T23:59:59`;
+        const bDateStr = b.deadlineTime ? `${b.deadline}T${b.deadlineTime}:00` : `${b.deadline}T23:59:59`;
+        const dateDiff = new Date(aDateStr) - new Date(bDateStr);
         return dateDiff !== 0 ? dateDiff : bCreated - aCreated;
       } else if (sortBy === 'date_desc') {
         if (!a.deadline && !b.deadline) return bCreated - aCreated;
         if (!a.deadline) return 1;
         if (!b.deadline) return -1;
-        const dateDiff = new Date(b.deadline) - new Date(a.deadline);
+        const aDateStr = a.deadlineTime ? `${a.deadline}T${a.deadlineTime}:00` : `${a.deadline}T23:59:59`;
+        const bDateStr = b.deadlineTime ? `${b.deadline}T${b.deadlineTime}:00` : `${b.deadline}T23:59:59`;
+        const dateDiff = new Date(bDateStr) - new Date(aDateStr);
         return dateDiff !== 0 ? dateDiff : bCreated - aCreated;
       } else if (sortBy === 'priority') {
         const pMap = { high: 3, medium: 2, low: 1 };
@@ -452,6 +466,7 @@ function App() {
             <Route path="/" element={
               <div className="main-content dashboard-page" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
                 <WelcomeCard 
+                  user={user}
                   onAddTask={handleOpenNewTask} 
                   tasksCount={tasks.filter(t => t.status !== (statuses.length > 0 ? statuses[statuses.length - 1] : 'done')).length}
                   searchQuery={searchQuery}
@@ -481,9 +496,9 @@ function App() {
                     />
                     <div className="dashboard-right-col" style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
                       {calendarType === 'weekly' ? (
-                        <WeeklyCalendarWidget tasks={tasks} onAddTask={handleOpenNewTask} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('mini')} />
+                        <WeeklyCalendarWidget tasks={tasks} statuses={statuses} onAddTask={handleOpenNewTask} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('mini')} />
                       ) : (
-                        <MiniCalendarWidget tasks={tasks} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('weekly')} />
+                        <MiniCalendarWidget tasks={tasks} statuses={statuses} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('weekly')} />
                       )}
                       <div className="progress-widget-container">
                         <ProgressWidget tasks={tasks} statuses={statuses} />
@@ -499,6 +514,7 @@ function App() {
             <Route path="/tasks" element={
               <div className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
                 <WelcomeCard 
+                  user={user}
                   onAddTask={handleOpenNewTask} 
                   tasksCount={tasks.filter(t => t.status !== (statuses.length > 0 ? statuses[statuses.length - 1] : 'done')).length}
                   searchQuery={searchQuery}
@@ -528,6 +544,7 @@ function App() {
 
             <Route path="/settings" element={
               <SettingsView 
+                user={user}
                 projects={projects} setProjects={(arr) => syncSettings({ projects: arr })} onRenameProject={handleRenameProject} onDeleteProject={handleDeleteProject}
                 priorities={priorities} setPriorities={(arr) => syncSettings({ priorities: arr })} onRenamePriority={handleRenamePriority} onDeletePriority={handleDeletePriority}
                 statuses={statuses} setStatuses={(arr) => syncSettings({ statuses: arr })} onRenameStatus={handleRenameStatus} onDeleteStatus={handleDeleteStatus}
@@ -536,7 +553,7 @@ function App() {
               />
             } />
 
-            <Route path="/finances" element={<FinancesView />} />
+            <Route path="/finances" element={<FinancesView user={user} />} />
             <Route path="/notes" element={<NotesView tasks={tasks} notes={notes} onSaveNote={handleSaveNote} onDeleteNote={handleDeleteNote} onAddNote={(type = 'text') => { setEditingNote({ type }); setIsNoteModalOpen(true); setTopModal('note'); }} onEditNote={(n) => { setEditingNote(n); setIsNoteModalOpen(true); setTopModal('note'); }} />} />
             <Route path="/habits" element={<HabitsView />} />
             <Route path="/ai" element={<AICoachView />} />
@@ -609,7 +626,18 @@ function App() {
         zIndex={topModal === 'task' ? 2000 : 1000}
         onClose={() => { setIsModalOpen(false); setEditingTask(null); }} 
         onSave={handleSaveTask} 
-        onDelete={(id) => deleteDoc(doc(db, "users", user?.uid, "tasks", id.toString()))} 
+        onDelete={async (id) => {
+          const taskToDelete = tasks.find(t => t.id === id);
+          if (taskToDelete?.file?.path) {
+            try {
+              const fileRef = ref(storage, taskToDelete.file.path);
+              await deleteObject(fileRef);
+            } catch (err) {
+              console.error("Failed to delete attached file: ", err);
+            }
+          }
+          await deleteDoc(doc(db, "users", user?.uid, "tasks", id.toString()));
+        }} 
         task={editingTask} 
         projects={projects}
         priorities={priorities}

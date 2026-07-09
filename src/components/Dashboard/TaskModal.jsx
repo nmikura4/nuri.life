@@ -3,10 +3,16 @@ import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
 import CustomDatePicker from '../UI/CustomDatePicker';
 import { X, Edit2, ChevronDown, ChevronUp, Tag as TagIcon } from 'lucide-react';
+import { useConfirm } from '../../hooks/useConfirm';
+import FileUploader from '../UI/FileUploader';
 import '../UI/UI.css';
 
-const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = [] }) => {
-  const [formData, setFormData] = useState(subtask);
+const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = [], parentDeadline, parentDeadlineTime }) => {
+  const [formData, setFormData] = useState({
+    ...subtask,
+    deadline: subtask.deadline || parentDeadline || '',
+    deadlineTime: subtask.deadlineTime || parentDeadlineTime || ''
+  });
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -53,6 +59,9 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
                 <CustomDatePicker 
                   value={formData.deadline || ''} 
                   onChange={(val) => handleChange('deadline', val)} 
+                  enableTime={true}
+                  timeValue={formData.deadlineTime}
+                  onTimeChange={(val) => handleChange('deadlineTime', val)}
                 />
               </div>
               <div>
@@ -86,6 +95,7 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
 };
 
 const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = [], priorities = [], statuses = [], notes = [], onOpenNote, zIndex }) => {
+  const confirm = useConfirm();
   const defaultStatus = statuses.length > 0 ? statuses[0] : 'todo';
   
   const [formData, setFormData] = useState({
@@ -96,9 +106,11 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
     project: '',
     tags: '',
     deadline: '',
+    deadlineTime: '',
     recurrence: 'none',
     subtasks: [],
-    linkedNotes: []
+    linkedNotes: [],
+    file: null
   });
 
   const [newSubtask, setNewSubtask] = useState('');
@@ -122,9 +134,11 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
         project: task.project || '',
         tags: Array.isArray(task.tags) ? task.tags.join(', ') : (task.tags || ''),
         deadline: task.deadline || today,
+        deadlineTime: task.deadlineTime || '',
         recurrence: task.recurrence || 'none',
         subtasks: task.subtasks || [],
-        linkedNotes: task.linkedNotes || []
+        linkedNotes: task.linkedNotes || [],
+        file: task.file || null
       });
       setIsDescOpen(!!task.desc);
     } else {
@@ -136,9 +150,11 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
         project: '',
         tags: [],
         deadline: today,
+        deadlineTime: '',
         recurrence: 'none',
         subtasks: [],
-        linkedNotes: []
+        linkedNotes: [],
+        file: null
       });
       setIsDescOpen(false);
     }
@@ -157,7 +173,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
     if (newSubtask.trim()) {
       setFormData(prev => ({
         ...prev,
-        subtasks: [...prev.subtasks, { id: crypto.randomUUID(), title: newSubtask.trim(), isCompleted: false }]
+        subtasks: [...prev.subtasks, { id: crypto.randomUUID(), title: newSubtask.trim(), isCompleted: false, deadline: prev.deadline, deadlineTime: prev.deadlineTime }]
       }));
       setNewSubtask('');
     }
@@ -261,6 +277,9 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
                   <CustomDatePicker 
                     value={formData.deadline} 
                     onChange={(val) => setFormData(prev => ({ ...prev, deadline: val }))} 
+                    enableTime={true}
+                    timeValue={formData.deadlineTime}
+                    onTimeChange={(val) => setFormData(prev => ({ ...prev, deadlineTime: val }))}
                   />
                 </div>
               </div>
@@ -359,6 +378,15 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
               </div>
 
               <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Attachment</label>
+                <FileUploader 
+                  fileData={formData.file} 
+                  onChange={(val) => setFormData(prev => ({ ...prev, file: val }))} 
+                  folder="tasks" 
+                />
+              </div>
+
+              <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Subtasks</label>
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
                   <input 
@@ -412,7 +440,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '10px' }}>
                 {task && (
-                  <button type="button" className="pill-btn danger" onClick={() => { if (window.confirm('Are you sure you want to delete this task? This action cannot be undone.')) { onDelete(task.id); onClose(); } }} style={{ marginRight: 'auto' }}>
+                  <button type="button" className="pill-btn danger" onClick={async () => { if (await confirm('Are you sure you want to delete this task? This action cannot be undone.')) { onDelete(task.id); onClose(); } }} style={{ marginRight: 'auto' }}>
                     Delete
                   </button>
                 )}
@@ -430,6 +458,8 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
             onSave={handleSaveSubtask} 
             priorities={priorities} 
             statuses={statuses} 
+            parentDeadline={formData.deadline}
+            parentDeadlineTime={formData.deadlineTime}
           />
         )}
       </div>

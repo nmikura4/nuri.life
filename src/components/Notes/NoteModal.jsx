@@ -6,6 +6,8 @@ import { Tldraw, DefaultSizeStyle, DefaultStylePanel, iconTypes } from 'tldraw';
 import 'tldraw/tldraw.css';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import { useConfirm } from '../../hooks/useConfirm';
+import FileUploader from '../UI/FileUploader';
 import '../UI/UI.css';
 
 let globalEditor = null;
@@ -147,6 +149,7 @@ const customAssetUrls = {
 };
 
 const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [], onOpenTask, zIndex }) => {
+  const confirm = useConfirm();
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -419,8 +422,8 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
               {note && (
                 <button 
                   type="button" 
-                  onClick={() => {
-                    if(window.confirm('Delete this drawing?')) {
+                  onClick={async () => {
+                    if(await confirm('Delete this drawing?')) {
                       onDelete(note.id);
                       onClose();
                     }
@@ -453,7 +456,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
           display: 'flex', 
           flexDirection: 'column', 
           gap: '16px',
-          padding: '24px',
+          padding: '16px 24px 24px',
           background: `linear-gradient(${currentColorValue}, ${currentColorValue}), var(--solid-card-bg)`,
           boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
           transition: isDragging ? 'none' : 'background 0.3s ease',
@@ -483,7 +486,6 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Note Title</label>
             <input 
               type="text" 
               name="title" 
@@ -529,17 +531,11 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
           <div className="responsive-grid-2">
             <div>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Attachment</label>
-              <div className="neu-input" style={{ display: 'flex', alignItems: 'center', minHeight: '44px', padding: '0 16px' }}>
-                <input 
-                  type="file" 
-                  id="note-file" 
-                  style={{ display: 'none' }} 
-                  onChange={(e) => setFile(e.target.files[0])} 
-                />
-                <label htmlFor="note-file" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '14px', width: '100%', margin: 0 }}>
-                  <Paperclip size={16} /> {file ? (file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name) : 'Attach File'}
-                </label>
-              </div>
+              <FileUploader 
+                fileData={file} 
+                onChange={setFile} 
+                folder="notes" 
+              />
             </div>
 
             <div>
@@ -608,8 +604,8 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
           {note && (
             <button 
               type="button" 
-              onClick={() => {
-                if(window.confirm('Delete this note?')) {
+              onClick={async () => {
+                if(await confirm('Delete this note?')) {
                   onDelete(note.id);
                   onClose();
                 }

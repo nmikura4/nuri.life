@@ -6,6 +6,7 @@ import Badge from '../UI/Badge';
 import '../UI/UI.css';
 
 const WelcomeCard = ({ 
+  user,
   onAddTask, tasksCount = 0, searchQuery, setSearchQuery, 
   viewMode, setViewMode, theme, onThemeChange,
   sortBy, setSortBy, showDone, setShowDone 
@@ -49,7 +50,7 @@ const WelcomeCard = ({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>
           <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-main)', marginBottom: '4px' }}>
-            {getGreeting()}, Mika
+            {getGreeting()}, {user?.displayName || user?.email?.split('@')[0] || 'User'}
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>You have {tasksCount} tasks for today. Let's get things done!</p>
         </div>

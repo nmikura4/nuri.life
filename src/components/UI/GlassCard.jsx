@@ -1,11 +1,11 @@
+import React, { forwardRef } from 'react';
 
-
-const GlassCard = ({ children, className = '', style = {}, ...props }) => {
+const GlassCard = forwardRef(({ children, className = '', style = {}, ...props }, ref) => {
   return (
-    <div className={`glass-panel ${className}`} style={style} {...props}>
+    <div className={`glass-panel ${className}`} style={style} ref={ref} {...props}>
       {children}
     </div>
   );
-};
+});
 
 export default GlassCard;

@@ -31,7 +31,10 @@ const TransactionsTable = () => {
           <tbody>
             {transactions.map(t => {
               const cat = categories.find(c => c.id === t.categoryId);
+              const subcat = cat?.subcategories?.find(s => s.id === t.subcategoryId);
+              
               const CatIcon = ICON_OPTIONS.find(i => i.name === cat?.iconName)?.icon || TagIcon;
+              const SubcatIcon = subcat ? (ICON_OPTIONS.find(i => i.name === subcat.iconName)?.icon || TagIcon) : null;
               
               const formattedDate = new Date(t.date + 'T12:00:00').toLocaleDateString('en-GB', {
                 day: 'numeric', month: 'short', year: 'numeric'
@@ -44,8 +47,17 @@ const TransactionsTable = () => {
                   </td>
                   <td style={{ padding: '16px' }}>
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--item-bg)', padding: '6px 12px', borderRadius: '12px', fontSize: '13px', fontWeight: 600 }}>
-                      <CatIcon size={14} color={t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)'} />
-                      {cat?.name || 'Uncategorized'}
+                      {subcat ? (
+                        <>
+                          <SubcatIcon size={14} color={t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)'} />
+                          {cat?.name} → {subcat.name}
+                        </>
+                      ) : (
+                        <>
+                          <CatIcon size={14} color={t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)'} />
+                          {cat?.name || 'Uncategorized'}
+                        </>
+                      )}
                     </div>
                   </td>
                   <td style={{ padding: '16px', maxWidth: '300px' }}>

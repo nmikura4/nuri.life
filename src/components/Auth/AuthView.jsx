@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
 
 const AuthView = () => {
@@ -45,6 +45,29 @@ const AuthView = () => {
     } catch (err) {
       console.error(err);
       setError('Ошибка входа через Google: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      setError('Пожалуйста, введите ваш email для сброса пароля.');
+      return;
+    }
+    setError('');
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert('Ссылка для сброса пароля отправлена на ваш email.');
+    } catch (err) {
+      console.error(err);
+      if (err.code === 'auth/user-not-found') {
+        setError('Пользователь с таким email не найден.');
+      } else {
+        setError('Ошибка при сбросе пароля: ' + err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -171,7 +194,7 @@ const AuthView = () => {
                 </div>
                 <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Remember me</span>
               </div>
-              <a href="#" style={{ fontSize: '13px', color: 'var(--text-muted)', textDecoration: 'none' }}>Forget password?</a>
+              <a href="#" onClick={handleResetPassword} style={{ fontSize: '13px', color: 'var(--text-muted)', textDecoration: 'none' }}>Forget password?</a>
             </div>
           )}
 
@@ -210,14 +233,7 @@ const AuthView = () => {
         {/* Social Buttons */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
           {[
-            { id: 'facebook', icon: <span style={{ fontWeight: 'bold', fontSize: '18px', fontFamily: 'serif' }}>f</span>, action: () => {} },
-            { id: 'google', icon: <span style={{ fontWeight: 'bold', fontSize: '18px', fontFamily: 'sans-serif' }}>G</span>, action: handleGoogleSignIn },
-            { id: 'linkedin', icon: <span style={{ fontWeight: 'bold', fontSize: '18px', fontFamily: 'sans-serif' }}>in</span>, action: () => {} },
-            { id: 'twitter', icon: (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
-              </svg>
-            ), action: () => {} }
+            { id: 'google', icon: <span style={{ fontWeight: 'bold', fontSize: '18px', fontFamily: 'sans-serif' }}>G</span>, action: handleGoogleSignIn }
           ].map((social) => (
             <button
               key={social.id}

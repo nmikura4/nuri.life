@@ -3,6 +3,7 @@ import GlassCard from '../UI/GlassCard';
 import { X, Tag as TagIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import CustomDatePicker from '../UI/CustomDatePicker';
 import CustomSelect from '../UI/CustomSelect';
+import FileUploader from '../UI/FileUploader';
 import '../UI/UI.css';
 
 const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, counterparties = [], persons = [] }) => {
@@ -11,10 +12,12 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
     amount: '',
     date: new Date().toISOString().substring(0, 10),
     categoryId: '',
+    subcategoryId: '',
     person: '',
     counterparty: '',
     comment: '',
-    tags: []
+    tags: [],
+    file: null
   });
   
   const [tagInput, setTagInput] = useState('');
@@ -32,13 +35,15 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
       setFormData(prev => ({ 
         ...prev, 
         categoryId: expCat ? expCat.id : '',
+        subcategoryId: '',
         type: 'expense',
         amount: '',
         date: new Date().toISOString().substring(0, 10),
         person: '',
         counterparty: '',
         comment: '',
-        tags: []
+        tags: [],
+        file: null
       }));
       setIsCommentOpen(false);
     }
@@ -66,7 +71,8 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
       return { 
         ...prev, 
         type, 
-        categoryId: filteredCats.length > 0 ? filteredCats[0].id : '' 
+        categoryId: filteredCats.length > 0 ? filteredCats[0].id : '',
+        subcategoryId: ''
       };
     });
   };
@@ -98,7 +104,9 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
     onSave(finalData);
   };
 
-  const filteredCategories = categories.filter(c => c.type === formData.type);
+  const filteredCategories = categories.filter(c => c.type === formData.type).sort((a, b) => (a.order || 0) - (b.order || 0));
+  const selectedCategory = categories.find(c => c.id === formData.categoryId);
+  const subcategories = [...(selectedCategory?.subcategories || [])].sort((a, b) => (a.order || 0) - (b.order || 0));
 
   return (
     <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={transaction ? 'Edit Transaction' : 'New Transaction'}>
@@ -142,11 +150,23 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
               <CustomSelect 
                 options={filteredCategories.map(c => ({ label: c.name, value: c.id }))}
                 value={formData.categoryId}
-                onChange={(val) => setFormData(prev => ({ ...prev, categoryId: val }))}
+                onChange={(val) => setFormData(prev => ({ ...prev, categoryId: val, subcategoryId: '' }))}
                 placeholder="Select a category"
               />
               {filteredCategories.length === 0 && (
                 <p style={{ fontSize: '12px', color: 'var(--accent-coral)', marginTop: '8px' }}>Please create categories in Settings first.</p>
+              )}
+
+              {subcategories.length > 0 && (
+                <div style={{ marginTop: '16px' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Subcategory (Optional)</label>
+                  <CustomSelect 
+                    options={[{ label: 'None', value: '' }, ...subcategories.map(s => ({ label: s.name, value: s.id }))]}
+                    value={formData.subcategoryId || ''}
+                    onChange={(val) => setFormData(prev => ({ ...prev, subcategoryId: val }))}
+                    placeholder="Select a subcategory"
+                  />
+                </div>
               )}
             </div>
 
@@ -185,6 +205,15 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
                   style={{ border: 'none', background: 'transparent', outline: 'none', flex: 1, minWidth: '80px', color: 'var(--text-main)', fontSize: '14px' }}
                 />
               </div>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Attachment</label>
+              <FileUploader 
+                fileData={formData.file} 
+                onChange={(val) => setFormData(prev => ({ ...prev, file: val }))} 
+                folder="finances" 
+              />
             </div>
 
             <div style={{ background: 'var(--card-bg)', borderRadius: '12px', padding: '12px', boxShadow: 'var(--shadow-soft)' }}>

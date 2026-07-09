@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
 import { X, Save, Activity, Trash2 } from 'lucide-react';
+import { useConfirm } from '../../hooks/useConfirm';
 import '../UI/UI.css';
 
 const HabitModal = ({ isOpen, onClose, habit, onSave, onDelete }) => {
+  const confirm = useConfirm();
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [frequency, setFrequency] = useState('daily');
@@ -125,8 +127,8 @@ const HabitModal = ({ isOpen, onClose, habit, onSave, onDelete }) => {
                   type="button"
                   className="pill-btn danger" 
                   style={{ marginRight: 'auto' }}
-                  onClick={() => {
-                    if (window.confirm("Are you sure you want to delete this habit?")) {
+                  onClick={async () => {
+                    if (await confirm("Are you sure you want to delete this habit?")) {
                       onDelete(habit.id);
                       onClose();
                     }

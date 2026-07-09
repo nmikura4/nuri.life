@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import GlassCard from './GlassCard';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import CustomSelect from './CustomSelect';
 import './UI.css';
 
-const CustomDatePicker = ({ value, onChange }) => {
+const CustomDatePicker = ({ value, onChange, timeValue, onTimeChange, enableTime }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
@@ -51,7 +52,7 @@ const CustomDatePicker = ({ value, onChange }) => {
     const m = String(displayMonth + 1).padStart(2, '0');
     const day = String(d).padStart(2, '0');
     onChange(`${y}-${m}-${day}`);
-    setIsOpen(false);
+    if (!enableTime) setIsOpen(false);
   };
 
   const daysInMonth = new Date(displayYear, displayMonth + 1, 0).getDate();
@@ -59,7 +60,7 @@ const CustomDatePicker = ({ value, onChange }) => {
   const emptySlots = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
 
   const displayValue = value 
-    ? new Date(value + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) 
+    ? new Date(value + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + (enableTime && timeValue ? `, ${timeValue}` : '')
     : 'Select a date...';
 
   return (
@@ -152,6 +153,45 @@ const CustomDatePicker = ({ value, onChange }) => {
               );
             })}
           </div>
+          {enableTime && (
+            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--card-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-main)' }}>Time</span>
+              <input 
+                type="text" 
+                placeholder="HH:MM"
+                value={timeValue || ''} 
+                onChange={(e) => {
+                  let val = e.target.value.replace(/[^\d:]/g, '');
+                  if (val.length === 2 && !val.includes(':') && (timeValue || '').length < 2) {
+                    val += ':';
+                  }
+                  if (onTimeChange) onTimeChange(val);
+                }}
+                onBlur={(e) => {
+                  let val = e.target.value;
+                  if (!val) return;
+                  let h = 0, m = 0;
+                  if (!val.includes(':') && val.length > 2) {
+                    h = parseInt(val.substring(0, 2), 10);
+                    m = parseInt(val.substring(2, 4), 10);
+                  } else {
+                    let parts = val.split(':');
+                    h = parseInt(parts[0] || '0', 10);
+                    m = parseInt(parts[1] || '0', 10);
+                  }
+                  if (isNaN(h)) h = 0;
+                  if (isNaN(m)) m = 0;
+                  if (h > 23) h = 23;
+                  if (m > 59) m = 59;
+                  const formatted = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                  if (onTimeChange) onTimeChange(formatted);
+                }}
+                className="neu-input"
+                style={{ width: '80px', padding: '6px 12px', fontSize: '14px', textAlign: 'center', boxSizing: 'border-box' }}
+                maxLength="5"
+              />
+            </div>
+          )}
         </GlassCard>
       )}
     </div>

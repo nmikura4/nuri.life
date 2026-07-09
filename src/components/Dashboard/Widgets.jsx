@@ -92,7 +92,7 @@ export const ProgressWidget = ({ tasks = [], statuses = [] }) => {
   );
 };
 
-export const MiniCalendarWidget = ({ selectedDate, onSelectDate, tasks = [], onToggleCalendar }) => {
+export const MiniCalendarWidget = ({ selectedDate, onSelectDate, tasks = [], statuses = [], onToggleCalendar }) => {
   const today = new Date();
   const [displayYear, setDisplayYear] = useState(today.getFullYear());
   const [displayMonth, setDisplayMonth] = useState(today.getMonth());
@@ -125,8 +125,9 @@ export const MiniCalendarWidget = ({ selectedDate, onSelectDate, tasks = [], onT
   const firstDayOfWeek = new Date(displayYear, displayMonth, 1).getDay();
   const emptySlots = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
 
+  const doneStatus = statuses.length > 0 ? statuses[statuses.length - 1] : 'done';
   const taskDates = new Set(
-    tasks.filter(t => t.deadline).map(t => t.deadline)
+    tasks.filter(t => t.deadline && t.status !== doneStatus).map(t => t.deadline)
   );
 
   const handleDateClick = (dateObj) => {
@@ -201,14 +202,15 @@ export const MiniCalendarWidget = ({ selectedDate, onSelectDate, tasks = [], onT
   );
 };
 
-export const WeeklyCalendarWidget = ({ tasks = [], onAddTask, selectedDate, onSelectDate, onToggleCalendar }) => {
+export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, selectedDate, onSelectDate, onToggleCalendar }) => {
   const [viewMode, setViewMode] = useState('weekly');
   const referenceDate = selectedDate || new Date();
   const currentMonthName = referenceDate.toLocaleString('en-US', { month: 'long' });
   const currentDateNum = referenceDate.getDate();
 
+  const doneStatus = statuses.length > 0 ? statuses[statuses.length - 1] : 'done';
   const taskDates = new Set(
-    tasks.filter(t => t.deadline).map(t => t.deadline)
+    tasks.filter(t => t.deadline && t.status !== doneStatus).map(t => t.deadline)
   );
 
   const getDaysOfWeek = () => {
@@ -415,23 +417,6 @@ export const WeeklyCalendarWidget = ({ tasks = [], onAddTask, selectedDate, onSe
         {/* Секция 4: Подвал (Footer) */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)' }}>
-            <Edit2 size={14} />
-            <input 
-              type="text" 
-              placeholder="Add a note..." 
-              className="neu-input"
-              style={{ 
-                border: 'none', 
-                background: 'transparent', 
-                outline: 'none', 
-                boxShadow: 'none',
-                padding: '4px',
-                color: 'var(--text-main)',
-                fontSize: '13px',
-                fontWeight: 600,
-                width: '120px'
-              }} 
-            />
           </div>
           <button className="pill-btn primary" onClick={onAddTask} style={{ 
             display: 'flex', 

@@ -3,8 +3,10 @@ import GlassCard from '../UI/GlassCard';
 import { Plus, Trash2, Edit2, Check, X, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from 'lucide-react';
 import '../UI/UI.css';
 import FinanceCategoriesManager from './FinanceCategoriesManager';
+import { useConfirm } from '../../hooks/useConfirm';
 
 export const ListManager = ({ title, items, setItems, onRename, onDelete, placeholder }) => {
+  const confirm = useConfirm();
   const [isOpen, setIsOpen] = useState(false);
   const [newItem, setNewItem] = useState('');
   const [editingItem, setEditingItem] = useState(null);
@@ -130,7 +132,7 @@ export const ListManager = ({ title, items, setItems, onRename, onDelete, placeh
                       <Edit2 size={18} />
                     </button>
                     <button 
-                      onClick={() => { if (window.confirm(`Delete "${item}"?`)) onDelete(item); }}
+                      onClick={async () => { if (await confirm(`Delete "${item}"?`)) onDelete(item); }}
                       style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer', padding: '10px', display: 'flex', alignItems: 'center' }}
                     >
                       <Trash2 size={18} />
@@ -149,6 +151,7 @@ export const ListManager = ({ title, items, setItems, onRename, onDelete, placeh
 };
 
 const SettingsView = ({ 
+  user,
   projects, setProjects, onRenameProject, onDeleteProject,
   priorities, setPriorities, onRenamePriority, onDeletePriority,
   statuses, setStatuses, onRenameStatus, onDeleteStatus,
@@ -267,7 +270,7 @@ const SettingsView = ({
           />
         </div>
         ) : (
-          <FinanceCategoriesManager />
+          <FinanceCategoriesManager user={user} />
         )}
       </GlassCard>
     </div>

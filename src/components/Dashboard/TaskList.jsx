@@ -43,8 +43,8 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
               onClick={() => onEditTask(task)}
               style={{
                 background: 'var(--item-bg)',
-                borderRadius: '20px',
-                padding: '20px',
+                borderRadius: '16px',
+                padding: '12px 20px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -59,7 +59,7 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
                 <div 
                   onClick={(e) => onToggleStatus(task.id, e)}
                   style={{
-                    width: '32px', height: '32px', minWidth: '32px', minHeight: '32px', borderRadius: '8px',
+                    width: '24px', height: '24px', minWidth: '24px', minHeight: '24px', borderRadius: '6px',
                     border: '2px solid var(--accent-blue)',
                     background: isDone(task) ? 'var(--accent-blue)' : 'transparent',
                     boxShadow: 'var(--shadow-inner)',
@@ -68,7 +68,7 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
                     flexShrink: 0
                   }}>
                     {isDone(task) && (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     )}
                   </div>
                 
@@ -133,7 +133,7 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
                       const isOverdue = deadlineDate < today;
                       return (
                         <span style={{ fontSize: '12px', fontWeight: 600, color: isOverdue ? 'var(--accent-coral)' : 'var(--text-muted)' }}>
-                          {deadlineDate.toLocaleDateString()}
+                          {deadlineDate.toLocaleDateString()}{task.deadlineTime ? ` ${task.deadlineTime}` : ''}
                         </span>
                       );
                     })()}

@@ -1,6 +1,17 @@
 import { 
   Home, Bell, Mail, Clock, MapPin, Heart, RefreshCw, User, Sliders, Calendar, Settings, ShoppingCart, Eye, PlusCircle, MinusCircle, Wallet, Download, Tag,
-  Activity, AlertCircle, Archive, Award, BarChart, Battery, Bluetooth, Book, Bookmark, Box, Briefcase, Camera, Check, Clipboard, Cloud, Coffee, Compass, Copy, Cpu, CreditCard, Crosshair, Database, DollarSign, Droplet, Edit, Edit2, FastForward, Feather, File, FileText, Film, Filter, Flag, Folder, Gift, Globe, Grid, HardDrive, Headphones, HelpCircle, Hexagon, Inbox, Info, Key, Layers, Layout, LifeBuoy, Link, List, Lock, LogIn, LogOut, Map, MessageCircle, MessageSquare, Mic, Monitor, Moon, Music, Navigation, Package, Paperclip, Pause, Percent, Phone, PieChart, Play, Plus, Power, Printer, Radio, Save, Scissors, Search, Send, Server, Share, Shield, ShoppingBag, Smartphone, Smile, Speaker, Star, Sun, Tablet, Target, Terminal, Thermometer, ThumbsDown, ThumbsUp, Trash, Trash2, TrendingDown, TrendingUp, Truck, Tv, Umbrella, Unlock, Upload, Users, Video, Watch, Wifi, Wind, Zap, ZoomIn, ZoomOut
+  Activity, AlertCircle, Archive, Award, BarChart, Battery, Bluetooth, Book, Bookmark, Box, Briefcase, Camera, Check, Clipboard, Cloud, Coffee, Compass, Copy, Cpu, CreditCard, Crosshair, Database, DollarSign, Droplet, Edit, Edit2, FastForward, Feather, File, FileText, Film, Filter, Flag, Folder, Gift, Globe, Grid, HardDrive, Headphones, HelpCircle, Hexagon, Inbox, Info, Key, Layers, Layout, LifeBuoy, Link, List, Lock, LogIn, LogOut, Map, MessageCircle, MessageSquare, Mic, Monitor, Moon, Music, Navigation, Package, Paperclip, Pause, Percent, Phone, PieChart, Play, Plus, Power, Printer, Radio, Save, Scissors, Search, Send, Server, Share, Shield, ShoppingBag, Smartphone, Smile, Speaker, Star, Sun, Tablet, Target, Terminal, Thermometer, ThumbsDown, ThumbsUp, Trash, Trash2, TrendingDown, TrendingUp, Truck, Tv, Umbrella, Unlock, Upload, Users, Video, Watch, Wifi, Wind, Zap, ZoomIn, ZoomOut,
+  Car, Plane, Train, Bus, Bike, Ship, Fuel, Ticket,
+  Utensils, Wine, Pizza, Apple, Beef, Carrot, Cherry, Citrus, Croissant, Egg, Fish, Grape, IceCream, Martini, Milk, Nut, Salad, Sandwich, Soup, Vegan,
+  Building, Building2, Factory, Store, Warehouse, Hotel, School, Hospital,
+  Cat, Dog, Bird, Rabbit, Snail, Turtle, Bug,
+  Gamepad, Gamepad2, Puzzle, Ghost, Sparkles, Wand, Clapperboard, Popcorn, PartyPopper, Tent, Trees, Mountain,
+  Dumbbell, HeartPulse, Stethoscope, Pill,
+  Barcode, Shirt, Brush, Glasses,
+  Wrench, Hammer, Drill, Construction,
+  GraduationCap, PenTool, Pencil, Library,
+  Bitcoin, Banknote, Coins, PiggyBank, Landmark, Scale,
+  Calculator, Baby, Contact
 } from 'lucide-react';
 
 export const ICON_OPTIONS = [
@@ -35,5 +46,26 @@ export const ICON_OPTIONS = [
   { name: 'TrendingDown', icon: TrendingDown }, { name: 'TrendingUp', icon: TrendingUp }, { name: 'Truck', icon: Truck }, { name: 'Tv', icon: Tv },
   { name: 'Umbrella', icon: Umbrella }, { name: 'Unlock', icon: Unlock }, { name: 'Upload', icon: Upload }, { name: 'Users', icon: Users },
   { name: 'Video', icon: Video }, { name: 'Watch', icon: Watch }, { name: 'Wifi', icon: Wifi }, { name: 'Wind', icon: Wind },
-  { name: 'Zap', icon: Zap }, { name: 'ZoomIn', icon: ZoomIn }, { name: 'ZoomOut', icon: ZoomOut }
+  { name: 'Zap', icon: Zap }, { name: 'ZoomIn', icon: ZoomIn }, { name: 'ZoomOut', icon: ZoomOut },
+  { name: 'Car', icon: Car }, { name: 'Plane', icon: Plane }, { name: 'Train', icon: Train }, { name: 'Bus', icon: Bus },
+  { name: 'Bike', icon: Bike }, { name: 'Ship', icon: Ship }, { name: 'Fuel', icon: Fuel }, { name: 'Ticket', icon: Ticket },
+  { name: 'Utensils', icon: Utensils }, { name: 'Wine', icon: Wine }, { name: 'Pizza', icon: Pizza }, { name: 'Apple', icon: Apple },
+  { name: 'Beef', icon: Beef }, { name: 'Carrot', icon: Carrot }, { name: 'Cherry', icon: Cherry }, { name: 'Citrus', icon: Citrus },
+  { name: 'Croissant', icon: Croissant }, { name: 'Egg', icon: Egg }, { name: 'Fish', icon: Fish }, { name: 'Grape', icon: Grape },
+  { name: 'IceCream', icon: IceCream }, { name: 'Martini', icon: Martini }, { name: 'Milk', icon: Milk }, { name: 'Nut', icon: Nut },
+  { name: 'Salad', icon: Salad }, { name: 'Sandwich', icon: Sandwich }, { name: 'Soup', icon: Soup }, { name: 'Vegan', icon: Vegan },
+  { name: 'Building', icon: Building }, { name: 'Building2', icon: Building2 }, { name: 'Factory', icon: Factory }, { name: 'Store', icon: Store },
+  { name: 'Warehouse', icon: Warehouse }, { name: 'Hotel', icon: Hotel }, { name: 'School', icon: School }, { name: 'Hospital', icon: Hospital },
+  { name: 'Cat', icon: Cat }, { name: 'Dog', icon: Dog }, { name: 'Bird', icon: Bird }, { name: 'Rabbit', icon: Rabbit },
+  { name: 'Snail', icon: Snail }, { name: 'Turtle', icon: Turtle }, { name: 'Bug', icon: Bug },
+  { name: 'Gamepad', icon: Gamepad }, { name: 'Gamepad2', icon: Gamepad2 }, { name: 'Puzzle', icon: Puzzle }, { name: 'Ghost', icon: Ghost },
+  { name: 'Sparkles', icon: Sparkles }, { name: 'Wand', icon: Wand }, { name: 'Clapperboard', icon: Clapperboard }, { name: 'Popcorn', icon: Popcorn },
+  { name: 'PartyPopper', icon: PartyPopper }, { name: 'Tent', icon: Tent }, { name: 'Trees', icon: Trees }, { name: 'Mountain', icon: Mountain },
+  { name: 'Dumbbell', icon: Dumbbell }, { name: 'HeartPulse', icon: HeartPulse }, { name: 'Stethoscope', icon: Stethoscope }, { name: 'Pill', icon: Pill },
+  { name: 'Barcode', icon: Barcode }, { name: 'Shirt', icon: Shirt }, { name: 'Brush', icon: Brush }, { name: 'Glasses', icon: Glasses },
+  { name: 'Wrench', icon: Wrench }, { name: 'Hammer', icon: Hammer }, { name: 'Drill', icon: Drill }, { name: 'Construction', icon: Construction },
+  { name: 'GraduationCap', icon: GraduationCap }, { name: 'PenTool', icon: PenTool }, { name: 'Pencil', icon: Pencil }, { name: 'Library', icon: Library },
+  { name: 'Bitcoin', icon: Bitcoin }, { name: 'Banknote', icon: Banknote }, { name: 'Coins', icon: Coins }, { name: 'PiggyBank', icon: PiggyBank },
+  { name: 'Landmark', icon: Landmark }, { name: 'Scale', icon: Scale }, { name: 'Calculator', icon: Calculator }, { name: 'Baby', icon: Baby },
+  { name: 'Contact', icon: Contact }
 ];
