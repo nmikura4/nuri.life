@@ -383,10 +383,9 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
             
             <div className="drawing-modal-options">
               <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Pattern:</span>
-              <select 
+              <CustomSelect 
                 value={formData.bgPattern || 'none'} 
-                onChange={(e) => {
-                  const pat = e.target.value;
+                onChange={(pat) => {
                   setFormData(p => ({...p, bgPattern: pat}));
                   globalBgPattern = pat;
                   // Pattern change triggers grid mode toggle
@@ -400,22 +399,17 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
                     }
                   }
                 }}
-                style={{
-                  background: 'transparent',
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  padding: '4px 8px',
-                  fontSize: '13px',
-                  color: 'var(--text-main)',
-                  cursor: 'pointer',
-                  outline: 'none'
+                style={{ width: '120px' }}
+                innerStyle={{
+                  padding: '8px 12px',
                 }}
-              >
-                <option value="none">None</option>
-                <option value="dots">Dots</option>
-                <option value="lines">Lines</option>
-                <option value="grid">Grid</option>
-              </select>
+                options={[
+                  {value: 'none', label: 'None'},
+                  {value: 'dots', label: 'Dots'},
+                  {value: 'lines', label: 'Lines'},
+                  {value: 'grid', label: 'Grid'}
+                ]}
+              />
             </div>
 
             <div className="drawing-modal-actions">
@@ -581,21 +575,20 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
                   })}
                 </div>
               )}
-              <select 
-                className="neu-select"
+              <CustomSelect 
                 value=""
-                onChange={(e) => {
-                  if (e.target.value && !formData.linkedTasks.includes(e.target.value)) {
-                    setFormData(prev => ({ ...prev, linkedTasks: [...prev.linkedTasks, e.target.value] }));
+                placeholder="Attach a task..."
+                onChange={(val) => {
+                  if (val && !formData.linkedTasks.includes(val)) {
+                    setFormData(prev => ({ ...prev, linkedTasks: [...prev.linkedTasks, val] }));
                   }
                 }}
-                style={{ width: '100%', boxSizing: 'border-box', appearance: 'none', cursor: 'pointer' }}
-              >
-                <option value="" disabled>Attach a task...</option>
-                {tasks.filter(t => !formData.linkedTasks.includes(t.id)).map(t => (
-                  <option key={t.id} value={t.id}>{t.title || 'Untitled Task'}</option>
-                ))}
-              </select>
+                style={{ width: '100%' }}
+                options={tasks.filter(t => !formData.linkedTasks.includes(t.id)).map(t => ({
+                  value: t.id,
+                  label: t.title || 'Untitled Task'
+                }))}
+              />
             </div>
           </div>
         </div>

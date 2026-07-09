@@ -7,7 +7,7 @@ const TransactionsToolbar = () => {
   const { selectedMonth, setSelectedMonth, searchQuery, setSearchQuery, openNewTransaction } = useFinance();
 
   return (
-    <div style={{ display: 'flex', gap: '10px', flexWrap: 'nowrap', alignItems: 'center', width: '100%' }}>
+    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', width: '100%' }}>
       
       <button onClick={openNewTransaction} className="pill-btn primary" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', fontSize: '14px', whiteSpace: 'nowrap' }}>
         <Plus size={18} /> New

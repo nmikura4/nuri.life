@@ -256,7 +256,7 @@ const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, statuses = []
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div style={{ flex: 1, display: 'flex', gap: '20px', minHeight: 'calc(100vh - 60px)', overflowX: 'auto', paddingBottom: '20px' }}>
+      <div style={{ flex: 1, display: 'flex', gap: '20px', minHeight: 'calc(100dvh - 95px)', overflowX: 'auto', paddingBottom: '20px' }}>
         {columns.map(col => {
           const columnTasks = tasks.filter(t => t.status === col.id);
           const isCollapsed = collapsedCols.includes(col.id);

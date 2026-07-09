@@ -52,7 +52,7 @@ const FinancesDashboard = () => {
           </div>
         </GlassCard>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', gap: '20px' }}>
           <GlassCard style={{ padding: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
               <div style={{ background: 'rgba(164, 201, 229, 0.2)', padding: '8px', borderRadius: '50%' }}>

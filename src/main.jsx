@@ -4,13 +4,16 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import { ConfirmProvider } from './hooks/useConfirm.jsx'
+import { AlertProvider } from './hooks/useAlert.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <ConfirmProvider>
-        <App />
-      </ConfirmProvider>
+      <AlertProvider>
+        <ConfirmProvider>
+          <App />
+        </ConfirmProvider>
+      </AlertProvider>
     </BrowserRouter>
   </StrictMode>,
 )

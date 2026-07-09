@@ -4,6 +4,7 @@ import { db, auth, storage } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { ref, deleteObject } from 'firebase/storage';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useAlert } from './hooks/useAlert';
 
 import AuthView from './components/Auth/AuthView';
 import CornerThemeSwitcher from './components/UI/CornerThemeSwitcher';
@@ -25,6 +26,7 @@ import NoteModal from './components/Notes/NoteModal';
 import { Brain, X } from 'lucide-react';
 
 function App() {
+  const showAlert = useAlert();
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [tasks, setTasks] = useState([]);
@@ -254,6 +256,11 @@ function App() {
     if (!task || task.status === newStatus) return;
 
     const isBecomingDone = newStatus === (statuses.length > 0 ? statuses[statuses.length - 1] : 'done');
+
+    if (isBecomingDone && task.subtasks && task.subtasks.some(s => !s.isCompleted)) {
+      showAlert('Есть не закончанная подзадача!');
+      return;
+    }
 
     await setDoc(doc(db, "users", user?.uid, "tasks", id.toString()), { ...task, status: newStatus });
 

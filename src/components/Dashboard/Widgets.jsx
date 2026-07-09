@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
 import { X, ChevronLeft, ChevronRight, Edit2, Plus, Eye } from 'lucide-react';
@@ -53,8 +53,18 @@ export const ProgressWidget = ({ tasks = [], statuses = [] }) => {
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (progress / 100) * circumference;
 
+  const [tooltip, setTooltip] = useState({ visible: false, text: '', x: 0, y: 0 });
+  const widgetRef = useRef(null);
+
+  const handleMouseMove = (e, text) => {
+    if (!widgetRef.current) return;
+    const rect = widgetRef.current.getBoundingClientRect();
+    setTooltip({ visible: true, text, x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+  const handleMouseLeave = () => setTooltip({ visible: false, text: '', x: 0, y: 0 });
+
   return (
-    <GlassCard style={{ padding: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <GlassCard ref={widgetRef} className="responsive-card" style={{ padding: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '20px' }}>
         <h3 style={{ fontSize: '16px', fontWeight: 600 }}>Progress</h3>
         <div style={{ width: '100px' }}>
@@ -77,10 +87,21 @@ export const ProgressWidget = ({ tasks = [], statuses = [] }) => {
       
       <div style={{ position: 'relative', width: '140px', height: '140px' }}>
         <svg width="140" height="140" style={{ transform: 'rotate(-90deg)' }}>
-          <circle cx="70" cy="70" r={radius} fill="transparent" stroke="rgba(255,255,255,0.5)" strokeWidth="16" style={{ filter: 'drop-shadow(2px 4px 6px rgba(0,0,0,0.1))' }} />
-          <circle cx="70" cy="70" r={radius} fill="transparent" stroke="var(--accent-coral)" strokeWidth="16" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.5s ease-in-out' }} />
+          <circle 
+            cx="70" cy="70" r={radius} fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="16" 
+            style={{ filter: 'drop-shadow(2px 4px 6px rgba(0,0,0,0.1))', cursor: 'pointer', pointerEvents: 'stroke' }} 
+            onPointerMove={(e) => handleMouseMove(e, `Осталось: ${totalTasks - doneTasks}`)}
+            onPointerLeave={handleMouseLeave}
+          />
+          <circle 
+            cx="70" cy="70" r={radius} fill="none" stroke="var(--accent-coral)" strokeWidth="16" 
+            strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" 
+            style={{ transition: 'stroke-dashoffset 0.5s ease-in-out', cursor: 'pointer', pointerEvents: 'stroke' }}
+            onPointerMove={(e) => handleMouseMove(e, `Сделано: ${doneTasks}`)}
+            onPointerLeave={handleMouseLeave}
+          />
         </svg>
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', pointerEvents: 'none' }}>
           <span style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)' }}>{progress}%</span>
         </div>
       </div>
@@ -88,6 +109,28 @@ export const ProgressWidget = ({ tasks = [], statuses = [] }) => {
       <p style={{ marginTop: '20px', fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center' }}>
         {totalTasks === 0 ? "No tasks for this period." : (doneTasks === totalTasks ? "All done! Great job!" : `${totalTasks - doneTasks} tasks remaining.`)}
       </p>
+
+      {tooltip.visible && (
+        <div style={{
+          position: 'absolute',
+          left: tooltip.x + 15,
+          top: tooltip.y + 15,
+          background: 'var(--card-bg)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          padding: '8px 12px',
+          borderRadius: '12px',
+          boxShadow: 'var(--shadow-card)',
+          color: 'var(--text-main)',
+          fontSize: '13px',
+          fontWeight: 600,
+          pointerEvents: 'none',
+          zIndex: 10000,
+          border: '1px solid var(--card-border)'
+        }}>
+          {tooltip.text}
+        </div>
+      )}
     </GlassCard>
   );
 };
@@ -139,7 +182,7 @@ export const MiniCalendarWidget = ({ selectedDate, onSelectDate, tasks = [], sta
   };
 
   return (
-    <GlassCard style={{ padding: '30px' }}>
+    <GlassCard className="responsive-card" style={{ padding: '30px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button onClick={goToPrevMonth} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-main)', display: 'flex', alignItems: 'center', padding: '4px' }} aria-label="Previous month">
@@ -260,7 +303,7 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
     setViewMode('weekly'); // switch back to weekly to see the days of the selected month
   };
   return (
-    <div style={{ 
+    <div className="responsive-card" style={{ 
       position: 'relative',
       borderRadius: '32px',
       padding: '30px', 
@@ -284,6 +327,7 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
             borderRadius: '24px', 
             padding: '4px',
             width: '180px',
+            maxWidth: '100%',
             boxShadow: 'var(--shadow-inner)'
           }}>
             <button 

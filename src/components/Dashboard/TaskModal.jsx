@@ -405,7 +405,21 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
                     <div key={sub.id} style={{ display: 'flex', flexDirection: 'column', background: 'var(--item-bg)', padding: '8px 12px', borderRadius: '8px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
-                          <input type="checkbox" checked={sub.isCompleted} onChange={() => handleToggleSubtask(sub.id)} style={{ cursor: 'pointer' }} />
+                          <div 
+                            onClick={() => handleToggleSubtask(sub.id)}
+                            style={{
+                              width: '18px', height: '18px', minWidth: '18px', minHeight: '18px', borderRadius: '4px',
+                              border: '2px solid var(--accent-blue)',
+                              background: sub.isCompleted ? 'var(--accent-blue)' : 'transparent',
+                              boxShadow: 'var(--shadow-inner)',
+                              cursor: 'pointer',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff',
+                              flexShrink: 0
+                            }}>
+                              {sub.isCompleted && (
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                              )}
+                          </div>
                           <span 
                             onClick={() => setEditingSubtask(sub)} 
                             style={{ fontSize: '13px', textDecoration: sub.isCompleted ? 'line-through' : 'none', color: sub.isCompleted ? 'var(--text-muted)' : 'inherit', cursor: 'pointer', flex: 1 }}

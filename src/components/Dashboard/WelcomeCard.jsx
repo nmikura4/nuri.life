@@ -42,10 +42,12 @@ const WelcomeCard = ({
       zIndex: 10
     }}>
       
-      <svg width="100%" height="100%" style={{ position: 'absolute', bottom: 0, left: 0, zIndex: -1 }} viewBox="0 0 500 200" preserveAspectRatio="none">
-        <path d="M0,100 C150,200 350,0 500,100 L500,200 L0,200 Z" fill="var(--accent-blue-wave)" opacity="0.4" />
-        <path d="M0,150 C200,50 300,250 500,150 L500,200 L0,200 Z" fill="var(--accent-blue)" opacity="0.3" />
-      </svg>
+      <div style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', overflow: 'hidden', zIndex: -1 }}>
+        <svg width="100%" height="100%" style={{ position: 'absolute', bottom: 0, left: 0 }} viewBox="0 0 500 200" preserveAspectRatio="none">
+          <path d="M0,100 C150,200 350,0 500,100 L500,200 L0,200 Z" fill="var(--accent-blue-wave)" opacity="0.4" />
+          <path d="M0,150 C200,50 300,250 500,150 L500,200 L0,200 Z" fill="var(--accent-blue)" opacity="0.3" />
+        </svg>
+      </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>

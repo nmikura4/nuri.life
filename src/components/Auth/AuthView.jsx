@@ -84,7 +84,8 @@ const AuthView = () => {
       background: 'var(--solid-card-bg)', // Matches project design
     }}>
       <div style={{
-        width: '380px',
+        width: '100%',
+        maxWidth: '380px',
         padding: '40px 30px',
         background: 'var(--solid-card-bg)',
         borderRadius: '30px',
