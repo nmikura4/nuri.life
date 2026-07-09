@@ -402,6 +402,7 @@ body.dark-theme .custom-select-option:hover {
   border: 1px solid var(--card-border);
   z-index: 100;
   overflow: hidden;
+  max-height: none;
   display: flex;
   flex-direction: column;
 }

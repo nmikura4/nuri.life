@@ -45,7 +45,7 @@ const CustomSelect = ({ options, value, onChange, placeholder = 'Select...', sty
                 onClick={() => { onChange(opt.value); setIsOpen(false); }}
                 className="custom-select-option"
                 style={{
-                  padding: '12px 16px',
+                  padding: '8px 16px',
                   cursor: 'pointer',
                   color: opt.value === value ? 'var(--accent-blue)' : 'var(--text-main)',
                   fontWeight: opt.value === value ? 700 : 500,
