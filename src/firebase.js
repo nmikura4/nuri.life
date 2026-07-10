@@ -4,12 +4,12 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyASsa8I3IUmN97jVxOpMIMZCgWKnLmokaw",
-  authDomain: "nuri-life-v2.firebaseapp.com",
-  projectId: "nuri-life-v2",
-  storageBucket: "nuri-life-v2.firebasestorage.app",
-  messagingSenderId: "260743925049",
-  appId: "1:260743925049:web:1e8ad543b7b5f78a926ce8"
+  apiKey: "AIzaSyCCpkHCbaqcZUxM902OOQo6WNOZxLPsz3Q",
+  authDomain: "nurimika-bc85f.firebaseapp.com",
+  projectId: "nurimika-bc85f",
+  storageBucket: "nurimika-bc85f.firebasestorage.app",
+  messagingSenderId: "666404503756",
+  appId: "1:666404503756:web:5451c4b955a926c6ebc269"
 };
 
 const app = initializeApp(firebaseConfig);
