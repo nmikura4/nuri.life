@@ -57,7 +57,7 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
                 <div 
-                  onClick={(e) => onToggleStatus(task.id, e)}
+                  onClick={(e) => { e.stopPropagation(); onToggleStatus(task.id, e); }}
                   style={{
                     width: '24px', height: '24px', minWidth: '24px', minHeight: '24px', borderRadius: '6px',
                     border: '2px solid var(--accent-blue)',

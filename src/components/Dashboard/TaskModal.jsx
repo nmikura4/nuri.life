@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
 import CustomDatePicker from '../UI/CustomDatePicker';
@@ -20,6 +21,8 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
     }
   };
 
+  useEscapeKey(onClose);
+
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -30,16 +33,17 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
   };
 
   return (
-    <div className="modal-overlay" onClick={handleBackdropClick} style={{ alignItems: 'center' }}>
+    <div className="modal-overlay" onClick={handleBackdropClick}>
       <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '500px' }}>
-        <GlassCard className="responsive-card" style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)', overflow: 'visible' }}>
-          <button type="button" onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-            <X size={24} />
-          </button>
-          
-          <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '24px' }}>
-            Edit Subtask
-          </h2>
+        <GlassCard className="responsive-card" style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0 }}>
+              Edit Subtask
+            </h2>
+            <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}>
+              <X size={24} />
+            </button>
+          </div>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
@@ -62,6 +66,7 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
                   enableTime={true}
                   timeValue={formData.deadlineTime}
                   onTimeChange={(val) => handleChange('deadlineTime', val)}
+                  alignRight={true}
                 />
               </div>
               <div>
@@ -95,8 +100,10 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
 };
 
 const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = [], priorities = [], statuses = [], notes = [], onOpenNote, zIndex }) => {
+  useEscapeKey(onClose);
   const confirm = useConfirm();
   const defaultStatus = statuses.length > 0 ? statuses[0] : 'todo';
+
   
   const [formData, setFormData] = useState({
     title: '',
@@ -112,6 +119,14 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
     linkedNotes: [],
     file: null
   });
+
+  const titleRef = useRef(null);
+  useEffect(() => {
+    if (titleRef.current) {
+      titleRef.current.style.height = 'auto';
+      titleRef.current.style.height = titleRef.current.scrollHeight + 'px';
+    }
+  }, [formData.title, isOpen]);
 
   const [newSubtask, setNewSubtask] = useState('');
   const [editingSubtask, setEditingSubtask] = useState(null);
@@ -132,7 +147,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
         status: task.status || defaultStatus,
         priority: task.priority || 'low',
         project: task.project || '',
-        tags: Array.isArray(task.tags) ? task.tags.join(', ') : (task.tags || ''),
+        tags: Array.isArray(task.tags) ? [...task.tags] : (task.tags ? [task.tags] : []),
         deadline: task.deadline || today,
         deadlineTime: task.deadlineTime || '',
         recurrence: task.recurrence || 'none',
@@ -245,19 +260,30 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
     <>
       <div className="modal-overlay" onClick={handleBackdropClick} role="dialog" aria-modal="true" aria-label={task ? 'Edit Task' : 'New Task'} style={{ zIndex }}>
         <div onClick={e => e.stopPropagation()} style={{ margin: 'auto', width: '100%', maxWidth: '500px' }}>
-          <GlassCard className="responsive-card" style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)' }}>
-            <button type="button" onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-              <X size={24} />
-            </button>
-            
-            <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '24px' }}>
-              {task ? 'Edit Task' : 'New Task'}
-            </h2>
+          <GlassCard className="responsive-card" style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 700, margin: 0 }}>
+                {task ? 'Edit Task' : 'New Task'}
+              </h2>
+              <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}>
+                <X size={24} />
+              </button>
+            </div>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Task Title</label>
-                <input type="text" name="title" value={formData.title} onChange={handleChange} className="neu-input" placeholder="What needs to be done?" style={{ width: '100%', boxSizing: 'border-box' }} autoFocus />
+                <textarea 
+                  ref={titleRef}
+                  name="title" 
+                  value={formData.title} 
+                  onChange={handleChange} 
+                  className="neu-input" 
+                  placeholder="What needs to be done?" 
+                  style={{ width: '100%', boxSizing: 'border-box', resize: 'none', overflow: 'hidden', minHeight: '45px', lineHeight: '1.5', padding: '12px 20px', fontFamily: 'inherit' }} 
+                  rows={1}
+                  autoFocus 
+                />
               </div>
 
               <div className="responsive-grid-2">
@@ -280,6 +306,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
                     enableTime={true}
                     timeValue={formData.deadlineTime}
                     onTimeChange={(val) => setFormData(prev => ({ ...prev, deadlineTime: val }))}
+                    alignRight={true}
                   />
                 </div>
               </div>

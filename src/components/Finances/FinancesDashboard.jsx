@@ -8,7 +8,12 @@ import { ArrowUpRight, ArrowDownRight, Wallet } from 'lucide-react';
 const FinancesDashboard = () => {
   const { transactions, categories, currency } = useFinance();
 
-  const formatMoney = (val) => new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(val);
+  const formatMoney = (val) => new Intl.NumberFormat('en-US', { 
+    style: 'currency', 
+    currency: (typeof currency === 'string' ? currency : currency?.code) || 'RUB',
+    minimumFractionDigits: 0, 
+    maximumFractionDigits: 2 
+  }).format(val);
 
   const stats = useMemo(() => {
     let income = 0;

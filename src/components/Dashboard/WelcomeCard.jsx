@@ -109,28 +109,30 @@ const WelcomeCard = ({
               <Badge status="todo">{tasksCount} Tasks</Badge>
             </div>
 
-            <div style={{ width: '180px' }}>
-              <CustomSelect 
-                value={sortBy} 
-                onChange={(val) => {
-                  if (val === 'toggle-done') {
-                    setShowDone(!showDone);
-                  } else {
-                    setSortBy(val);
-                  }
-                }}
-                style={{ padding: '0', boxShadow: 'none', background: 'transparent' }}
-                innerStyle={{ padding: '8px 16px', fontSize: '13px', borderRadius: '20px' }}
-                options={[
-                  { value: 'created_desc', label: 'Newest First' },
-                  { value: 'created_asc', label: 'Oldest First' },
-                  { value: 'date_asc', label: 'Nearest Deadline' },
-                  { value: 'date_desc', label: 'Furthest Deadline' },
-                  { value: 'priority', label: 'Highest Priority' },
-                  { value: 'overdue', label: 'Overdue Tasks' },
-                  { value: 'toggle-done', label: showDone ? <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Eye size={14} /> Hide Done Tasks</span> : <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><EyeOff size={14} /> Show Done Tasks</span> }
-                ]}
-              />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '160px' }}>
+                <CustomSelect 
+                  value={sortBy} 
+                  onChange={(val) => setSortBy(val)}
+                  style={{ padding: '0', boxShadow: 'none', background: 'transparent' }}
+                  innerStyle={{ padding: '8px 16px', fontSize: '13px', borderRadius: '20px' }}
+                  options={[
+                    { value: 'created_desc', label: 'Newest First' },
+                    { value: 'created_asc', label: 'Oldest First' },
+                    { value: 'date_asc', label: 'Nearest Deadline' },
+                    { value: 'date_desc', label: 'Furthest Deadline' },
+                    { value: 'priority', label: 'Highest Priority' },
+                    { value: 'overdue', label: 'Overdue Tasks' }
+                  ]}
+                />
+              </div>
+              <button 
+                onClick={() => setShowDone(!showDone)}
+                className="pill-btn primary"
+                style={{ padding: '8px 12px', fontSize: '13px', background: showDone ? 'var(--item-bg-hover)' : 'transparent', color: 'var(--text-color)', border: '1px solid var(--border-color)', borderRadius: '20px', minWidth: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                {showDone ? <Eye size={14} /> : <EyeOff size={14} />}
+              </button>
             </div>
           </div>
         )}

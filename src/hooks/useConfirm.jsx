@@ -31,7 +31,7 @@ export const ConfirmProvider = ({ children }) => {
       {children}
       {confirmState && (
         <div className="modal-overlay" style={{ zIndex: 9999999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <GlassCard style={{ padding: '30px', maxWidth: '400px', width: '90%', textAlign: 'center', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
+          <GlassCard style={{ padding: '30px', maxWidth: '400px', width: '90%', textAlign: 'center', boxShadow: '0 20px 50px rgba(0,0,0,0.3)', background: 'var(--solid-card-bg)' }}>
             <h3 style={{ marginBottom: '15px', fontSize: '20px', fontWeight: 700, color: 'var(--text-main)' }}>Confirm Action</h3>
             <p style={{ marginBottom: '30px', color: 'var(--text-muted)', fontSize: '15px', lineHeight: '1.5' }}>{confirmState.message}</p>
             <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>

@@ -7,7 +7,12 @@ import { ICON_OPTIONS } from '../Settings/icons';
 const TransactionsTable = () => {
   const { transactions, categories, currency, openEditTransaction, handleDeleteTransaction } = useFinance();
 
-  const formatMoney = (val) => new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(val);
+  const formatMoney = (val) => new Intl.NumberFormat('en-US', { 
+    style: 'currency', 
+    currency: (typeof currency === 'string' ? currency : currency?.code) || 'RUB',
+    minimumFractionDigits: 0, 
+    maximumFractionDigits: 2 
+  }).format(val);
 
   return (
     <GlassCard style={{ padding: '30px', overflowX: 'auto' }}>
@@ -36,12 +41,18 @@ const TransactionsTable = () => {
               const CatIcon = ICON_OPTIONS.find(i => i.name === cat?.iconName)?.icon || TagIcon;
               const SubcatIcon = subcat ? (ICON_OPTIONS.find(i => i.name === subcat.iconName)?.icon || TagIcon) : null;
               
-              const formattedDate = new Date(t.date + 'T12:00:00').toLocaleDateString('en-GB', {
-                day: 'numeric', month: 'short', year: 'numeric'
-              });
+              let formattedDate = 'Invalid Date';
+              if (t.date) {
+                const dateObj = new Date(t.date.includes('T') ? t.date : t.date + 'T12:00:00');
+                if (!isNaN(dateObj.getTime())) {
+                  formattedDate = dateObj.toLocaleDateString('en-GB', {
+                    day: 'numeric', month: 'short', year: 'numeric'
+                  });
+                }
+              }
 
               return (
-                <tr key={t.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', transition: 'background 0.2s', ':hover': { background: 'var(--item-bg)' } }}>
+                <tr key={t.id} className="transaction-row" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', transition: 'background 0.2s' }}>
                   <td style={{ padding: '16px' }}>
                     <div style={{ fontWeight: 600, fontSize: '15px' }}>{formattedDate}</div>
                   </td>

@@ -30,7 +30,7 @@ const DraggableTask = ({ task, onEditTask, statuses }) => {
     transition: isDragging ? 'none' : 'box-shadow 0.2s ease, transform 0.2s ease',
     position: 'relative',
     cursor: 'grab',
-    touchAction: 'none'
+    touchAction: 'pan-x pan-y' // Allow scrolling on mobile
   };
 
   return (
@@ -60,7 +60,7 @@ const DraggableTask = ({ task, onEditTask, statuses }) => {
         </svg>
       </div>
 
-      <h4 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-main)', marginBottom: '8px', paddingRight: '20px', textDecoration: (statuses.length > 0 && task.status === statuses[statuses.length - 1]) ? 'line-through' : 'none' }}>
+      <h4 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-main)', marginBottom: '8px', paddingRight: '20px', wordBreak: 'break-word', textDecoration: (statuses.length > 0 && task.status === statuses[statuses.length - 1]) ? 'line-through' : 'none' }}>
         {task.title}
       </h4>
       

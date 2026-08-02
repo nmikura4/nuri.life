@@ -81,7 +81,7 @@ const FinancesView = ({ user }) => {
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
-      if (!t.date.startsWith(selectedMonth)) return false;
+      if (!t.date || !t.date.startsWith(selectedMonth)) return false;
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         const catName = categories.find(c => c.id === t.categoryId)?.name?.toLowerCase() || '';
@@ -90,17 +90,18 @@ const FinancesView = ({ user }) => {
           (t.comment && t.comment.toLowerCase().includes(q)) ||
           (t.person && t.person.toLowerCase().includes(q)) ||
           (t.counterparty && t.counterparty.toLowerCase().includes(q)) ||
-          (t.tags && t.tags.some(tag => tag.toLowerCase().includes(q)))
+          (Array.isArray(t.tags) && t.tags.some(tag => tag.toLowerCase().includes(q)))
         );
       }
       return true;
     }).sort((a, b) => {
-      const dateA = new Date(a.date);
-      const dateB = new Date(b.date);
+      const dateA = new Date(a.date || 0);
+      const dateB = new Date(b.date || 0);
       if (dateB.getTime() !== dateA.getTime()) {
         return dateB - dateA;
       }
-      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      const getMs = (val) => val?.toDate ? val.toDate().getTime() : (new Date(val || 0).getTime());
+      return getMs(b.createdAt) - getMs(a.createdAt);
     });
   }, [transactions, selectedMonth, searchQuery, categories]);
 

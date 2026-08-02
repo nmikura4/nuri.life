@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
 import { X, Save, Activity, Trash2 } from 'lucide-react';
 import { useConfirm } from '../../hooks/useConfirm';
 import '../UI/UI.css';
 
-const HabitModal = ({ isOpen, onClose, habit, onSave, onDelete }) => {
+const HabitModal = ({ isOpen, onClose, onSave, onDelete, habit = null }) => {
+  useEscapeKey(onClose);
   const confirm = useConfirm();
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
@@ -57,15 +59,16 @@ const HabitModal = ({ isOpen, onClose, habit, onSave, onDelete }) => {
   return (
     <div className="modal-overlay" onClick={handleBackdropClick} role="dialog" aria-modal="true" aria-label={habit ? 'Edit Habit' : 'New Habit'}>
       <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '500px', margin: 'auto' }}>
-        <GlassCard style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)' }}>
-          <button type="button" onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-            <X size={24} />
-          </button>
-
-          <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Activity size={24} color="var(--accent-blue)" />
-            {habit ? 'Edit Habit' : 'New Habit'}
-          </h2>
+        <GlassCard style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Activity size={24} color="var(--accent-coral)" />
+              {habit ? 'Edit Habit' : 'New Habit'}
+            </h2>
+            <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}>
+              <X size={24} />
+            </button>
+          </div>
 
           <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>

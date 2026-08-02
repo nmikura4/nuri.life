@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
 import { X, Check, Paperclip, Smile, Meh, Frown, Zap, Coffee, CloudRain, Tag as TagIcon } from 'lucide-react';
-import { Tldraw, DefaultSizeStyle, DefaultStylePanel, iconTypes } from 'tldraw';
+import { Tldraw, DefaultSizeStyle, DefaultStylePanel, iconTypes, useEditor } from 'tldraw';
 import 'tldraw/tldraw.css';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
@@ -10,7 +11,6 @@ import { useConfirm } from '../../hooks/useConfirm';
 import FileUploader from '../UI/FileUploader';
 import '../UI/UI.css';
 
-let globalEditor = null;
 let globalBgPattern = 'none';
 
 
@@ -49,17 +49,18 @@ const CustomGrid = ({ x, y, z, size }) => {
 };
 
 const CustomStylePanel = (props) => {
+  const editor = useEditor();
   const [size, setSize] = useState(() => localStorage.getItem('tldraw_pen_size') || '2');
 
   const handleChange = (e) => {
     const val = e.target.value;
     setSize(val);
     localStorage.setItem('tldraw_pen_size', val);
-    if (globalEditor) {
+    if (editor) {
       const sizes = ['s', 'm', 'l', 'xl', 'xl'];
       const sizeValue = sizes[parseInt(val, 10) - 1] || 's';
-      globalEditor.setStyleForNextShapes(DefaultSizeStyle, sizeValue);
-      globalEditor.setStyleForSelectedShapes(DefaultSizeStyle, sizeValue);
+      editor.setStyleForNextShapes(DefaultSizeStyle, sizeValue);
+      editor.setStyleForSelectedShapes(DefaultSizeStyle, sizeValue);
     }
   };
 
@@ -149,6 +150,7 @@ const customAssetUrls = {
 };
 
 const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [], onOpenTask, zIndex }) => {
+  useEscapeKey(onClose);
   const confirm = useConfirm();
   const [formData, setFormData] = useState({
     title: '',
@@ -213,7 +215,6 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
 
   const handleMount = (editorInstance) => {
     setEditor(editorInstance);
-    globalEditor = editorInstance;
 
     // Prevent Tldraw from hiding the UI on touch devices
     if (editorInstance && editorInstance.sideEffects) {
@@ -301,7 +302,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
         const shapeIds = Array.from(editor.getCurrentPageShapeIds());
         
         if (shapeIds.length > 0) {
-          const { blob } = await editor.toImage(shapeIds, { format: 'svg' });
+          const { blob } = await editor.toImage(shapeIds, { format: 'png', scale: 0.5 });
           const base64data = await new Promise((resolve) => {
             const reader = new FileReader();
             reader.readAsDataURL(blob);
@@ -390,12 +391,12 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
                   globalBgPattern = pat;
                   // Pattern change triggers grid mode toggle
                   const isGrid = pat !== 'none';
-                  if (globalEditor) {
-                    if (typeof globalEditor.updateInstanceState === 'function') {
-                      try { globalEditor.updateInstanceState({ isGridMode: isGrid }); } catch (e) {}
+                  if (editor) {
+                    if (typeof editor.updateInstanceState === 'function') {
+                      try { editor.updateInstanceState({ isGridMode: isGrid }); } catch (e) {}
                     }
-                    if (typeof globalEditor.setGridMode === 'function') {
-                      try { globalEditor.setGridMode(isGrid); } catch (e) {}
+                    if (typeof editor.setGridMode === 'function') {
+                      try { editor.setGridMode(isGrid); } catch (e) {}
                     }
                   }
                 }}

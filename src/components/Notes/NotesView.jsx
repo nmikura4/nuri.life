@@ -187,7 +187,8 @@ const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote, onAddNote
                     <div className="note-content-preview" style={{ 
                       fontSize: '14px', 
                       color: 'var(--text-muted)', 
-                      lineHeight: '1.5'
+                      lineHeight: '1.5',
+                      wordBreak: 'break-word'
                     }} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(note.content) }} />
                   )}
 

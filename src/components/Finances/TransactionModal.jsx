@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 import GlassCard from '../UI/GlassCard';
 import { X, Tag as TagIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import CustomDatePicker from '../UI/CustomDatePicker';
@@ -22,6 +23,14 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
   
   const [tagInput, setTagInput] = useState('');
   const [isCommentOpen, setIsCommentOpen] = useState(false);
+  
+  const commentRef = useRef(null);
+  useEffect(() => {
+    if (commentRef.current && isCommentOpen) {
+      commentRef.current.style.height = 'auto';
+      commentRef.current.style.height = commentRef.current.scrollHeight + 'px';
+    }
+  }, [formData.comment, isCommentOpen]);
 
   useEffect(() => {
     if (transaction) {
@@ -49,14 +58,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
     }
   }, [transaction, categories, isOpen]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  useEscapeKey(onClose);
 
   if (!isOpen) return null;
 
@@ -111,14 +113,15 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
   return (
     <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={transaction ? 'Edit Transaction' : 'New Transaction'}>
       <div onClick={e => e.stopPropagation()} style={{ margin: 'auto', width: '100%', maxWidth: '500px' }}>
-        <GlassCard className="responsive-card" style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)' }}>
-          <button onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-            <X size={24} />
-          </button>
-
-          <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '24px' }}>
-            {transaction ? 'Edit Transaction' : 'New Transaction'}
-          </h2>
+        <GlassCard className="responsive-card" style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 700, margin: 0 }}>
+              {transaction ? 'Edit Transaction' : 'New Transaction'}
+            </h2>
+            <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}>
+              <X size={24} />
+            </button>
+          </div>
 
           <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', background: 'var(--item-bg)', padding: '5px', borderRadius: '20px', width: 'fit-content' }}>
             <button type="button" onClick={() => handleTypeChange('expense')} style={{ padding: '8px 20px', borderRadius: '16px', border: 'none', cursor: 'pointer', background: formData.type === 'expense' ? 'var(--solid-card-bg)' : 'transparent', fontWeight: formData.type === 'expense' ? 600 : 400, color: formData.type === 'expense' ? 'var(--accent-coral)' : 'var(--text-main)', boxShadow: formData.type === 'expense' ? 'var(--shadow-soft)' : 'none', transition: 'all 0.3s ease' }}>
@@ -141,6 +144,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
                 <CustomDatePicker 
                   value={formData.date} 
                   onChange={(val) => setFormData(prev => ({ ...prev, date: val }))} 
+                  alignRight={true}
                 />
               </div>
             </div>
@@ -225,7 +229,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
                 {isCommentOpen ? <ChevronUp size={16} color="var(--text-muted)" /> : <ChevronDown size={16} color="var(--text-muted)" />}
               </div>
               {isCommentOpen && (
-                <textarea name="comment" value={formData.comment} onChange={handleChange} className="neu-textarea" placeholder="Add details..." rows="3" style={{ resize: 'none' }} />
+                <textarea ref={commentRef} name="comment" value={formData.comment} onChange={handleChange} className="neu-textarea" placeholder="Add details..." rows="1" style={{ resize: 'none', overflow: 'hidden' }} />
               )}
             </div>
 

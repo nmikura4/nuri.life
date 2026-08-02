@@ -4,7 +4,7 @@ import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import CustomSelect from './CustomSelect';
 import './UI.css';
 
-const CustomDatePicker = ({ value, onChange, timeValue, onTimeChange, enableTime }) => {
+const CustomDatePicker = ({ value, onChange, enableTime = false, timeValue = '', onTimeChange = null, alignRight = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
@@ -85,7 +85,7 @@ const CustomDatePicker = ({ value, onChange, timeValue, onTimeChange, enableTime
         <GlassCard style={{ 
           position: 'absolute', 
           top: 'calc(100% + 8px)', 
-          left: 0, 
+          ...(alignRight ? { right: 0 } : { left: 0 }),
           width: '280px', 
           padding: '20px', 
           zIndex: 100,

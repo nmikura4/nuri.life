@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { collection, doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
 import { db, auth } from '../../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import GlassCard from '../UI/GlassCard';
 import NeumorphicButton from '../UI/NeumorphicButton';
 import HabitModal from './HabitModal';
@@ -64,7 +65,12 @@ const HabitsView = () => {
   const [habits, setHabits] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState(null);
-  const user = auth.currentUser;
+  const [user, setUser] = useState(auth.currentUser);
+
+  useEffect(() => {
+    const unsubAuth = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsubAuth();
+  }, []);
 
   useEffect(() => {
     if (!user) return;

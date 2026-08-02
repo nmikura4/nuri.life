@@ -152,9 +152,9 @@ export const ListManager = ({ title, items, setItems, onRename, onDelete, placeh
 
 const SettingsView = ({ 
   user,
-  projects, setProjects, onRenameProject, onDeleteProject,
-  priorities, setPriorities, onRenamePriority, onDeletePriority,
-  statuses, setStatuses, onRenameStatus, onDeleteStatus,
+  projects = [], setProjects, onRenameProject, onDeleteProject,
+  priorities = [], setPriorities, onRenamePriority, onDeletePriority,
+  statuses = [], setStatuses, onRenameStatus, onDeleteStatus,
   avatarUrl, setAvatarUrl,
   geminiApiKey, setGeminiApiKey
 }) => {
@@ -236,6 +236,7 @@ const SettingsView = ({
                 )}
               </div>
             </div>
+          </div>
 
           <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
             <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '20px' }}>AI Coach Integration</h2>
@@ -250,7 +251,6 @@ const SettingsView = ({
               />
               <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Get your free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-blue)' }}>Google AI Studio</a>. The key is saved locally and synced to your secure database.</p>
             </div>
-          </div>
           </div>
 
           <ListManager 

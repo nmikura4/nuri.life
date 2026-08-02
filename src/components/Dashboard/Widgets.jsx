@@ -298,6 +298,7 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
 
   const handleMonthClick = (monthIndex) => {
     const newDate = new Date(referenceDate);
+    newDate.setDate(1); // Fix month shift bug for 31st day
     newDate.setMonth(monthIndex);
     if (onSelectDate) onSelectDate(newDate);
     setViewMode('weekly'); // switch back to weekly to see the days of the selected month
