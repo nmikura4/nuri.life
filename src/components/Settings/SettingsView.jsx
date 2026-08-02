@@ -4,6 +4,8 @@ import { Plus, Trash2, Edit2, Check, X, ChevronDown, ChevronUp, ArrowUp, ArrowDo
 import '../UI/UI.css';
 import FinanceCategoriesManager from './FinanceCategoriesManager';
 import { useConfirm } from '../../hooks/useConfirm';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 export const ListManager = ({ title, items, setItems, onRename, onDelete, placeholder }) => {
   const confirm = useConfirm();
@@ -250,6 +252,38 @@ const SettingsView = ({
                 placeholder="Paste your Gemini API Key here..."
               />
               <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Get your free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-blue)' }}>Google AI Studio</a>. The key is saved locally and synced to your secure database.</p>
+            </div>
+          </div>
+
+          <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '20px' }}>Data Management</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0 }}>Export your tasks, notes, habits, and finances.</p>
+              <button 
+                className="pill-btn primary"
+                style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '8px' }}
+                onClick={async () => {
+                  if (!user) return;
+                  try {
+                    const exportData = {};
+                    for (const colName of ['tasks', 'notes', 'habits', 'finances']) {
+                      const snap = await getDocs(collection(db, 'users', user.uid, colName));
+                      exportData[colName] = snap.docs.map(d => d.data());
+                    }
+                    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+                    const downloadAnchorNode = document.createElement('a');
+                    downloadAnchorNode.setAttribute("href", dataStr);
+                    downloadAnchorNode.setAttribute("download", "nuri_life_export_" + new Date().toISOString().split('T')[0] + ".json");
+                    document.body.appendChild(downloadAnchorNode);
+                    downloadAnchorNode.click();
+                    downloadAnchorNode.remove();
+                  } catch (e) {
+                    alert('Error exporting data: ' + e.message);
+                  }
+                }}
+              >
+                <ArrowDown size={18} /> Export Data (JSON)
+              </button>
             </div>
           </div>
 
