@@ -5,6 +5,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import GlassCard from '../UI/GlassCard';
 import NeumorphicButton from '../UI/NeumorphicButton';
 import HabitModal from './HabitModal';
+import HabitsHeatmap from './HabitsHeatmap';
 import { Activity, Plus, Check, Flame } from 'lucide-react';
 import '../UI/UI.css';
 
@@ -65,6 +66,7 @@ const HabitsView = () => {
   const [habits, setHabits] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState(null);
+  const [showArchived, setShowArchived] = useState(false);
   const [user, setUser] = useState(auth.currentUser);
 
   useEffect(() => {
@@ -136,23 +138,34 @@ const HabitsView = () => {
           </p>
         </div>
         
-        <button className="pill-btn primary" onClick={handleOpenNewHabit} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Plus size={18} /> New Habit
-        </button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button 
+            className="pill-btn secondary" 
+            onClick={() => setShowArchived(!showArchived)}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+          >
+            {showArchived ? 'Hide Archived' : 'Show Archived'}
+          </button>
+          <button className="pill-btn primary" onClick={handleOpenNewHabit} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Plus size={18} /> New Habit
+          </button>
+        </div>
       </GlassCard>
 
+      <HabitsHeatmap habits={habits} />
+
       {/* Grid */}
-      {habits.length === 0 ? (
+      {habits.filter(h => showArchived ? h.archived : !h.archived).length === 0 ? (
         <GlassCard style={{ padding: '40px', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.6 }}>
           <Activity size={48} color="var(--text-muted)" style={{ marginBottom: '16px' }} />
-          <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '8px' }}>No habits tracked</h3>
+          <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '8px' }}>No habits found</h3>
           <p style={{ color: 'var(--text-muted)', fontSize: '14px', textAlign: 'center' }}>
-            Click 'New Habit' to start building streaks!
+            {showArchived ? "You don't have any archived habits." : "Click 'New Habit' to start building streaks!"}
           </p>
         </GlassCard>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
-          {habits.map(habit => {
+          {habits.filter(h => showArchived ? h.archived : !h.archived).map(habit => {
             const streak = calculateStreak(habit.logs);
             const bgColor = COLORS[habit.color] || COLORS.default;
 
@@ -179,6 +192,28 @@ const HabitsView = () => {
                     <span style={{ fontWeight: 700, fontSize: '14px' }}>{streak}</span>
                   </div>
                 </div>
+
+                {/* 30 Days Success Rate */}
+                {(() => {
+                  let completedIn30Days = 0;
+                  const d = new Date();
+                  for(let i = 0; i < 30; i++) {
+                    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                    if (habit.logs && habit.logs[dateStr]) completedIn30Days++;
+                    d.setDate(d.getDate() - 1);
+                  }
+                  const successRate = Math.round((completedIn30Days / 30) * 100);
+                  
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>
+                      <span>30-Day Success Rate:</span>
+                      <div style={{ flex: 1, height: '6px', background: 'var(--item-bg)', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', background: 'var(--accent-green)', width: `${successRate}%` }}></div>
+                      </div>
+                      <span style={{ color: successRate >= 80 ? 'var(--accent-green)' : 'inherit' }}>{successRate}%</span>
+                    </div>
+                  );
+                })()}
 
                 {/* 7 Days Row */}
                 {(() => {

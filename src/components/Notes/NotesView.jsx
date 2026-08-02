@@ -3,7 +3,7 @@ import { collection, doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firesto
 import { db } from '../../firebase';
 import GlassCard from '../UI/GlassCard';
 import CustomDatePicker from '../UI/CustomDatePicker';
-import { Plus, Search, FileText, Tag, Calendar, X, Smile, Meh, Frown, Zap, Coffee, CloudRain, CheckSquare, PenTool } from 'lucide-react';
+import { Plus, Search, FileText, Tag, Calendar, X, Smile, Meh, Frown, Zap, Coffee, CloudRain, CheckSquare, PenTool, Pin } from 'lucide-react';
 import React from 'react';
 import DOMPurify from 'dompurify';
 import '../UI/UI.css';
@@ -53,6 +53,14 @@ const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote, onAddNote
         (n.content && n.content.toLowerCase().includes(lowerQ))
       );
     }
+    
+    // Sort: pinned first, then by date descending
+    result.sort((a, b) => {
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      return new Date(b.updatedAt) - new Date(a.updatedAt);
+    });
+    
     return result;
   }, [notes, searchQuery, selectedDate]);
 
@@ -177,11 +185,20 @@ const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote, onAddNote
                     e.currentTarget.style.boxShadow = 'var(--shadow-soft)';
                   }}
                 >
-                  {note.title && (
-                    <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 12px 0', color: 'var(--text-main)' }}>
-                      {note.title}
-                    </h3>
-                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                    {note.title && (
+                      <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0, color: 'var(--text-main)', paddingRight: '10px' }}>
+                        {note.title}
+                      </h3>
+                    )}
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); onSaveNote({ ...note, pinned: !note.pinned }); }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: note.pinned ? 'var(--accent-coral)' : 'var(--text-muted)', padding: '4px', opacity: note.pinned ? 1 : 0.4 }}
+                      title={note.pinned ? "Unpin note" : "Pin note"}
+                    >
+                      <Pin size={16} fill={note.pinned ? 'currentColor' : 'none'} />
+                    </button>
+                  </div>
                   
                   {note.content && note.type !== 'drawing' && (
                     <div className="note-content-preview" style={{ 

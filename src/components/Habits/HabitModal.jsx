@@ -13,6 +13,7 @@ const HabitModal = ({ isOpen, onClose, onSave, onDelete, habit = null }) => {
   const [desc, setDesc] = useState('');
   const [frequency, setFrequency] = useState('daily');
   const [color, setColor] = useState('default');
+  const [archived, setArchived] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -21,11 +22,13 @@ const HabitModal = ({ isOpen, onClose, onSave, onDelete, habit = null }) => {
         setDesc(habit.desc || '');
         setFrequency(habit.frequency || 'daily');
         setColor(habit.color || 'default');
+        setArchived(habit.archived || false);
       } else {
         setName('');
         setDesc('');
         setFrequency('daily');
         setColor('default');
+        setArchived(false);
       }
     }
   }, [isOpen, habit]);
@@ -50,6 +53,7 @@ const HabitModal = ({ isOpen, onClose, onSave, onDelete, habit = null }) => {
       desc,
       frequency,
       color,
+      archived,
       createdAt: habit?.createdAt || new Date().toISOString(),
       logs: habit?.logs || {}
     });
@@ -126,19 +130,31 @@ const HabitModal = ({ isOpen, onClose, onSave, onDelete, habit = null }) => {
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '10px' }}>
               {habit && (
-                <button 
-                  type="button"
-                  className="pill-btn danger" 
-                  style={{ marginRight: 'auto' }}
-                  onClick={async () => {
-                    if (await confirm("Are you sure you want to delete this habit?")) {
-                      onDelete(habit.id);
+                <>
+                  <button 
+                    type="button"
+                    className="pill-btn danger" 
+                    style={{ marginRight: 'auto' }}
+                    onClick={async () => {
+                      if (await confirm("Are you sure you want to delete this habit?")) {
+                        onDelete(habit.id);
+                        onClose();
+                      }
+                    }}
+                  >
+                    Delete
+                  </button>
+                  <button 
+                    type="button"
+                    className="pill-btn secondary"
+                    onClick={() => {
+                      onSave({ ...(habit || {}), name, desc, frequency, color, archived: !archived, createdAt: habit?.createdAt || new Date().toISOString(), logs: habit?.logs || {} });
                       onClose();
-                    }
-                  }}
-                >
-                  Delete
-                </button>
+                    }}
+                  >
+                    {archived ? 'Unarchive' : 'Archive'}
+                  </button>
+                </>
               )}
               <button type="button" className="pill-btn" onClick={onClose}>Cancel</button>
               <button type="submit" className="pill-btn primary">Save Habit</button>
