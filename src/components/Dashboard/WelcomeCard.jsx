@@ -9,10 +9,48 @@ const WelcomeCard = ({
   user,
   onAddTask, tasksCount = 0, searchQuery, setSearchQuery, 
   viewMode, setViewMode, theme, onThemeChange,
-  sortBy, setSortBy, showDone, setShowDone 
+  sortBy, setSortBy, showDone, setShowDone,
+  allTasks = [], statuses = []
 }) => {
   // Debounce logic
   const [localSearch, setLocalSearch] = useState(searchQuery);
+  const [notified, setNotified] = useState(false);
+
+  const doneStatus = statuses.length > 0 ? statuses[statuses.length - 1] : 'done';
+
+  const dueTasks = useMemo(() => {
+    if (!allTasks) return [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return allTasks.filter(t => {
+      if (t.status === doneStatus || !t.deadline) return false;
+      const [y, m, d] = t.deadline.split('-');
+      const deadlineDate = new Date(y, m - 1, d);
+      return deadlineDate <= today;
+    });
+  }, [allTasks, doneStatus]);
+
+  useEffect(() => {
+    if (dueTasks.length > 0 && !notified) {
+      if (Notification.permission === 'granted') {
+        new Notification('nuri.life', {
+          body: `You have ${dueTasks.length} task(s) due today or overdue!`,
+          icon: '/favicon.ico'
+        });
+        setNotified(true);
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            new Notification('nuri.life', {
+              body: `You have ${dueTasks.length} task(s) due today or overdue!`,
+              icon: '/favicon.ico'
+            });
+            setNotified(true);
+          }
+        });
+      }
+    }
+  }, [dueTasks, notified]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -56,8 +94,16 @@ const WelcomeCard = ({
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>You have {tasksCount} tasks for today. Let's get things done!</p>
         </div>
-        
       </div>
+
+      {dueTasks.length > 0 && (
+        <div style={{ background: 'rgba(239, 154, 138, 0.15)', borderLeft: '4px solid var(--accent-coral)', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '18px' }}>🔥</span>
+          <p style={{ margin: 0, fontSize: '14px', color: 'var(--accent-coral)', fontWeight: 600 }}>
+            {dueTasks.length} task(s) require your immediate attention (due today or overdue)!
+          </p>
+        </div>
+      )}
 
       <div className="welcome-controls" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
         <div className="welcome-search-wrapper" style={{

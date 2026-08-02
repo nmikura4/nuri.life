@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
-import { X, ChevronLeft, ChevronRight, Edit2, Plus, Eye } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Edit2, Plus, Eye, Play, Pause, RotateCcw } from 'lucide-react';
 
 export const ProgressWidget = ({ tasks = [], statuses = [] }) => {
   const [timeframe, setTimeframe] = useState('day');
@@ -475,5 +475,76 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
         </div>
       </div>
     </div>
+  );
+};
+
+export const PomodoroWidget = () => {
+  const [mode, setMode] = useState('work');
+  const [timeLeft, setTimeLeft] = useState(25 * 60);
+  const [isRunning, setIsRunning] = useState(false);
+
+  useEffect(() => {
+    let interval;
+    if (isRunning && timeLeft > 0) {
+      interval = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+    } else if (isRunning && timeLeft === 0) {
+      if (mode === 'work') {
+        setMode('break');
+        setTimeLeft(5 * 60);
+        if (Notification.permission === 'granted') {
+          new Notification('nuri.life', { body: 'Work time is over! Take a 5 minute break.', icon: '/favicon.ico' });
+        }
+      } else {
+        setMode('work');
+        setTimeLeft(25 * 60);
+        setIsRunning(false);
+        if (Notification.permission === 'granted') {
+          new Notification('nuri.life', { body: 'Break is over! Ready to work?', icon: '/favicon.ico' });
+        }
+      }
+    }
+    return () => clearInterval(interval);
+  }, [isRunning, timeLeft, mode]);
+
+  const toggleTimer = () => setIsRunning(!isRunning);
+  
+  const resetTimer = () => {
+    setIsRunning(false);
+    setTimeLeft(mode === 'work' ? 25 * 60 : 5 * 60);
+  };
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+  const timeString = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  const progress = mode === 'work' ? ((25 * 60 - timeLeft) / (25 * 60)) * 100 : ((5 * 60 - timeLeft) / (5 * 60)) * 100;
+
+  return (
+    <GlassCard style={{ padding: '24px', display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h3 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>Focus Timer</h3>
+        <span style={{ fontSize: '12px', fontWeight: 700, color: mode === 'work' ? 'var(--accent-coral)' : 'var(--accent-green)', background: mode === 'work' ? 'rgba(239, 154, 138, 0.2)' : 'rgba(164, 201, 229, 0.2)', padding: '4px 10px', borderRadius: '12px' }}>
+          {mode === 'work' ? 'WORK' : 'BREAK'}
+        </span>
+      </div>
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'relative', width: '150px', height: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <svg width="150" height="150" style={{ position: 'absolute', top: 0, left: 0, transform: 'rotate(-90deg)' }}>
+            <circle cx="75" cy="75" r="70" fill="none" stroke="var(--card-border)" strokeWidth="8" />
+            <circle cx="75" cy="75" r="70" fill="none" stroke={mode === 'work' ? 'var(--accent-coral)' : 'var(--accent-green)'} strokeWidth="8" strokeDasharray="439.8" strokeDashoffset={439.8 - (progress / 100) * 439.8} style={{ transition: 'stroke-dashoffset 1s linear' }} strokeLinecap="round" />
+          </svg>
+          <span style={{ fontSize: '36px', fontWeight: 700, color: 'var(--text-main)', zIndex: 1 }}>{timeString}</span>
+        </div>
+
+        <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
+          <button onClick={toggleTimer} className="pill-btn primary" style={{ width: '50px', height: '50px', borderRadius: '50%', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: mode === 'work' ? 'var(--accent-coral)' : 'var(--accent-green)' }}>
+            {isRunning ? <Pause size={20} color="#fff" /> : <Play size={20} color="#fff" />}
+          </button>
+          <button onClick={resetTimer} className="neu-icon-btn" style={{ width: '50px', height: '50px', borderRadius: '50%' }}>
+            <RotateCcw size={20} />
+          </button>
+        </div>
+      </div>
+    </GlassCard>
   );
 };

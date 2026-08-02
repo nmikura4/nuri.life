@@ -25,11 +25,13 @@ const FinanceCategoriesManager = ({ user }) => {
   const [newCatName, setNewCatName] = useState('');
   const [newCatType, setNewCatType] = useState('expense');
   const [newCatIcon, setNewCatIcon] = useState('Tag');
+  const [newCatBudget, setNewCatBudget] = useState('');
   const [isNewIconPickerOpen, setIsNewIconPickerOpen] = useState(false);
   
   const [editingCatId, setEditingCatId] = useState(null);
   const [editCatName, setEditCatName] = useState('');
   const [editCatIcon, setEditCatIcon] = useState('Tag');
+  const [editCatBudget, setEditCatBudget] = useState('');
   const [isEditIconPickerOpen, setIsEditIconPickerOpen] = useState(false);
 
   const [expandedCats, setExpandedCats] = useState({});
@@ -118,10 +120,12 @@ const FinanceCategoriesManager = ({ user }) => {
       name: newCatName.trim(),
       type: newCatType,
       iconName: newCatIcon,
+      budget: newCatType === 'expense' && newCatBudget ? Number(newCatBudget) : null,
       subcategories: [],
       order: typeCats.length
     });
     setNewCatName('');
+    setNewCatBudget('');
     setIsNewIconPickerOpen(false);
   };
 
@@ -129,6 +133,7 @@ const FinanceCategoriesManager = ({ user }) => {
     setEditingCatId(cat.id);
     setEditCatName(cat.name);
     setEditCatIcon(cat.iconName || 'Tag');
+    setEditCatBudget(cat.budget ? String(cat.budget) : '');
     setIsEditIconPickerOpen(false);
   };
 
@@ -137,7 +142,8 @@ const FinanceCategoriesManager = ({ user }) => {
       await setDoc(doc(db, "users", user.uid, "categories", cat.id), { 
         ...cat, 
         name: editCatName.trim(),
-        iconName: editCatIcon
+        iconName: editCatIcon,
+        budget: cat.type === 'expense' && editCatBudget ? Number(editCatBudget) : null
       }, { merge: true });
     }
     setEditingCatId(null);
@@ -330,6 +336,16 @@ const FinanceCategoriesManager = ({ user }) => {
                       style={{ flex: 1 }}
                       autoFocus
                     />
+                    {cat.type === 'expense' && (
+                      <input 
+                        type="number" 
+                        value={editCatBudget}
+                        onChange={(e) => setEditCatBudget(e.target.value)}
+                        className="neu-input"
+                        placeholder="Budget"
+                        style={{ width: '100px' }}
+                      />
+                    )}
                     <button onClick={() => saveEdit(cat)} style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', cursor: 'pointer' }}>
                       <Check size={20} />
                     </button>
@@ -616,6 +632,16 @@ const FinanceCategoriesManager = ({ user }) => {
                     onChange={(val) => setNewCatType(val)}
                   />
                 </div>
+                {newCatType === 'expense' && (
+                  <input 
+                    type="number" 
+                    className="neu-input" 
+                    placeholder="Monthly Budget" 
+                    value={newCatBudget}
+                    onChange={(e) => setNewCatBudget(e.target.value)}
+                    style={{ width: '140px' }}
+                  />
+                )}
                 <button type="submit" className="pill-btn primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
                   <Plus size={18} /> Add
                 </button>

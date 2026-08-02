@@ -12,8 +12,9 @@ import CornerThemeSwitcher from './components/UI/CornerThemeSwitcher';
 import Sidebar from './components/Sidebar';
 import WelcomeCard from './components/Dashboard/WelcomeCard';
 import TaskList from './components/Dashboard/TaskList';
-import { ProgressWidget, MiniCalendarWidget, WeeklyCalendarWidget } from './components/Dashboard/Widgets';
+import { ProgressWidget, MiniCalendarWidget, WeeklyCalendarWidget, PomodoroWidget } from './components/Dashboard/Widgets';
 import TaskModal from './components/Dashboard/TaskModal';
+import CalendarView from './components/Dashboard/CalendarView';
 import SettingsView from './components/Settings/SettingsView';
 import KanbanView from './components/Kanban/KanbanView';
 import FinancesView from './components/Finances/FinancesView';
@@ -40,6 +41,8 @@ function App() {
   
   // UI State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [initialTaskStatus, setInitialTaskStatus] = useState('');
+  const [initialTaskDeadline, setInitialTaskDeadline] = useState('');
   const [editingTask, setEditingTask] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
@@ -146,6 +149,24 @@ function App() {
   };
   const handleOpenNewTask = () => {
     setEditingTask(null);
+    setInitialTaskStatus('');
+    setInitialTaskDeadline('');
+    setIsModalOpen(true);
+    setTopModal('task');
+  };
+
+  const handleOpenNewTaskWithStatus = (status) => {
+    setEditingTask(null);
+    setInitialTaskStatus(status);
+    setInitialTaskDeadline('');
+    setIsModalOpen(true);
+    setTopModal('task');
+  };
+
+  const handleOpenNewTaskWithDeadline = (dateStr) => {
+    setEditingTask(null);
+    setInitialTaskStatus('');
+    setInitialTaskDeadline(dateStr);
     setIsModalOpen(true);
     setTopModal('task');
   };
@@ -476,6 +497,8 @@ function App() {
                   user={user}
                   onAddTask={handleOpenNewTask} 
                   tasksCount={tasks.filter(t => t.status !== (statuses.length > 0 ? statuses[statuses.length - 1] : 'done')).length}
+                  allTasks={tasks}
+                  statuses={statuses}
                   searchQuery={searchQuery}
                   setSearchQuery={setSearchQuery}
                   viewMode={viewMode}
@@ -510,10 +533,20 @@ function App() {
                       <div className="progress-widget-container">
                         <ProgressWidget tasks={tasks} statuses={statuses} />
                       </div>
+                      <div className="pomodoro-widget-container">
+                        <PomodoroWidget />
+                      </div>
                     </div>
                   </div>
                 ) : (
-                  <KanbanView tasks={filteredTasks} setTasks={setTasks} onStatusChange={updateTaskStatus} onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); setTopModal('task'); }} statuses={statuses} />
+                  <KanbanView 
+                    tasks={filteredTasks} 
+                    setTasks={setTasks} 
+                    onStatusChange={updateTaskStatus} 
+                    onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); setTopModal('task'); }} 
+                    onAddTaskWithStatus={handleOpenNewTaskWithStatus}
+                    statuses={statuses} 
+                  />
                 )}
               </div>
             } />
@@ -524,6 +557,8 @@ function App() {
                   user={user}
                   onAddTask={handleOpenNewTask} 
                   tasksCount={tasks.filter(t => t.status !== (statuses.length > 0 ? statuses[statuses.length - 1] : 'done')).length}
+                  allTasks={tasks}
+                  statuses={statuses}
                   searchQuery={searchQuery}
                   setSearchQuery={setSearchQuery}
                   viewMode={'list'}
@@ -561,7 +596,15 @@ function App() {
             } />
 
             <Route path="/finances" element={<FinancesView user={user} />} />
-            <Route path="/notes" element={<NotesView tasks={tasks} notes={notes} onSaveNote={handleSaveNote} onDeleteNote={handleDeleteNote} onAddNote={(type = 'text') => { setEditingNote({ type }); setIsNoteModalOpen(true); setTopModal('note'); }} onEditNote={(n) => { setEditingNote(n); setIsNoteModalOpen(true); setTopModal('note'); }} />} />
+            <Route path="/calendar" element={
+              <CalendarView 
+                tasks={tasks} 
+                statuses={statuses} 
+                onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); setTopModal('task'); }} 
+                onAddTask={handleOpenNewTaskWithDeadline}
+              />
+            } />
+            <Route path="/notes" element={<NotesView user={user} onOpenTask={handleOpenNewTask} tasks={tasks} onSaveNote={handleSaveNote} onDeleteNote={handleDeleteNote} onAddNote={(type = 'text') => { setEditingNote({ type }); setIsNoteModalOpen(true); setTopModal('note'); }} onEditNote={(n) => { setEditingNote(n); setIsNoteModalOpen(true); setTopModal('note'); }} />} />
             <Route path="/habits" element={<HabitsView />} />
             <Route path="/ai" element={<AICoachView />} />
             
@@ -631,7 +674,9 @@ function App() {
       <TaskModal 
         isOpen={isModalOpen || !!editingTask} 
         zIndex={topModal === 'task' ? 2000 : 1000}
-        onClose={() => { setIsModalOpen(false); setEditingTask(null); }} 
+        initialStatus={initialTaskStatus}
+        initialDeadline={initialTaskDeadline}
+        onClose={() => { setIsModalOpen(false); setEditingTask(null); setInitialTaskStatus(''); setInitialTaskDeadline(''); }} 
         onSave={handleSaveTask} 
         onDelete={async (id) => {
           const taskToDelete = tasks.find(t => t.id === id);

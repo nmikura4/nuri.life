@@ -18,7 +18,8 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
     counterparty: '',
     comment: '',
     tags: [],
-    file: null
+    file: null,
+    recurrence: 'none'
   });
   
   const [tagInput, setTagInput] = useState('');
@@ -40,19 +41,28 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
       });
       setIsCommentOpen(!!transaction.comment);
     } else {
-      const expCat = categories.find(c => c.type === 'expense');
+      const lastDate = localStorage.getItem('lastTxDate') || new Date().toISOString().substring(0, 10);
+      const lastType = localStorage.getItem('lastTxType') || 'expense';
+      const lastCatId = localStorage.getItem('lastTxCatId');
+      const lastCounterparty = localStorage.getItem('lastTxCounterparty') || '';
+
+      const fallbackCat = categories.find(c => c.type === lastType) || categories.find(c => c.type === 'expense');
+      const validCat = lastCatId ? categories.find(c => c.id === lastCatId && c.type === lastType) : null;
+      const initialCatId = validCat ? validCat.id : (fallbackCat ? fallbackCat.id : '');
+
       setFormData(prev => ({ 
         ...prev, 
-        categoryId: expCat ? expCat.id : '',
+        categoryId: initialCatId,
         subcategoryId: '',
-        type: 'expense',
+        type: lastType,
         amount: '',
-        date: new Date().toISOString().substring(0, 10),
+        date: lastDate,
         person: '',
-        counterparty: '',
+        counterparty: lastCounterparty,
         comment: '',
         tags: [],
-        file: null
+        file: null,
+        recurrence: 'none'
       }));
       setIsCommentOpen(false);
     }
@@ -98,10 +108,34 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
     e.preventDefault();
     if (!formData.amount || !formData.categoryId) return;
     
+    if (!transaction) {
+      localStorage.setItem('lastTxDate', formData.date);
+      localStorage.setItem('lastTxType', formData.type);
+      localStorage.setItem('lastTxCatId', formData.categoryId);
+      localStorage.setItem('lastTxCounterparty', formData.counterparty);
+    }
+
     const finalData = {
       ...formData,
       amount: Number(formData.amount),
     };
+
+    if (finalData.recurrence && finalData.recurrence !== 'none') {
+      const [y, m, d] = finalData.date.split('-');
+      const dateObj = new Date(y, m - 1, d);
+      
+      if (finalData.recurrence === 'daily') dateObj.setDate(dateObj.getDate() + 1);
+      else if (finalData.recurrence === 'weekly') dateObj.setDate(dateObj.getDate() + 7);
+      else if (finalData.recurrence === 'monthly') dateObj.setMonth(dateObj.getMonth() + 1);
+      else if (finalData.recurrence === 'yearly') dateObj.setFullYear(dateObj.getFullYear() + 1);
+
+      const ny = dateObj.getFullYear();
+      const nm = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const nd = String(dateObj.getDate()).padStart(2, '0');
+      finalData.recurrenceNextDate = `${ny}-${nm}-${nd}`;
+    } else {
+      finalData.recurrenceNextDate = null;
+    }
     
     onSave(finalData);
   };
@@ -147,6 +181,21 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
                   alignRight={true}
                 />
               </div>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Recurrence</label>
+              <CustomSelect 
+                options={[
+                  { label: 'None', value: 'none' },
+                  { label: 'Daily', value: 'daily' },
+                  { label: 'Weekly', value: 'weekly' },
+                  { label: 'Monthly', value: 'monthly' },
+                  { label: 'Yearly', value: 'yearly' },
+                ]}
+                value={formData.recurrence || 'none'}
+                onChange={(val) => setFormData(prev => ({ ...prev, recurrence: val }))}
+              />
             </div>
 
             <div>

@@ -99,10 +99,10 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
   );
 };
 
-const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = [], priorities = [], statuses = [], notes = [], onOpenNote, zIndex }) => {
+const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = [], priorities = [], statuses = [], notes = [], onOpenNote, zIndex, initialStatus, initialDeadline }) => {
   useEscapeKey(onClose);
   const confirm = useConfirm();
-  const defaultStatus = statuses.length > 0 ? statuses[0] : 'todo';
+  const defaultStatus = initialStatus || (statuses.length > 0 ? statuses[0] : 'todo');
 
   
   const [formData, setFormData] = useState({
@@ -112,7 +112,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
     priority: 'low',
     project: '',
     tags: '',
-    deadline: '',
+    deadline: initialDeadline || '',
     deadlineTime: '',
     recurrence: 'none',
     subtasks: [],
@@ -164,7 +164,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
         priority: 'low',
         project: '',
         tags: [],
-        deadline: today,
+        deadline: initialDeadline || today,
         deadlineTime: '',
         recurrence: 'none',
         subtasks: [],
@@ -173,7 +173,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
       });
       setIsDescOpen(false);
     }
-  }, [task, isOpen, statuses]);
+  }, [task, isOpen, statuses, defaultStatus, initialDeadline]);
 
   if (!isOpen) return null;
 

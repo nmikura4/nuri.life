@@ -113,7 +113,7 @@ const DraggableTask = ({ task, onEditTask, statuses }) => {
   );
 };
 
-const DroppableColumn = ({ col, tasks, isCollapsed, toggleCollapse, onEditTask, statuses }) => {
+const DroppableColumn = ({ col, tasks, isCollapsed, toggleCollapse, onEditTask, statuses, onAddTaskWithStatus }) => {
   const { isOver, setNodeRef } = useDroppable({
     id: col.id,
     data: { type: 'Column', col }
@@ -182,6 +182,43 @@ const DroppableColumn = ({ col, tasks, isCollapsed, toggleCollapse, onEditTask, 
                 Drop tasks here
               </div>
             )}
+            
+            <button 
+              onClick={(e) => { e.stopPropagation(); onAddTaskWithStatus(col.id); }}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: 'transparent',
+                border: '2px dashed var(--card-border)',
+                borderRadius: '16px',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                fontSize: '13px',
+                fontWeight: 600,
+                marginTop: 'auto',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--item-bg)';
+                e.currentTarget.style.borderColor = col.color;
+                e.currentTarget.style.color = col.color;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.borderColor = 'var(--card-border)';
+                e.currentTarget.style.color = 'var(--text-muted)';
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Add Task
+            </button>
           </div>
         </>
       )}
@@ -189,7 +226,7 @@ const DroppableColumn = ({ col, tasks, isCollapsed, toggleCollapse, onEditTask, 
   );
 };
 
-const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, statuses = [] }) => {
+const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, statuses = [], onAddTaskWithStatus }) => {
   const [activeId, setActiveId] = useState(null);
   const [collapsedCols, setCollapsedCols] = useState(() => {
     return statuses.length > 0 ? [statuses[statuses.length - 1]] : ['done'];
@@ -262,15 +299,16 @@ const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, statuses = []
           const isCollapsed = collapsedCols.includes(col.id);
           
           return (
-            <DroppableColumn 
-              key={col.id} 
-              col={col} 
-              tasks={columnTasks} 
-              isCollapsed={isCollapsed} 
-              toggleCollapse={toggleCollapse} 
-              onEditTask={onEditTask} 
-              statuses={statuses} 
-            />
+              <DroppableColumn 
+                key={col.id} 
+                col={col} 
+                tasks={columnTasks} 
+                isCollapsed={isCollapsed} 
+                toggleCollapse={toggleCollapse} 
+                onEditTask={onEditTask} 
+                statuses={statuses} 
+                onAddTaskWithStatus={onAddTaskWithStatus}
+              />
           );
         })}
       </div>

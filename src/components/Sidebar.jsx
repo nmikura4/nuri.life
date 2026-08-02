@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import GlassCard from './UI/GlassCard';
 import NeumorphicButton from './UI/NeumorphicButton';
-import { Home, CheckSquare, Settings, Wallet, StickyNote, Activity, LogOut, Brain, Menu } from 'lucide-react';
+import { Home, CheckSquare, Settings, Wallet, StickyNote, Activity, LogOut, Brain, Menu, Calendar } from 'lucide-react';
 
 const TooltipButton = ({ icon: Icon, label, to, onClick, color }) => {
   const content = (
@@ -88,6 +88,7 @@ const Sidebar = ({ avatarUrl, onLogout, onMenuToggle }) => {
       }}>
         <TooltipButton label="Dashboard" icon={Home} to="/" />
         <TooltipButton label="Tasks" icon={CheckSquare} to="/tasks" />
+        <TooltipButton label="Calendar" icon={Calendar} to="/calendar" />
         <TooltipButton label="Finances" icon={Wallet} to="/finances" />
         <TooltipButton label="Notes" icon={StickyNote} to="/notes" />
         
@@ -163,6 +164,7 @@ const Sidebar = ({ avatarUrl, onLogout, onMenuToggle }) => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1, width: '100%' }}>
         <TooltipButton label="Dashboard" icon={Home} to="/" />
         <TooltipButton label="Tasks" icon={CheckSquare} to="/tasks" />
+        <TooltipButton label="Calendar" icon={Calendar} to="/calendar" />
         <TooltipButton label="Finances" icon={Wallet} to="/finances" />
         <TooltipButton label="Notes" icon={StickyNote} to="/notes" />
         <TooltipButton label="Habits" icon={Activity} to="/habits" />
