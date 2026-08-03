@@ -1,18 +1,20 @@
 import React from 'react';
 import GlassCard from '../UI/GlassCard';
 import { useFinance } from './FinancesView';
-import { Edit2, Trash2, Tag as TagIcon } from 'lucide-react';
+import { Edit2, Trash2, Tag as TagIcon, Paperclip } from 'lucide-react';
 import { ICON_OPTIONS } from '../Settings/icons';
 
 const TransactionsTable = () => {
   const { transactions, categories, currency, openEditTransaction, handleDeleteTransaction } = useFinance();
 
-  const formatMoney = (val) => new Intl.NumberFormat('en-US', { 
-    style: 'currency', 
-    currency: (typeof currency === 'string' ? currency : currency?.code) || 'RUB',
-    minimumFractionDigits: 0, 
-    maximumFractionDigits: 2 
-  }).format(val);
+  const formatMoney = (val) => {
+    const num = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    }).format(Math.abs(val));
+    const curr = (typeof currency === 'string' ? currency : currency?.code) || 'RUB';
+    return `${num} ${curr}`;
+  };
 
   return (
     <GlassCard style={{ padding: '30px', overflowX: 'auto' }}>
@@ -53,10 +55,10 @@ const TransactionsTable = () => {
 
               return (
                 <tr key={t.id} className="transaction-row" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', transition: 'background 0.2s' }}>
-                  <td style={{ padding: '16px' }}>
+                  <td style={{ padding: '10px 16px' }}>
                     <div style={{ fontWeight: 600, fontSize: '15px' }}>{formattedDate}</div>
                   </td>
-                  <td style={{ padding: '16px' }}>
+                  <td style={{ padding: '10px 16px' }}>
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--item-bg)', padding: '6px 12px', borderRadius: '12px', fontSize: '13px', fontWeight: 600 }}>
                       {subcat ? (
                         <>
@@ -71,7 +73,7 @@ const TransactionsTable = () => {
                       )}
                     </div>
                   </td>
-                  <td style={{ padding: '16px', maxWidth: '300px' }}>
+                  <td style={{ padding: '10px 16px', maxWidth: '300px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       <div style={{ fontWeight: 600, fontSize: '14px' }}>
                         {t.counterparty} {t.person && `• ${t.person}`}
@@ -86,12 +88,19 @@ const TransactionsTable = () => {
                           ))}
                         </div>
                       )}
+                      {t.file && t.file.url && (
+                        <div style={{ marginTop: '4px' }}>
+                          <a href={t.file.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--accent-blue)', textDecoration: 'none', background: 'var(--item-bg)', padding: '4px 8px', borderRadius: '8px' }}>
+                            <Paperclip size={12} /> {t.file.name || 'Attachment'}
+                          </a>
+                        </div>
+                      )}
                     </div>
                   </td>
-                  <td style={{ padding: '16px', textAlign: 'right', fontWeight: 700, fontSize: '16px', color: t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)' }}>
+                  <td style={{ padding: '10px 16px', textAlign: 'right', fontWeight: 600, fontSize: '14px', color: t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)' }}>
                     {t.type === 'income' ? '+' : '-'}{formatMoney(Number(t.amount))}
                   </td>
-                  <td style={{ padding: '16px', textAlign: 'center' }}>
+                  <td style={{ padding: '10px 16px', textAlign: 'center' }}>
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                       <button onClick={() => openEditTransaction(t)} style={{ background: 'var(--item-bg)', border: 'none', padding: '8px', borderRadius: '12px', cursor: 'pointer', color: 'var(--text-muted)' }}>
                         <Edit2 size={16} />

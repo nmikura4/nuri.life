@@ -238,13 +238,22 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.title.trim()) return;
+    if (!formData.title.trim()) {
+      alert("Task title is required");
+      return;
+    }
     
     let tagsArray = [];
     if (typeof formData.tags === 'string') {
       tagsArray = formData.tags.split(',').map(t => t.trim()).filter(t => t);
     } else {
       tagsArray = formData.tags;
+    }
+
+    const finalTagInput = tagInput.trim();
+    if (finalTagInput && !tagsArray.includes(finalTagInput)) {
+      tagsArray = [...tagsArray, finalTagInput];
+      setTagInput('');
     }
     
     onSave({ 

@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
 import { X, ChevronLeft, ChevronRight, Edit2, Plus, Eye, Play, Pause, RotateCcw } from 'lucide-react';

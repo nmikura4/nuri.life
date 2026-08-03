@@ -15,8 +15,12 @@ const FinancesView = ({ user }) => {
   const confirm = useConfirm();
   const [transactions, setTransactions] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().substring(0, 7)); // YYYY-MM
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  });
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState('all');
   const [currency, setCurrency] = useState('USD');
   const [counterparties, setCounterparties] = useState([]);
   const [persons, setPersons] = useState([]);
@@ -82,6 +86,7 @@ const FinancesView = ({ user }) => {
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
       if (!t.date || !t.date.startsWith(selectedMonth)) return false;
+      if (filterType !== 'all' && t.type !== filterType) return false;
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         const catName = categories.find(c => c.id === t.categoryId)?.name?.toLowerCase() || '';
@@ -103,11 +108,16 @@ const FinancesView = ({ user }) => {
       const getMs = (val) => val?.toDate ? val.toDate().getTime() : (new Date(val || 0).getTime());
       return getMs(b.createdAt) - getMs(a.createdAt);
     });
-  }, [transactions, selectedMonth, searchQuery, categories]);
+  }, [transactions, selectedMonth, filterType, searchQuery, categories]);
+
+  const allMonthTransactions = useMemo(() => {
+    return transactions.filter(t => t.date && t.date.startsWith(selectedMonth));
+  }, [transactions, selectedMonth]);
 
   const value = {
     transactions: filteredTransactions,
     allTransactions: transactions,
+    allMonthTransactions,
     categories,
     counterparties,
     persons,
@@ -115,6 +125,8 @@ const FinancesView = ({ user }) => {
     setSelectedMonth,
     searchQuery,
     setSearchQuery,
+    filterType,
+    setFilterType,
     currency,
     openNewTransaction: () => { setEditingTransaction(null); setIsModalOpen(true); },
     openEditTransaction: (tx) => { setEditingTransaction(tx); setIsModalOpen(true); },

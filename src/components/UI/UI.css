@@ -261,3 +261,10 @@ body.dark-theme .welcome-search-input::placeholder {
   border: 2px solid #000000;
   cursor: pointer;
 }
+
+.custom-select-dropdown.top {
+  top: auto !important;
+  bottom: 100% !important;
+  margin-top: 0 !important;
+  margin-bottom: 8px !important;
+}

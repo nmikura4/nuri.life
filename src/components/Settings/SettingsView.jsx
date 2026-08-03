@@ -266,7 +266,7 @@ const SettingsView = ({
                   if (!user) return;
                   try {
                     const exportData = {};
-                    for (const colName of ['tasks', 'notes', 'habits', 'finances']) {
+                    for (const colName of ['tasks', 'notes', 'habits', 'transactions']) {
                       const snap = await getDocs(collection(db, 'users', user.uid, colName));
                       exportData[colName] = snap.docs.map(d => d.data());
                     }

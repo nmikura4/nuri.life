@@ -1,8 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { 
   DndContext, 
   useDroppable, 
-  useDraggable, 
   DragOverlay, 
   closestCorners,
   useSensor,
@@ -10,24 +9,26 @@ import {
   PointerSensor,
   TouchSensor 
 } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import GlassCard from '../UI/GlassCard';
 import Badge from '../UI/Badge';
 
 const DraggableTask = ({ task, onEditTask, statuses }) => {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
-    data: { task }
+    data: { type: 'Task', task }
   });
 
   const style = {
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    transform: CSS.Transform.toString(transform),
+    transition,
     opacity: isDragging ? 0.4 : 1,
     background: 'var(--card-bg)',
     padding: '16px',
     borderRadius: '16px',
     boxShadow: isDragging ? 'var(--shadow-card)' : 'var(--shadow-soft)',
     border: '1px solid var(--card-border)',
-    transition: isDragging ? 'none' : 'box-shadow 0.2s ease, transform 0.2s ease',
     position: 'relative',
     cursor: 'grab',
     touchAction: 'pan-x pan-y' // Allow scrolling on mobile
@@ -167,9 +168,11 @@ const DroppableColumn = ({ col, tasks, isCollapsed, toggleCollapse, onEditTask, 
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
-            {tasks.map(task => (
-              <DraggableTask key={task.id} task={task} onEditTask={onEditTask} statuses={statuses} />
-            ))}
+            <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+              {tasks.map(task => (
+                <DraggableTask key={task.id} task={task} onEditTask={onEditTask} statuses={statuses} />
+              ))}
+            </SortableContext>
             
             {tasks.length === 0 && (
               <div style={{ 
@@ -226,8 +229,16 @@ const DroppableColumn = ({ col, tasks, isCollapsed, toggleCollapse, onEditTask, 
   );
 };
 
-const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, statuses = [], onAddTaskWithStatus }) => {
+const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, onReorderTasks, statuses = [], onAddTaskWithStatus }) => {
   const [activeId, setActiveId] = useState(null);
+  const [boardTasks, setBoardTasks] = useState([]);
+  
+  useEffect(() => {
+    if (!activeId) {
+      setBoardTasks([...tasks].sort((a, b) => (a.order || 0) - (b.order || 0)));
+    }
+  }, [tasks, activeId]);
+
   const [collapsedCols, setCollapsedCols] = useState(() => {
     return statuses.length > 0 ? [statuses[statuses.length - 1]] : ['done'];
   });
@@ -250,29 +261,65 @@ const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, statuses = []
     setActiveId(event.active.id);
   };
 
-  const handleDragEnd = (event) => {
+  const handleDragOver = (event) => {
     const { active, over } = event;
-    setActiveId(null);
+    if (!over) return;
     
-    if (over) {
-      const taskId = active.id;
-      const newStatus = over.id; // column id
-      
-      const task = tasks.find(t => t.id === taskId);
-      if (task && task.status !== newStatus) {
-        if (onStatusChange) {
-          onStatusChange(taskId, newStatus);
-        } else {
-          setTasks(prev => prev.map(t => 
-            t.id === taskId ? { ...t, status: newStatus } : t
-          ));
-        }
+    const activeId = active.id;
+    const overId = over.id;
+    if (activeId === overId) return;
+    
+    const isActiveTask = active.data.current?.type === 'Task';
+    const isOverTask = over.data.current?.type === 'Task';
+    const isOverColumn = over.data.current?.type === 'Column';
 
-        // Auto-expand if dropping into a collapsed column
-        if (collapsedCols.includes(newStatus)) {
-          setCollapsedCols(prev => prev.filter(c => c !== newStatus));
+    if (!isActiveTask) return;
+
+    setBoardTasks(prev => {
+      const activeIndex = prev.findIndex(t => t.id === activeId);
+      const activeTask = prev[activeIndex];
+      
+      if (isOverTask) {
+        const overIndex = prev.findIndex(t => t.id === overId);
+        const overTask = prev[overIndex];
+        
+        if (activeTask.status !== overTask.status) {
+          activeTask.status = overTask.status;
+          return arrayMove(prev, activeIndex, overIndex);
+        }
+        return arrayMove(prev, activeIndex, overIndex);
+      }
+      
+      if (isOverColumn) {
+        if (activeTask.status !== overId) {
+          activeTask.status = overId;
+          return arrayMove(prev, activeIndex, prev.length - 1);
         }
       }
+      return prev;
+    });
+  };
+
+  const handleDragEnd = (event) => {
+    setActiveId(null);
+    const { active, over } = event;
+    if (!over) return;
+
+    const overId = over.id;
+    
+    // Recalculate order for all tasks to be safe
+    const reordered = boardTasks.map((t, index) => ({ ...t, order: index }));
+    setBoardTasks(reordered);
+    
+    if (onReorderTasks) {
+      onReorderTasks(reordered);
+    } else if (onStatusChange) {
+      const activeTask = reordered.find(t => t.id === active.id);
+      if (activeTask) onStatusChange(active.id, activeTask.status);
+    }
+
+    if (over.data.current?.type === 'Column' && collapsedCols.includes(overId)) {
+      setCollapsedCols(prev => prev.filter(c => c !== overId));
     }
   };
 
@@ -289,13 +336,13 @@ const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, statuses = []
     color: colors[idx % colors.length]
   }));
 
-  const activeTask = useMemo(() => tasks.find(t => t.id === activeId), [activeId, tasks]);
+  const activeTask = useMemo(() => boardTasks.find(t => t.id === activeId), [activeId, boardTasks]);
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
       <div style={{ flex: 1, display: 'flex', gap: '20px', minHeight: 'calc(100dvh - 95px)', overflowX: 'auto', paddingBottom: '20px' }}>
         {columns.map(col => {
-          const columnTasks = tasks.filter(t => t.status === col.id);
+          const columnTasks = boardTasks.filter(t => t.status === col.id);
           const isCollapsed = collapsedCols.includes(col.id);
           
           return (

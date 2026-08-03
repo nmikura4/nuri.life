@@ -8,6 +8,7 @@ const AuthView = () => {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -62,7 +63,7 @@ const AuthView = () => {
     setLoading(true);
     try {
       await sendPasswordResetEmail(auth, email);
-      alert('Ссылка для сброса пароля отправлена на ваш email.');
+      setSuccessMsg('Ссылка для сброса пароля отправлена на ваш email.');
     } catch (err) {
       console.error(err);
       if (err.code === 'auth/user-not-found') {
@@ -132,11 +133,23 @@ const AuthView = () => {
           </div>
         )}
 
+        {successMsg && (
+          <div style={{
+            color: '#10b981',
+            padding: '10px',
+            fontSize: '14px',
+            textAlign: 'center',
+            marginBottom: '20px'
+          }}>
+            {successMsg}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
-          {/* Username / Email */}
+          {/* Email */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '14px', color: 'var(--text-muted)', paddingLeft: '5px' }}>Username</label>
+            <label style={{ fontSize: '14px', color: 'var(--text-muted)', paddingLeft: '5px' }}>Email</label>
             <input
               type="email"
               value={email}
@@ -197,7 +210,7 @@ const AuthView = () => {
                 </div>
                 <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Remember me</span>
               </div>
-              <a href="#" onClick={handleResetPassword} style={{ fontSize: '13px', color: 'var(--text-muted)', textDecoration: 'none' }}>Forget password?</a>
+              <span onClick={handleResetPassword} style={{ fontSize: '13px', color: 'var(--text-muted)', cursor: 'pointer' }}>Forget password?</span>
             </div>
           )}
 

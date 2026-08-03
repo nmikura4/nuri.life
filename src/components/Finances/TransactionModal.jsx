@@ -19,7 +19,8 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
     comment: '',
     tags: [],
     file: null,
-    recurrence: 'none'
+    recurrence: 'none',
+    recurrenceEndDate: ''
   });
   
   const [tagInput, setTagInput] = useState('');
@@ -62,7 +63,8 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
         comment: '',
         tags: [],
         file: null,
-        recurrence: 'none'
+        recurrence: 'none',
+        recurrenceEndDate: ''
       }));
       setIsCommentOpen(false);
     }
@@ -74,7 +76,11 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      const next = { ...prev, [name]: value };
+      if (name === 'categoryId') next.subcategoryId = '';
+      return next;
+    });
   };
 
   const handleTypeChange = (type) => {
@@ -106,7 +112,30 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.amount || !formData.categoryId) return;
+    
+    const numAmount = Number(formData.amount);
+    if (!numAmount || numAmount <= 0) {
+      alert("Amount must be greater than 0");
+      return;
+    }
+    if (!formData.categoryId) {
+      alert("Category is required");
+      return;
+    }
+
+    if (formData.recurrence && formData.recurrence !== 'none' && formData.recurrenceEndDate) {
+      if (formData.recurrenceEndDate <= formData.date) {
+        alert("Recurrence end date must be after the transaction date");
+        return;
+      }
+    }
+    
+    const finalTagInput = tagInput.trim();
+    let finalTags = formData.tags;
+    if (finalTagInput && !finalTags.includes(finalTagInput)) {
+      finalTags = [...finalTags, finalTagInput];
+      setTagInput('');
+    }
     
     if (!transaction) {
       localStorage.setItem('lastTxDate', formData.date);
@@ -117,7 +146,8 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
 
     const finalData = {
       ...formData,
-      amount: Number(formData.amount),
+      tags: finalTags,
+      amount: numAmount,
     };
 
     if (finalData.recurrence && finalData.recurrence !== 'none') {
@@ -147,22 +177,23 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
   return (
     <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={transaction ? 'Edit Transaction' : 'New Transaction'}>
       <div onClick={e => e.stopPropagation()} style={{ margin: 'auto', width: '100%', maxWidth: '500px' }}>
-        <GlassCard className="responsive-card" style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)', maxHeight: '90vh', overflowY: 'auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: 700, margin: 0 }}>
-              {transaction ? 'Edit Transaction' : 'New Transaction'}
-            </h2>
+        <GlassCard className="responsive-card" style={{ padding: '24px', position: 'relative', background: 'var(--solid-card-bg)', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0 }}>
+                {transaction ? 'Edit Transaction' : 'New Transaction'}
+              </h2>
+              <div style={{ display: 'flex', gap: '4px', background: 'var(--item-bg)', padding: '4px', borderRadius: '20px' }}>
+                <button type="button" onClick={() => handleTypeChange('expense')} style={{ padding: '6px 16px', borderRadius: '16px', border: 'none', cursor: 'pointer', background: formData.type === 'expense' ? 'var(--solid-card-bg)' : 'transparent', fontWeight: formData.type === 'expense' ? 600 : 500, fontSize: '13px', color: formData.type === 'expense' ? 'var(--accent-coral)' : 'var(--text-main)', boxShadow: formData.type === 'expense' ? 'var(--shadow-soft)' : 'none', transition: 'all 0.3s ease' }}>
+                  Expense
+                </button>
+                <button type="button" onClick={() => handleTypeChange('income')} style={{ padding: '6px 16px', borderRadius: '16px', border: 'none', cursor: 'pointer', background: formData.type === 'income' ? 'var(--solid-card-bg)' : 'transparent', fontWeight: formData.type === 'income' ? 600 : 500, fontSize: '13px', color: formData.type === 'income' ? 'var(--accent-blue)' : 'var(--text-main)', boxShadow: formData.type === 'income' ? 'var(--shadow-soft)' : 'none', transition: 'all 0.3s ease' }}>
+                  Income
+                </button>
+              </div>
+            </div>
             <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}>
-              <X size={24} />
-            </button>
-          </div>
-
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', background: 'var(--item-bg)', padding: '5px', borderRadius: '20px', width: 'fit-content' }}>
-            <button type="button" onClick={() => handleTypeChange('expense')} style={{ padding: '8px 20px', borderRadius: '16px', border: 'none', cursor: 'pointer', background: formData.type === 'expense' ? 'var(--solid-card-bg)' : 'transparent', fontWeight: formData.type === 'expense' ? 600 : 400, color: formData.type === 'expense' ? 'var(--accent-coral)' : 'var(--text-main)', boxShadow: formData.type === 'expense' ? 'var(--shadow-soft)' : 'none', transition: 'all 0.3s ease' }}>
-              Expense
-            </button>
-            <button type="button" onClick={() => handleTypeChange('income')} style={{ padding: '8px 20px', borderRadius: '16px', border: 'none', cursor: 'pointer', background: formData.type === 'income' ? 'var(--solid-card-bg)' : 'transparent', fontWeight: formData.type === 'income' ? 600 : 400, color: formData.type === 'income' ? 'var(--accent-blue)' : 'var(--text-main)', boxShadow: formData.type === 'income' ? 'var(--shadow-soft)' : 'none', transition: 'all 0.3s ease' }}>
-              Income
+              <X size={20} />
             </button>
           </div>
 
@@ -181,21 +212,6 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
                   alignRight={true}
                 />
               </div>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Recurrence</label>
-              <CustomSelect 
-                options={[
-                  { label: 'None', value: 'none' },
-                  { label: 'Daily', value: 'daily' },
-                  { label: 'Weekly', value: 'weekly' },
-                  { label: 'Monthly', value: 'monthly' },
-                  { label: 'Yearly', value: 'yearly' },
-                ]}
-                value={formData.recurrence || 'none'}
-                onChange={(val) => setFormData(prev => ({ ...prev, recurrence: val }))}
-              />
             </div>
 
             <div>
@@ -240,33 +256,35 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
               </div>
             </div>
 
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Tags (Press Enter)</label>
-              <div className="neu-input" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '10px 16px', minHeight: '44px', alignItems: 'center' }}>
-                {formData.tags.map(tag => (
-                  <span key={tag} style={{ background: 'var(--item-bg)', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <TagIcon size={12} /> {tag}
-                    <button type="button" onClick={() => removeTag(tag)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}><X size={12} /></button>
-                  </span>
-                ))}
-                <input 
-                  type="text" 
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={handleAddTag}
-                  placeholder={formData.tags.length === 0 ? "Add tags..." : ""}
-                  style={{ border: 'none', background: 'transparent', outline: 'none', flex: 1, minWidth: '80px', color: 'var(--text-main)', fontSize: '14px' }}
+            <div className="responsive-grid-2" style={{ gap: '20px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Tags (Press Enter)</label>
+                <div className="neu-input" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '10px 16px', minHeight: '44px', alignItems: 'center' }}>
+                  {formData.tags.map(tag => (
+                    <span key={tag} style={{ background: 'var(--item-bg)', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <TagIcon size={12} /> {tag}
+                      <button type="button" onClick={() => removeTag(tag)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}><X size={12} /></button>
+                    </span>
+                  ))}
+                  <input 
+                    type="text" 
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={handleAddTag}
+                    placeholder={formData.tags.length === 0 ? "Add tags..." : ""}
+                    style={{ border: 'none', background: 'transparent', outline: 'none', flex: 1, minWidth: '80px', color: 'var(--text-main)', fontSize: '14px' }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Attachment</label>
+                <FileUploader 
+                  fileData={formData.file} 
+                  onChange={(val) => setFormData(prev => ({ ...prev, file: val }))} 
+                  folder="finances" 
                 />
               </div>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Attachment</label>
-              <FileUploader 
-                fileData={formData.file} 
-                onChange={(val) => setFormData(prev => ({ ...prev, file: val }))} 
-                folder="finances" 
-              />
             </div>
 
             <div style={{ background: 'var(--card-bg)', borderRadius: '12px', padding: '12px', boxShadow: 'var(--shadow-soft)' }}>
@@ -279,6 +297,35 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
               </div>
               {isCommentOpen && (
                 <textarea ref={commentRef} name="comment" value={formData.comment} onChange={handleChange} className="neu-textarea" placeholder="Add details..." rows="1" style={{ resize: 'none', overflow: 'hidden' }} />
+              )}
+            </div>
+
+            <div className={formData.recurrence !== 'none' ? 'responsive-grid-2' : ''} style={{ gap: '20px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Recurrence</label>
+                <CustomSelect 
+                  options={[
+                    { label: 'None', value: 'none' },
+                    { label: 'Daily', value: 'daily' },
+                    { label: 'Weekly', value: 'weekly' },
+                    { label: 'Monthly', value: 'monthly' },
+                    { label: 'Yearly', value: 'yearly' },
+                  ]}
+                  value={formData.recurrence || 'none'}
+                  onChange={(val) => setFormData(prev => ({ ...prev, recurrence: val }))}
+                  menuPlacement="top"
+                />
+              </div>
+              
+              {formData.recurrence !== 'none' && (
+                <div className="fade-in">
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>End Date (Optional)</label>
+                  <CustomDatePicker 
+                    value={formData.recurrenceEndDate || ''} 
+                    onChange={(val) => setFormData(prev => ({ ...prev, recurrenceEndDate: val }))} 
+                    alignRight={true}
+                  />
+                </div>
               )}
             </div>
 

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAIAssistant } from '../../context/AIAssistantContext';
 import { Send, Bot, User, Loader2, Sparkles, Plus, Trash2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import '../UI/UI.css';
 
 const ChatInterface = ({ isPopup = false }) => {
@@ -127,9 +128,24 @@ const ChatInterface = ({ isPopup = false }) => {
                 fontSize: '14px',
                 lineHeight: '1.5',
                 color: 'var(--text-main)',
-                whiteSpace: 'pre-wrap'
+                whiteSpace: msg.role === 'user' ? 'pre-wrap' : 'normal'
               }}>
-                {msg.text}
+                {msg.role === 'user' ? (
+                  msg.text
+                ) : (
+                  <ReactMarkdown 
+                    components={{
+                      p: ({node, ...props}) => <p style={{ margin: '0 0 8px 0' }} {...props} />,
+                      ul: ({node, ...props}) => <ul style={{ margin: '0 0 8px 0', paddingLeft: '20px' }} {...props} />,
+                      ol: ({node, ...props}) => <ol style={{ margin: '0 0 8px 0', paddingLeft: '20px' }} {...props} />,
+                      li: ({node, ...props}) => <li style={{ marginBottom: '4px' }} {...props} />,
+                      code: ({node, ...props}) => <code style={{ background: 'rgba(0,0,0,0.1)', padding: '2px 4px', borderRadius: '4px', fontSize: '13px' }} {...props} />,
+                      pre: ({node, ...props}) => <pre style={{ background: 'rgba(0,0,0,0.1)', padding: '8px', borderRadius: '8px', overflowX: 'auto', fontSize: '13px', margin: '0 0 8px 0' }} {...props} />
+                    }}
+                  >
+                    {msg.text}
+                  </ReactMarkdown>
+                )}
               </div>
             </div>
           ))

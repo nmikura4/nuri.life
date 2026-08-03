@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import './UI.css';
 
-const CustomSelect = ({ options, value, onChange, placeholder = 'Select...', style = {}, innerStyle = {} }) => {
+const CustomSelect = ({ options, value, onChange, placeholder = 'Select...', style = {}, innerStyle = {}, menuPlacement = 'bottom' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -37,7 +37,7 @@ const CustomSelect = ({ options, value, onChange, placeholder = 'Select...', sty
       </div>
       
       {isOpen && (
-        <div className="custom-select-dropdown">
+        <div className={`custom-select-dropdown ${menuPlacement === 'top' ? 'top' : ''}`}>
           {options && options.length > 0 ? (
             options.map((opt) => (
               <div 

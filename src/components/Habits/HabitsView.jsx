@@ -38,25 +38,55 @@ const getCurrentWeekDays = () => {
 };
 
 
-const calculateStreak = (logs) => {
+const getMonday = (d) => {
+  const date = new Date(d);
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(date.setDate(diff));
+};
+
+const calculateStreak = (logs, frequency) => {
   if (!logs) return 0;
   let streak = 0;
-  let d = new Date();
   
-  while (true) {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const dateStr = `${y}-${m}-${day}`;
+  if (frequency === 'weekly') {
+    let currentWeekMonday = getMonday(new Date());
+    currentWeekMonday.setHours(0,0,0,0);
+    const logDates = Object.keys(logs).map(d => new Date(d));
     
-    if (logs[dateStr]) {
-      streak++;
-      d.setDate(d.getDate() - 1);
-    } else if (streak === 0 && d.toDateString() === new Date().toDateString()) {
-      // It's okay if today is not logged yet, check yesterday
-      d.setDate(d.getDate() - 1);
-    } else {
-      break;
+    while (true) {
+      let weekStart = new Date(currentWeekMonday);
+      let weekEnd = new Date(currentWeekMonday);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      weekEnd.setHours(23,59,59,999);
+      
+      const hasLogThisWeek = logDates.some(d => d >= weekStart && d <= weekEnd);
+      
+      if (hasLogThisWeek) {
+        streak++;
+        currentWeekMonday.setDate(currentWeekMonday.getDate() - 7);
+      } else if (streak === 0 && currentWeekMonday.getTime() === getMonday(new Date()).getTime()) {
+        currentWeekMonday.setDate(currentWeekMonday.getDate() - 7);
+      } else {
+        break;
+      }
+    }
+  } else {
+    let d = new Date();
+    while (true) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${m}-${day}`;
+      
+      if (logs[dateStr]) {
+        streak++;
+        d.setDate(d.getDate() - 1);
+      } else if (streak === 0 && d.toDateString() === new Date().toDateString()) {
+        d.setDate(d.getDate() - 1);
+      } else {
+        break;
+      }
     }
   }
   return streak;
@@ -166,7 +196,7 @@ const HabitsView = () => {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
           {habits.filter(h => showArchived ? h.archived : !h.archived).map(habit => {
-            const streak = calculateStreak(habit.logs);
+            const streak = calculateStreak(habit.logs, habit.frequency);
             const bgColor = COLORS[habit.color] || COLORS.default;
 
             return (
@@ -218,12 +248,14 @@ const HabitsView = () => {
                 {/* 7 Days Row */}
                 {(() => {
                   const completedInCurrentWeek = currentWeekDays.filter(({dateStr}) => habit.logs && habit.logs[dateStr]).length;
-                  const progressPercent = (completedInCurrentWeek / 7) * 100;
+                  const maxTarget = habit.frequency === 'weekly' ? 1 : 7;
+                  const progressPercent = Math.min((completedInCurrentWeek / maxTarget) * 100, 100);
+                  
                   return (
                     <div style={{ marginTop: 'auto', marginBottom: '4px', width: '100%' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
                         <span>Weekly Progress</span>
-                        <span>{completedInCurrentWeek} / 7 days</span>
+                        <span>{completedInCurrentWeek} / {maxTarget} {habit.frequency === 'weekly' ? 'time' : 'days'}</span>
                       </div>
                       <div style={{ height: '6px', background: 'var(--item-bg)', borderRadius: '3px', overflow: 'hidden', boxShadow: 'var(--shadow-inner)' }}>
                         <div style={{ height: '100%', background: 'var(--accent-blue)', width: `${progressPercent}%`, transition: 'width 0.3s ease', borderRadius: '3px' }}></div>

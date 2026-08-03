@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { collection, doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, onSnapshot, deleteDoc, writeBatch } from 'firebase/firestore';
 import { db, auth, storage } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { ref, deleteObject } from 'firebase/storage';
@@ -203,6 +203,20 @@ function App() {
     }
   };
 
+  const handleReorderTasks = async (reorderedTasks) => {
+    if (!user) return;
+    try {
+      const batch = writeBatch(db);
+      reorderedTasks.forEach(t => {
+        batch.set(doc(db, "users", user.uid, "tasks", t.id.toString()), { ...t }, { merge: true });
+      });
+      await batch.commit();
+    } catch (e) {
+      console.error("Error saving task order:", e);
+      alert("Ошибка при сохранении порядка задач.");
+    }
+  };
+
   const handleSaveNote = async (noteData) => {
     if (!user) return;
     try {
@@ -279,7 +293,7 @@ function App() {
     const isBecomingDone = newStatus === (statuses.length > 0 ? statuses[statuses.length - 1] : 'done');
 
     if (isBecomingDone && task.subtasks && task.subtasks.some(s => !s.isCompleted)) {
-      showAlert('Есть не закончанная подзадача!');
+      showAlert('There is an unfinished subtask!');
       return;
     }
 
@@ -543,6 +557,7 @@ function App() {
                     tasks={filteredTasks} 
                     setTasks={setTasks} 
                     onStatusChange={updateTaskStatus} 
+                    onReorderTasks={handleReorderTasks}
                     onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); setTopModal('task'); }} 
                     onAddTaskWithStatus={handleOpenNewTaskWithStatus}
                     statuses={statuses} 

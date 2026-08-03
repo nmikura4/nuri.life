@@ -6,15 +6,22 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, L
 import { ArrowUpRight, ArrowDownRight, Wallet, CheckCircle, Clock } from 'lucide-react';
 
 const FinancesDashboard = () => {
-  const { transactions, allTransactions, categories, currency, handleSaveTransaction } = useFinance();
+  const { transactions, allTransactions, allMonthTransactions, categories, currency, handleSaveTransaction } = useFinance();
   const [isProcessingRecurring, setIsProcessingRecurring] = useState(false);
 
-  const formatMoney = (val) => new Intl.NumberFormat('en-US', { 
-    style: 'currency', 
-    currency: (typeof currency === 'string' ? currency : currency?.code) || 'RUB',
-    minimumFractionDigits: 0, 
-    maximumFractionDigits: 2 
-  }).format(val);
+  const formatMoney = (val) => {
+    const num = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 1
+    }).format(Math.abs(val));
+    const curr = (typeof currency === 'string' ? currency : currency?.code) || 'RUB';
+    const sign = val < 0 ? '-' : '';
+    return (
+      <>
+        {sign}{num} <span style={{ fontSize: '0.65em', fontWeight: 500, opacity: 0.8 }}>{curr}</span>
+      </>
+    );
+  };
 
   const stats = useMemo(() => {
     let income = 0;
@@ -22,7 +29,7 @@ const FinancesDashboard = () => {
     const expenseByCategory = {};
     const categorySpending = {};
 
-    transactions.forEach(t => {
+    (allMonthTransactions || transactions).forEach(t => {
       const amount = Number(t.amount) || 0;
       if (t.type === 'income') {
         income += amount;
@@ -40,12 +47,16 @@ const FinancesDashboard = () => {
     })).sort((a, b) => b.value - a.value);
 
     return { income, expense, balance: income - expense, chartData, categorySpending };
-  }, [transactions, categories]);
+  }, [allMonthTransactions, transactions, categories]);
 
   // Recurring logic
   const dueRecurring = useMemo(() => {
     const today = new Date().toISOString().substring(0, 10);
-    return allTransactions ? allTransactions.filter(t => t.recurrence && t.recurrence !== 'none' && t.recurrenceNextDate && t.recurrenceNextDate <= today) : [];
+    return allTransactions ? allTransactions.filter(t => 
+      t.recurrence && t.recurrence !== 'none' && 
+      t.recurrenceNextDate && t.recurrenceNextDate <= today &&
+      (!t.recurrenceEndDate || t.recurrenceNextDate <= t.recurrenceEndDate)
+    ) : [];
   }, [allTransactions]);
 
   const processRecurring = async () => {
@@ -54,23 +65,49 @@ const FinancesDashboard = () => {
     for (const t of dueRecurring) {
       const dateParts = t.recurrenceNextDate.split('-');
       if (dateParts.length !== 3) continue;
-      const d = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
-      
-      let clonedTx = { ...t, id: crypto.randomUUID(), date: t.recurrenceNextDate, createdAt: new Date().toISOString() };
-      
-      if (t.recurrence === 'daily') d.setDate(d.getDate() + 1);
-      else if (t.recurrence === 'weekly') d.setDate(d.getDate() + 7);
-      else if (t.recurrence === 'monthly') d.setMonth(d.getMonth() + 1);
-      else if (t.recurrence === 'yearly') d.setFullYear(d.getFullYear() + 1);
-      
-      const ny = d.getFullYear();
-      const nm = String(d.getMonth() + 1).padStart(2, '0');
-      const nd = String(d.getDate()).padStart(2, '0');
-      const nextDateStr = `${ny}-${nm}-${nd}`;
+      let nextDateStr = t.recurrenceNextDate;
+      let d = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+      let clonedTransactions = [];
+      const today = new Date().toISOString().substring(0, 10);
+
+      while (nextDateStr <= today) {
+        let clonedTx = { 
+          ...t, 
+          id: crypto.randomUUID(), 
+          date: nextDateStr, 
+          createdAt: new Date().toISOString(),
+          recurrence: 'none',
+          recurrenceNextDate: null,
+          recurrenceEndDate: null
+        };
+        clonedTransactions.push(clonedTx);
+        
+        if (t.recurrence === 'daily') d.setDate(d.getDate() + 1);
+        else if (t.recurrence === 'weekly') d.setDate(d.getDate() + 7);
+        else if (t.recurrence === 'monthly') d.setMonth(d.getMonth() + 1);
+        else if (t.recurrence === 'yearly') d.setFullYear(d.getFullYear() + 1);
+        
+        const ny = d.getFullYear();
+        const nm = String(d.getMonth() + 1).padStart(2, '0');
+        const nd = String(d.getDate()).padStart(2, '0');
+        nextDateStr = `${ny}-${nm}-${nd}`;
+
+        if (t.recurrenceEndDate && nextDateStr > t.recurrenceEndDate) {
+          break;
+        }
+      }
 
       const updatedOriginal = { ...t, recurrenceNextDate: nextDateStr };
+      
+      if (t.recurrenceEndDate && nextDateStr > t.recurrenceEndDate) {
+        updatedOriginal.recurrence = 'none';
+        updatedOriginal.recurrenceNextDate = null;
+      }
+
       await handleSaveTransaction(updatedOriginal);
-      await handleSaveTransaction(clonedTx);
+      for (const ctx of clonedTransactions) {
+        await handleSaveTransaction(ctx);
+      }
     }
     setIsProcessingRecurring(false);
   };
@@ -101,6 +138,30 @@ const FinancesDashboard = () => {
   }, [allTransactions]);
 
   const categoriesWithBudgets = categories ? categories.filter(c => c.type === 'expense' && c.budget > 0) : [];
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div style={{ 
+          background: 'rgba(255, 255, 255, 0.6)', 
+          backdropFilter: 'blur(16px)', 
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255, 255, 255, 0.5)', 
+          borderRadius: '16px', 
+          padding: '12px 16px', 
+          boxShadow: 'var(--shadow-soft)' 
+        }}>
+          {label && <p style={{ margin: '0 0 8px 0', fontWeight: 700, fontSize: '14px', color: 'var(--text-main)' }}>{label}</p>}
+          {payload.map((entry, index) => (
+            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 0', fontSize: '13px', fontWeight: 700, color: entry.color }}>
+              {entry.name}: {formatMoney(entry.value)}
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
 
   const COLORS = ['#ef9a8a', '#a4c9e5', '#fbbba1', '#b7d5ec', '#f4c2c2', '#d46f5b', '#5b8fb9'];
 
@@ -191,11 +252,7 @@ const FinancesDashboard = () => {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <RechartsTooltip 
-                    contentStyle={{ background: 'var(--card-bg)', borderRadius: '16px', border: '1px solid var(--card-border)', boxShadow: 'var(--shadow-card)', backdropFilter: 'blur(10px)' }}
-                    itemStyle={{ color: 'var(--text-main)', fontWeight: 600 }}
-                    formatter={(value) => formatMoney(value)}
-                  />
+                  <RechartsTooltip content={<CustomTooltip />} />
                   <Legend wrapperStyle={{ fontSize: '14px', paddingTop: '10px' }} />
                 </PieChart>
               </ResponsiveContainer>
@@ -222,8 +279,7 @@ const FinancesDashboard = () => {
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(0)}k` : val} />
                 <RechartsTooltip 
                   cursor={{ fill: 'rgba(0,0,0,0.05)' }}
-                  contentStyle={{ background: 'var(--card-bg)', borderRadius: '12px', border: 'none', boxShadow: 'var(--shadow-card)' }}
-                  formatter={(value) => formatMoney(value)}
+                  content={<CustomTooltip />}
                 />
                 <Legend iconType="circle" wrapperStyle={{ paddingTop: '10px', fontSize: '13px' }} />
                 <Bar dataKey="Income" fill="var(--accent-blue)" radius={[4, 4, 0, 0]} maxBarSize={40} />
