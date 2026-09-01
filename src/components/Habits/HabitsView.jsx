@@ -194,7 +194,7 @@ const HabitsView = () => {
           </p>
         </GlassCard>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '20px' }}>
           {habits.filter(h => showArchived ? h.archived : !h.archived).map(habit => {
             const streak = calculateStreak(habit.logs, habit.frequency);
             const bgColor = COLORS[habit.color] || COLORS.default;

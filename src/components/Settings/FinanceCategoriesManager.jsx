@@ -667,7 +667,7 @@ const FinanceCategoriesManager = ({ user }) => {
               )}
             </form>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '30px' }}>
               {renderCategoryList(expenses, "Expense Categories")}
               {renderCategoryList(incomes, "Income Categories")}
             </div>

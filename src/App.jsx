@@ -43,6 +43,8 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [initialTaskStatus, setInitialTaskStatus] = useState('');
   const [initialTaskDeadline, setInitialTaskDeadline] = useState('');
+  const [initialTaskStartTime, setInitialTaskStartTime] = useState('');
+  const [initialTaskDeadlineTime, setInitialTaskDeadlineTime] = useState('');
   const [editingTask, setEditingTask] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
@@ -151,6 +153,8 @@ function App() {
     setEditingTask(null);
     setInitialTaskStatus('');
     setInitialTaskDeadline('');
+    setInitialTaskStartTime('');
+    setInitialTaskDeadlineTime('');
     setIsModalOpen(true);
     setTopModal('task');
   };
@@ -159,14 +163,18 @@ function App() {
     setEditingTask(null);
     setInitialTaskStatus(status);
     setInitialTaskDeadline('');
+    setInitialTaskStartTime('');
+    setInitialTaskDeadlineTime('');
     setIsModalOpen(true);
     setTopModal('task');
   };
 
-  const handleOpenNewTaskWithDeadline = (dateStr) => {
+  const handleOpenNewTaskWithDeadline = (dateStr, startTime = '', deadlineTime = '') => {
     setEditingTask(null);
     setInitialTaskStatus('');
     setInitialTaskDeadline(dateStr);
+    setInitialTaskStartTime(startTime);
+    setInitialTaskDeadlineTime(deadlineTime);
     setIsModalOpen(true);
     setTopModal('task');
   };
@@ -619,7 +627,7 @@ function App() {
                 onAddTask={handleOpenNewTaskWithDeadline}
               />
             } />
-            <Route path="/notes" element={<NotesView user={user} onOpenTask={handleOpenNewTask} tasks={tasks} onSaveNote={handleSaveNote} onDeleteNote={handleDeleteNote} onAddNote={(type = 'text') => { setEditingNote({ type }); setIsNoteModalOpen(true); setTopModal('note'); }} onEditNote={(n) => { setEditingNote(n); setIsNoteModalOpen(true); setTopModal('note'); }} />} />
+            <Route path="/notes" element={<NotesView user={user} notes={notes} onOpenTask={handleOpenNewTask} tasks={tasks} onSaveNote={handleSaveNote} onDeleteNote={handleDeleteNote} onAddNote={(type = 'text') => { setEditingNote({ type }); setIsNoteModalOpen(true); setTopModal('note'); }} onEditNote={(n) => { setEditingNote(n); setIsNoteModalOpen(true); setTopModal('note'); }} />} />
             <Route path="/habits" element={<HabitsView />} />
             <Route path="/ai" element={<AICoachView />} />
             
@@ -691,7 +699,9 @@ function App() {
         zIndex={topModal === 'task' ? 2000 : 1000}
         initialStatus={initialTaskStatus}
         initialDeadline={initialTaskDeadline}
-        onClose={() => { setIsModalOpen(false); setEditingTask(null); setInitialTaskStatus(''); setInitialTaskDeadline(''); }} 
+        initialStartTime={initialTaskStartTime}
+        initialDeadlineTime={initialTaskDeadlineTime}
+        onClose={() => { setIsModalOpen(false); setEditingTask(null); setInitialTaskStatus(''); setInitialTaskDeadline(''); setInitialTaskStartTime(''); setInitialTaskDeadlineTime(''); }} 
         onSave={handleSaveTask} 
         onDelete={async (id) => {
           const taskToDelete = tasks.find(t => t.id === id);

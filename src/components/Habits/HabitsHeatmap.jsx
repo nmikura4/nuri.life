@@ -82,44 +82,47 @@ const HabitsHeatmap = ({ habits = [] }) => {
   };
 
   return (
-    <GlassCard style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <GlassCard style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: 'var(--text-main)' }}>Activity (Last 90 Days)</h3>
-        <div style={{ display: 'flex', gap: '20px', fontSize: '14px', color: 'var(--text-muted)' }}>
+        <div style={{ display: 'flex', gap: '15px', fontSize: '13px', color: 'var(--text-muted)', flexWrap: 'wrap' }}>
           <div>Total done: <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{totalCompletions}</span></div>
           <div>Global streak: <span style={{ fontWeight: 700, color: 'var(--accent-coral)' }}>{globalStreak} 🔥</span></div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-        {heatmapDays.map((day) => {
-          const count = completionData[day.dateStr] || 0;
-          return (
-            <div
-              key={day.dateStr}
-              title={`${day.dateStr}: ${count} habit(s) completed`}
-              style={{
-                width: '14px',
-                height: '14px',
-                borderRadius: '3px',
-                background: getColor(count),
-                transition: 'transform 0.1s ease',
-                cursor: 'pointer'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.2)';
-                e.currentTarget.style.boxShadow = '0 0 5px rgba(0,0,0,0.2)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            ></div>
-          );
-        })}
+      <div style={{ overflowX: 'auto', paddingBottom: '6px' }} className="custom-scroll">
+        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', minWidth: 'min-content' }}>
+          {heatmapDays.map((day) => {
+            const count = completionData[day.dateStr] || 0;
+            return (
+              <div
+                key={day.dateStr}
+                title={`${day.dateStr}: ${count} habit(s) completed`}
+                style={{
+                  width: '14px',
+                  height: '14px',
+                  borderRadius: '3px',
+                  background: getColor(count),
+                  transition: 'transform 0.1s ease',
+                  cursor: 'pointer',
+                  flexShrink: 0
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.2)';
+                  e.currentTarget.style.boxShadow = '0 0 5px rgba(0,0,0,0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              ></div>
+            );
+          })}
+        </div>
       </div>
       
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-muted)' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-muted)', flexWrap: 'wrap' }}>
         Less
         <div style={{ width: '12px', height: '12px', borderRadius: '2px', background: 'var(--item-bg)' }}></div>
         <div style={{ width: '12px', height: '12px', borderRadius: '2px', background: 'rgba(143, 185, 168, 0.3)' }}></div>

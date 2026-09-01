@@ -99,7 +99,7 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
   );
 };
 
-const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = [], priorities = [], statuses = [], notes = [], onOpenNote, zIndex, initialStatus, initialDeadline }) => {
+const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = [], priorities = [], statuses = [], notes = [], onOpenNote, zIndex, initialStatus, initialDeadline, initialStartTime, initialDeadlineTime }) => {
   useEscapeKey(onClose);
   const confirm = useConfirm();
   const defaultStatus = initialStatus || (statuses.length > 0 ? statuses[0] : 'todo');
@@ -113,7 +113,8 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
     project: '',
     tags: '',
     deadline: initialDeadline || '',
-    deadlineTime: '',
+    startTime: initialStartTime || '',
+    deadlineTime: initialDeadlineTime || '',
     recurrence: 'none',
     subtasks: [],
     linkedNotes: [],
@@ -149,6 +150,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
         project: task.project || '',
         tags: Array.isArray(task.tags) ? [...task.tags] : (task.tags ? [task.tags] : []),
         deadline: task.deadline || today,
+        startTime: task.startTime || '',
         deadlineTime: task.deadlineTime || '',
         recurrence: task.recurrence || 'none',
         subtasks: task.subtasks || [],
@@ -165,7 +167,8 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
         project: '',
         tags: [],
         deadline: initialDeadline || today,
-        deadlineTime: '',
+        startTime: initialStartTime || '',
+        deadlineTime: initialDeadlineTime || '',
         recurrence: 'none',
         subtasks: [],
         linkedNotes: [],
@@ -173,7 +176,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
       });
       setIsDescOpen(false);
     }
-  }, [task, isOpen, statuses, defaultStatus, initialDeadline]);
+  }, [task, isOpen, statuses, defaultStatus, initialDeadline, initialStartTime, initialDeadlineTime]);
 
   if (!isOpen) return null;
 
@@ -269,13 +272,13 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
     <>
       <div className="modal-overlay" onClick={handleBackdropClick} role="dialog" aria-modal="true" aria-label={task ? 'Edit Task' : 'New Task'} style={{ zIndex }}>
         <div onClick={e => e.stopPropagation()} style={{ margin: 'auto', width: '100%', maxWidth: '500px' }}>
-          <GlassCard className="responsive-card" style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)', maxHeight: '90vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: 700, margin: 0 }}>
+          <GlassCard className="responsive-card" style={{ padding: '16px 30px 26px 30px', position: 'relative', background: 'var(--solid-card-bg)', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <h2 style={{ fontSize: '22px', fontWeight: 700, margin: 0 }}>
                 {task ? 'Edit Task' : 'New Task'}
               </h2>
               <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}>
-                <X size={24} />
+                <X size={22} />
               </button>
             </div>
 
@@ -313,6 +316,8 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
                     value={formData.deadline} 
                     onChange={(val) => setFormData(prev => ({ ...prev, deadline: val }))} 
                     enableTime={true}
+                    startTimeValue={formData.startTime}
+                    onStartTimeChange={(val) => setFormData(prev => ({ ...prev, startTime: val }))}
                     timeValue={formData.deadlineTime}
                     onTimeChange={(val) => setFormData(prev => ({ ...prev, deadlineTime: val }))}
                     alignRight={true}
@@ -337,6 +342,61 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
                     options={statuses.map(s => ({ value: s, label: s }))}
                   />
                 </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Subtasks</label>
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                  <input 
+                    type="text" 
+                    value={newSubtask} 
+                    onChange={(e) => setNewSubtask(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSubtask(e))}
+                    className="neu-input" 
+                    style={{ width: '100%', boxSizing: 'border-box' }} 
+                    placeholder="Add a step..." 
+                  />
+                  <button type="button" onClick={handleAddSubtask} className="pill-btn" style={{ padding: '8px 12px' }}>Add</button>
+                </div>
+                {formData.subtasks.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+                    {formData.subtasks.map(sub => (
+                      <div key={sub.id} style={{ display: 'flex', flexDirection: 'column', background: 'var(--item-bg)', padding: '8px 12px', borderRadius: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+                            <div 
+                              onClick={() => handleToggleSubtask(sub.id)}
+                              style={{
+                                width: '18px', height: '18px', minWidth: '18px', minHeight: '18px', borderRadius: '4px',
+                                border: '2px solid var(--accent-blue)',
+                                background: sub.isCompleted ? 'var(--accent-blue)' : 'transparent',
+                                boxShadow: 'var(--shadow-inner)',
+                                cursor: 'pointer',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff',
+                                flexShrink: 0
+                              }}>
+                                {sub.isCompleted && (
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                )}
+                            </div>
+                            <span 
+                              onClick={() => setEditingSubtask(sub)} 
+                              style={{ fontSize: '13px', textDecoration: sub.isCompleted ? 'line-through' : 'none', color: sub.isCompleted ? 'var(--text-muted)' : 'inherit', cursor: 'pointer', flex: 1 }}
+                            >
+                              {sub.title}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <button type="button" onClick={() => setEditingSubtask(sub)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                               <Edit2 size={16} />
+                            </button>
+                            <button type="button" onClick={() => handleDeleteSubtask(sub.id)} style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><X size={14}/></button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="responsive-grid-2">
@@ -375,103 +435,52 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
                 </div>
               </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Linked Notes</label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {formData.linkedNotes.length > 0 && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                      {formData.linkedNotes.map(noteId => {
-                        const linkedNote = notes.find(n => n.id === noteId);
-                        if (!linkedNote) return null;
-                        return (
-                          <span key={noteId} style={{ background: 'var(--item-bg)', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span 
-                              style={{ maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', textDecoration: 'underline' }}
-                              onClick={() => onOpenNote && onOpenNote(noteId)}
-                            >
-                              {linkedNote.title || 'Untitled Note'}
+              <div className="responsive-grid-2">
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Linked Notes</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {formData.linkedNotes.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                        {formData.linkedNotes.map(noteId => {
+                          const linkedNote = notes.find(n => n.id === noteId);
+                          if (!linkedNote) return null;
+                          return (
+                            <span key={noteId} style={{ background: 'var(--item-bg)', padding: '4px 8px', borderRadius: '12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <span 
+                                style={{ maxWidth: '90px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', textDecoration: 'underline' }}
+                                onClick={() => onOpenNote && onOpenNote(noteId)}
+                              >
+                                {linkedNote.title || 'Untitled Note'}
+                              </span>
+                              <button type="button" onClick={() => setFormData(prev => ({ ...prev, linkedNotes: prev.linkedNotes.filter(id => id !== noteId) }))} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', padding: 0 }}><X size={11} /></button>
                             </span>
-                            <button type="button" onClick={() => setFormData(prev => ({ ...prev, linkedNotes: prev.linkedNotes.filter(id => id !== noteId) }))} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}><X size={12} /></button>
-                          </span>
-                        );
-                      })}
-                    </div>
-                  )}
-                  <CustomSelect 
-                    placeholder="Attach a note..."
-                    value=""
-                    onChange={(val) => {
-                      if (val && !formData.linkedNotes.includes(val)) {
-                        setFormData(prev => ({ ...prev, linkedNotes: [...prev.linkedNotes, val] }));
-                      }
-                    }}
-                    options={notes.filter(n => !formData.linkedNotes.includes(n.id)).map(n => ({
-                      value: n.id,
-                      label: n.title || 'Untitled Note'
-                    }))}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Attachment</label>
-                <FileUploader 
-                  fileData={formData.file} 
-                  onChange={(val) => setFormData(prev => ({ ...prev, file: val }))} 
-                  folder="tasks" 
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Subtasks</label>
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                  <input 
-                    type="text" 
-                    value={newSubtask} 
-                    onChange={(e) => setNewSubtask(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSubtask(e))}
-                    className="neu-input" 
-                    style={{ width: '100%', boxSizing: 'border-box' }}
-                    placeholder="Add a step..." 
-                  />
-                  <button type="button" onClick={handleAddSubtask} className="pill-btn" style={{ padding: '8px 12px' }}>Add</button>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
-                  {formData.subtasks.map(sub => (
-                    <div key={sub.id} style={{ display: 'flex', flexDirection: 'column', background: 'var(--item-bg)', padding: '8px 12px', borderRadius: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
-                          <div 
-                            onClick={() => handleToggleSubtask(sub.id)}
-                            style={{
-                              width: '18px', height: '18px', minWidth: '18px', minHeight: '18px', borderRadius: '4px',
-                              border: '2px solid var(--accent-blue)',
-                              background: sub.isCompleted ? 'var(--accent-blue)' : 'transparent',
-                              boxShadow: 'var(--shadow-inner)',
-                              cursor: 'pointer',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff',
-                              flexShrink: 0
-                            }}>
-                              {sub.isCompleted && (
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                              )}
-                          </div>
-                          <span 
-                            onClick={() => setEditingSubtask(sub)} 
-                            style={{ fontSize: '13px', textDecoration: sub.isCompleted ? 'line-through' : 'none', color: sub.isCompleted ? 'var(--text-muted)' : 'inherit', cursor: 'pointer', flex: 1 }}
-                          >
-                            {sub.title}
-                          </span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                          <button type="button" onClick={() => setEditingSubtask(sub)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                             <Edit2 size={16} />
-                          </button>
-                          <button type="button" onClick={() => handleDeleteSubtask(sub.id)} style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><X size={14}/></button>
-                        </div>
+                          );
+                        })}
                       </div>
-                    </div>
-                  ))}
+                    )}
+                    <CustomSelect 
+                      placeholder="Attach a note..."
+                      value=""
+                      onChange={(val) => {
+                        if (val && !formData.linkedNotes.includes(val)) {
+                          setFormData(prev => ({ ...prev, linkedNotes: [...prev.linkedNotes, val] }));
+                        }
+                      }}
+                      options={notes.filter(n => !formData.linkedNotes.includes(n.id)).map(n => ({
+                        value: n.id,
+                        label: n.title || 'Untitled Note'
+                      }))}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Attachment</label>
+                  <FileUploader 
+                    fileData={formData.file} 
+                    onChange={(val) => setFormData(prev => ({ ...prev, file: val }))} 
+                    folder="tasks" 
+                  />
                 </div>
               </div>
 

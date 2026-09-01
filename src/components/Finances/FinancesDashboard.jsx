@@ -232,11 +232,11 @@ const FinancesDashboard = () => {
           </div>
         </div>
 
-        <GlassCard style={{ padding: '20px', minHeight: '300px', display: 'flex', flexDirection: 'column' }}>
+        <GlassCard style={{ padding: '20px', minHeight: '300px', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
           <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '20px' }}>Expenses by Category</h3>
           {stats.chartData.length > 0 ? (
-            <div style={{ flex: 1, width: '100%', minHeight: '250px' }}>
-              <ResponsiveContainer width="100%" height="100%">
+            <div style={{ flex: 1, width: '100%', minHeight: '250px', minWidth: 0 }}>
+              <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
                     data={stats.chartData}
@@ -269,9 +269,9 @@ const FinancesDashboard = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))', gap: '30px' }}>
         
         {/* Trend Chart */}
-        <GlassCard style={{ padding: '24px', display: 'flex', flexDirection: 'column', height: '350px' }}>
+        <GlassCard style={{ padding: '24px', display: 'flex', flexDirection: 'column', height: '350px', minWidth: 0 }}>
           <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '20px' }}>6-Month Trends</h3>
-          <div style={{ flex: 1, width: '100%' }}>
+          <div style={{ flex: 1, width: '100%', minHeight: '240px', minWidth: 0 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={trendsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--card-border)" />
