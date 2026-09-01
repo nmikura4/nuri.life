@@ -5,15 +5,18 @@ import './index.css'
 import App from './App.jsx'
 import { ConfirmProvider } from './hooks/useConfirm.jsx'
 import { AlertProvider } from './hooks/useAlert.jsx'
+import ErrorBoundary from './components/UI/ErrorBoundary.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
-      <AlertProvider>
-        <ConfirmProvider>
-          <App />
-        </ConfirmProvider>
-      </AlertProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AlertProvider>
+          <ConfirmProvider>
+            <App />
+          </ConfirmProvider>
+        </AlertProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   </StrictMode>,
 )

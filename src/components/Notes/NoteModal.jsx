@@ -9,6 +9,7 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { useConfirm } from '../../hooks/useConfirm';
 import FileUploader from '../UI/FileUploader';
+import safeStorage from '../../utils/safeStorage';
 import '../UI/UI.css';
 
 let globalBgPattern = 'none';
@@ -50,12 +51,12 @@ const CustomGrid = ({ x, y, z, size }) => {
 
 const CustomStylePanel = (props) => {
   const editor = useEditor();
-  const [size, setSize] = useState(() => localStorage.getItem('tldraw_pen_size') || '2');
+  const [size, setSize] = useState(() => safeStorage.getItem('tldraw_pen_size', '2'));
 
   const handleChange = (e) => {
     const val = e.target.value;
     setSize(val);
-    localStorage.setItem('tldraw_pen_size', val);
+    safeStorage.setItem('tldraw_pen_size', val);
     if (editor) {
       const sizes = ['s', 'm', 'l', 'xl', 'xl'];
       const sizeValue = sizes[parseInt(val, 10) - 1] || 's';
@@ -230,7 +231,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, note = null, tasks = [],
       }
     }
 
-    const savedSize = localStorage.getItem('tldraw_pen_size') || '2';
+    const savedSize = safeStorage.getItem('tldraw_pen_size', '2');
     const sizes = ['s', 'm', 'l', 'xl'];
     const sizeValue = sizes[parseInt(savedSize, 10) - 1] || 's';
     editorInstance.setStyleForNextShapes(DefaultSizeStyle, sizeValue);

@@ -5,6 +5,7 @@ import { X, Tag as TagIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import CustomDatePicker from '../UI/CustomDatePicker';
 import CustomSelect from '../UI/CustomSelect';
 import FileUploader from '../UI/FileUploader';
+import safeStorage from '../../utils/safeStorage';
 import '../UI/UI.css';
 
 const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, counterparties = [], persons = [] }) => {
@@ -42,10 +43,10 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
       });
       setIsCommentOpen(!!transaction.comment);
     } else {
-      const lastDate = localStorage.getItem('lastTxDate') || new Date().toISOString().substring(0, 10);
-      const lastType = localStorage.getItem('lastTxType') || 'expense';
-      const lastCatId = localStorage.getItem('lastTxCatId');
-      const lastCounterparty = localStorage.getItem('lastTxCounterparty') || '';
+      const lastDate = safeStorage.getItem('lastTxDate', new Date().toISOString().substring(0, 10));
+      const lastType = safeStorage.getItem('lastTxType', 'expense');
+      const lastCatId = safeStorage.getItem('lastTxCatId', null);
+      const lastCounterparty = safeStorage.getItem('lastTxCounterparty', '');
 
       const fallbackCat = categories.find(c => c.type === lastType) || categories.find(c => c.type === 'expense');
       const validCat = lastCatId ? categories.find(c => c.id === lastCatId && c.type === lastType) : null;
@@ -138,10 +139,10 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
     }
     
     if (!transaction) {
-      localStorage.setItem('lastTxDate', formData.date);
-      localStorage.setItem('lastTxType', formData.type);
-      localStorage.setItem('lastTxCatId', formData.categoryId);
-      localStorage.setItem('lastTxCounterparty', formData.counterparty);
+      safeStorage.setItem('lastTxDate', formData.date);
+      safeStorage.setItem('lastTxType', formData.type);
+      safeStorage.setItem('lastTxCatId', formData.categoryId);
+      safeStorage.setItem('lastTxCounterparty', formData.counterparty);
     }
 
     const finalData = {

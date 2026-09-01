@@ -1,10 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { collection, doc, setDoc, onSnapshot, deleteDoc, writeBatch } from 'firebase/firestore';
 import { db, auth, storage } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { ref, deleteObject } from 'firebase/storage';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAlert } from './hooks/useAlert';
+import safeStorage from './utils/safeStorage';
 
 import AuthView from './components/Auth/AuthView';
 import CornerThemeSwitcher from './components/UI/CornerThemeSwitcher';
@@ -23,8 +24,9 @@ import HabitsView from './components/Habits/HabitsView';
 import { AIAssistantProvider } from './context/AIAssistantContext';
 import AICoachView from './components/AI/AICoachView';
 import ChatInterface from './components/AI/ChatInterface';
-import NoteModal from './components/Notes/NoteModal';
 import { Brain, X } from 'lucide-react';
+
+const NoteModal = lazy(() => import('./components/Notes/NoteModal'));
 
 function App() {
   const showAlert = useAlert();
@@ -35,8 +37,8 @@ function App() {
   const [projects, setProjects] = useState(['Work', 'Personal', 'Shopping']);
   const [priorities, setPriorities] = useState(['low', 'medium', 'high']);
   const [statuses, setStatuses] = useState(['todo', 'progress', 'done']);
-  const [theme, setTheme] = useState(() => localStorage.getItem('nuri_theme') || 'light');
-  const [avatarUrl, setAvatarUrl] = useState(() => localStorage.getItem('nuri_avatar') || null);
+  const [theme, setTheme] = useState(() => safeStorage.getItem('nuri_theme', 'light'));
+  const [avatarUrl, setAvatarUrl] = useState(() => safeStorage.getItem('nuri_avatar', null));
   const [geminiApiKey, setGeminiApiKey] = useState('');
   
   // UI State
@@ -63,7 +65,7 @@ function App() {
 
   useEffect(() => {
     document.body.className = theme === 'dark' ? 'dark-theme' : '';
-    localStorage.setItem('nuri_theme', theme);
+    safeStorage.setItem('nuri_theme', theme);
   }, [theme]);
 
   // Auth & DB Initialization
@@ -90,12 +92,12 @@ function App() {
         if (data.statuses) setStatuses(data.statuses);
         if (data.theme) {
           setTheme(data.theme);
-          localStorage.setItem('nuri_theme', data.theme);
+          safeStorage.setItem('nuri_theme', data.theme);
         }
         if (data.avatarUrl !== undefined) {
           setAvatarUrl(data.avatarUrl);
-          if (data.avatarUrl) localStorage.setItem('nuri_avatar', data.avatarUrl);
-          else localStorage.removeItem('nuri_avatar');
+          if (data.avatarUrl) safeStorage.setItem('nuri_avatar', data.avatarUrl);
+          else safeStorage.removeItem('nuri_avatar');
         }
         if (data.geminiApiKey !== undefined) setGeminiApiKey(data.geminiApiKey);
       } else {
@@ -730,23 +732,27 @@ function App() {
         }}
       />
 
-      <NoteModal 
-        isOpen={isNoteModalOpen || !!editingNote}
-        zIndex={topModal === 'note' ? 2000 : 1000}
-        onClose={() => { setIsNoteModalOpen(false); setEditingNote(null); }}
-        onSave={handleSaveNote}
-        onDelete={handleDeleteNote}
-        note={editingNote}
-        tasks={tasks}
-        onOpenTask={(taskId) => {
-          const t = tasks.find(x => x.id === taskId);
-          if (t) {
-            setEditingTask(t);
-            setIsModalOpen(true);
-            setTopModal('task');
-          }
-        }}
-      />
+      {(isNoteModalOpen || !!editingNote) && (
+        <Suspense fallback={null}>
+          <NoteModal 
+            isOpen={isNoteModalOpen || !!editingNote}
+            zIndex={topModal === 'note' ? 2000 : 1000}
+            onClose={() => { setIsNoteModalOpen(false); setEditingNote(null); }}
+            onSave={handleSaveNote}
+            onDelete={handleDeleteNote}
+            note={editingNote}
+            tasks={tasks}
+            onOpenTask={(taskId) => {
+              const t = tasks.find(x => x.id === taskId);
+              if (t) {
+                setEditingTask(t);
+                setIsModalOpen(true);
+                setTopModal('task');
+              }
+            }}
+          />
+        </Suspense>
+      )}
     </AIAssistantProvider>
   );
 }
