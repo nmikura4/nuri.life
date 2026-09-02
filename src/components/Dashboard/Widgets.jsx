@@ -378,10 +378,10 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
 
         {/* Секция 2: Заголовок даты (Header) */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
-          <h1 className="calendar-title" style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-main)', margin: 0, letterSpacing: '-0.5px' }}>
+          <h1 className="calendar-title" style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-main)', margin: 0, lineHeight: 1, letterSpacing: '-0.5px' }}>
             {viewMode === 'weekly' ? currentMonthName : referenceDate.getFullYear()}
           </h1>
-          <h1 className="calendar-title" style={{ fontSize: '36px', fontWeight: 800, color: 'var(--accent-coral)', margin: 0, flexShrink: 0 }}>
+          <h1 className="calendar-title" style={{ fontSize: '32px', fontWeight: 800, color: 'var(--accent-coral)', margin: 0, lineHeight: 1, flexShrink: 0 }}>
             {viewMode === 'weekly' ? currentDateNum : currentMonthName.substring(0,3)}
           </h1>
         </div>
