@@ -3,6 +3,7 @@ import GlassCard from '../UI/GlassCard';
 import Badge from '../UI/Badge';
 import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import DayHourlyView from './DayHourlyView';
+import { isTaskOnDate } from '../../utils/recurrence';
 
 const WEEKDAYS = [
   { full: 'Mon', short: 'M' },
@@ -14,7 +15,7 @@ const WEEKDAYS = [
   { full: 'Sun', short: 'S' }
 ];
 
-const CalendarView = ({ tasks = [], statuses = [], onEditTask, onAddTask }) => {
+const CalendarView = ({ tasks = [], statuses = [], onEditTask, onAddTask, startHour = 0, endHour = 23 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('month'); // 'month' | 'day'
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -180,6 +181,8 @@ const CalendarView = ({ tasks = [], statuses = [], onEditTask, onAddTask }) => {
           statuses={statuses}
           onEditTask={onEditTask}
           onAddTask={onAddTask}
+          startHour={startHour}
+          endHour={endHour}
         />
       ) : (
         <GlassCard className="calendar-grid-card" style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -198,7 +201,7 @@ const CalendarView = ({ tasks = [], statuses = [], onEditTask, onAddTask }) => {
               
               const isToday = day.getTime() === today.getTime();
               const dateStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
-              const dayTasks = tasks.filter(t => t.deadline === dateStr);
+              const dayTasks = tasks.filter(t => isTaskOnDate(t, dateStr));
 
               return (
                 <div 

@@ -6,6 +6,7 @@ import { ref, deleteObject } from 'firebase/storage';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAlert } from './hooks/useAlert';
 import safeStorage from './utils/safeStorage';
+import { isTaskOnDate, calculateNextDeadline } from './utils/recurrence';
 
 import AuthView from './components/Auth/AuthView';
 import CornerThemeSwitcher from './components/UI/CornerThemeSwitcher';
@@ -40,6 +41,8 @@ function App() {
   const [theme, setTheme] = useState(() => safeStorage.getItem('nuri_theme', 'light'));
   const [avatarUrl, setAvatarUrl] = useState(() => safeStorage.getItem('nuri_avatar', null));
   const [geminiApiKey, setGeminiApiKey] = useState('');
+  const [calendarStartHour, setCalendarStartHour] = useState(() => Number(safeStorage.getItem('nuri_cal_start_hour', 0)));
+  const [calendarEndHour, setCalendarEndHour] = useState(() => Number(safeStorage.getItem('nuri_cal_end_hour', 23)));
   
   // UI State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -100,6 +103,16 @@ function App() {
           else safeStorage.removeItem('nuri_avatar');
         }
         if (data.geminiApiKey !== undefined) setGeminiApiKey(data.geminiApiKey);
+        if (data.calendarStartHour !== undefined) {
+          const sh = Number(data.calendarStartHour);
+          setCalendarStartHour(sh);
+          safeStorage.setItem('nuri_cal_start_hour', sh);
+        }
+        if (data.calendarEndHour !== undefined) {
+          const eh = Number(data.calendarEndHour);
+          setCalendarEndHour(eh);
+          safeStorage.setItem('nuri_cal_end_hour', eh);
+        }
       } else {
         setDoc(doc(db, "users", user.uid, "settings", "global"), {
           projects: ['Work', 'Personal', 'Shopping'],
@@ -107,7 +120,9 @@ function App() {
           statuses: ['todo', 'progress', 'done'],
           theme: 'light',
           avatarUrl: null,
-          geminiApiKey: ''
+          geminiApiKey: '',
+          calendarStartHour: 0,
+          calendarEndHour: 23
         });
       }
     });
@@ -272,30 +287,6 @@ function App() {
     }
   };
 
-  const calculateNextDeadline = (currentDeadlineStr, recurrence) => {
-    if (!currentDeadlineStr) return null;
-    const [y, m, d] = currentDeadlineStr.split('-');
-    const date = new Date(y, m - 1, d);
-    if (isNaN(date.getTime())) return null;
-
-    if (recurrence === 'daily') {
-      date.setDate(date.getDate() + 1);
-    } else if (recurrence === 'weekly') {
-      date.setDate(date.getDate() + 7);
-    } else if (recurrence === 'monthly') {
-      date.setMonth(date.getMonth() + 1);
-    } else if (recurrence === 'yearly') {
-      date.setFullYear(date.getFullYear() + 1);
-    } else {
-      return null;
-    }
-
-    const ny = date.getFullYear();
-    const nm = String(date.getMonth() + 1).padStart(2, '0');
-    const nd = String(date.getDate()).padStart(2, '0');
-    return `${ny}-${nm}-${nd}`;
-  };
-
   const updateTaskStatus = async (id, newStatus) => {
     const task = tasks.find(t => t.id === id || t.id.toString() === id.toString());
     if (!task || task.status === newStatus) return;
@@ -311,13 +302,15 @@ function App() {
 
     if (isBecomingDone && task.recurrence && task.recurrence !== 'none') {
       const nextDeadline = calculateNextDeadline(task.deadline, task.recurrence);
-      if (nextDeadline) {
+      if (nextDeadline && (!task.recurrenceEndDate || nextDeadline <= task.recurrenceEndDate)) {
         const newId = crypto.randomUUID();
         await setDoc(doc(db, "users", user?.uid, "tasks", newId.toString()), {
           ...task,
           id: newId,
           status: statuses[0] || 'todo',
           deadline: nextDeadline,
+          recurrence: task.recurrence,
+          recurrenceEndDate: task.recurrenceEndDate || '',
           subtasks: task.subtasks ? task.subtasks.map(s => ({ ...s, isCompleted: false })) : []
         });
       }
@@ -414,7 +407,7 @@ function App() {
       const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
       const d = String(selectedDate.getDate()).padStart(2, '0');
       const dateStr = `${y}-${m}-${d}`;
-      result = result.filter(t => t.deadline === dateStr);
+      result = result.filter(t => isTaskOnDate(t, dateStr));
     }
 
     // Filter by Overdue
@@ -617,6 +610,8 @@ function App() {
                 statuses={statuses} setStatuses={(arr) => syncSettings({ statuses: arr })} onRenameStatus={handleRenameStatus} onDeleteStatus={handleDeleteStatus}
                 avatarUrl={avatarUrl} setAvatarUrl={handleSetAvatarUrl}
                 geminiApiKey={geminiApiKey} setGeminiApiKey={(k) => { setGeminiApiKey(k); syncSettings({ geminiApiKey: k }); }}
+                calendarStartHour={calendarStartHour} setCalendarStartHour={(sh) => { setCalendarStartHour(sh); safeStorage.setItem('nuri_cal_start_hour', sh); syncSettings({ calendarStartHour: sh }); }}
+                calendarEndHour={calendarEndHour} setCalendarEndHour={(eh) => { setCalendarEndHour(eh); safeStorage.setItem('nuri_cal_end_hour', eh); syncSettings({ calendarEndHour: eh }); }}
               />
             } />
 
@@ -627,6 +622,8 @@ function App() {
                 statuses={statuses} 
                 onEditTask={(t) => { setEditingTask(t); setIsModalOpen(true); setTopModal('task'); }} 
                 onAddTask={handleOpenNewTaskWithDeadline}
+                startHour={calendarStartHour}
+                endHour={calendarEndHour}
               />
             } />
             <Route path="/notes" element={<NotesView user={user} notes={notes} onOpenTask={handleOpenNewTask} tasks={tasks} onSaveNote={handleSaveNote} onDeleteNote={handleDeleteNote} onAddNote={(type = 'text') => { setEditingNote({ type }); setIsNoteModalOpen(true); setTopModal('note'); }} onEditNote={(n) => { setEditingNote(n); setIsNoteModalOpen(true); setTopModal('note'); }} />} />

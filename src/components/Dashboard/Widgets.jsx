@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import GlassCard from '../UI/GlassCard';
 import CustomSelect from '../UI/CustomSelect';
 import { X, ChevronLeft, ChevronRight, Edit2, Plus, Eye, Play, Pause, RotateCcw } from 'lucide-react';
+import { isTaskOnDate } from '../../utils/recurrence';
 
 export const ProgressWidget = ({ tasks = [], statuses = [] }) => {
   const [timeframe, setTimeframe] = useState('day');
@@ -9,16 +10,13 @@ export const ProgressWidget = ({ tasks = [], statuses = [] }) => {
   const filteredTasks = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
     return tasks.filter(task => {
       if (!task.deadline) return false;
       
-      const [y, m, d] = task.deadline.split('-');
-      const taskDate = new Date(y, m - 1, d);
-      taskDate.setHours(0, 0, 0, 0);
-
       if (timeframe === 'day') {
-        return taskDate.getTime() === today.getTime();
+        return isTaskOnDate(task, todayStr);
       } 
       
       if (timeframe === 'week') {
@@ -33,11 +31,21 @@ export const ProgressWidget = ({ tasks = [], statuses = [] }) => {
         sunday.setDate(monday.getDate() + 6);
         sunday.setHours(23, 59, 59, 999);
 
-        return taskDate >= monday && taskDate <= sunday;
+        for (let cur = new Date(monday); cur <= sunday; cur.setDate(cur.getDate() + 1)) {
+          const curStr = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
+          if (isTaskOnDate(task, curStr)) return true;
+        }
+        return false;
       }
 
       if (timeframe === 'month') {
-        return taskDate.getMonth() === today.getMonth() && taskDate.getFullYear() === today.getFullYear();
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        for (let cur = new Date(firstDay); cur <= lastDay; cur.setDate(cur.getDate() + 1)) {
+          const curStr = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
+          if (isTaskOnDate(task, curStr)) return true;
+        }
+        return false;
       }
 
       return false;
@@ -233,7 +241,8 @@ export const MiniCalendarWidget = ({ selectedDate, onSelectDate, tasks = [], sta
                 const m2 = String(dateObj.getMonth() + 1).padStart(2, '0');
                 const d2 = String(dateObj.getDate()).padStart(2, '0');
                 const dateStr = `${y2}-${m2}-${d2}`;
-                return taskDates.has(dateStr) ? (
+                const hasTask = tasks.some(t => t.status !== doneStatus && isTaskOnDate(t, dateStr));
+                return hasTask ? (
                   <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: isSelected ? '#fff' : 'var(--accent-coral)', marginTop: '2px' }}></div>
                 ) : null;
               })()}
@@ -368,11 +377,11 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
         </div>
 
         {/* Секция 2: Заголовок даты (Header) */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <h1 className="calendar-title" style={{ fontSize: '48px', fontWeight: 800, color: 'var(--text-main)', margin: 0, letterSpacing: '-1px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
+          <h1 className="calendar-title" style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-main)', margin: 0, letterSpacing: '-0.5px' }}>
             {viewMode === 'weekly' ? currentMonthName : referenceDate.getFullYear()}
           </h1>
-          <h1 className="calendar-title" style={{ fontSize: '48px', fontWeight: 800, color: 'var(--accent-coral)', margin: 0 }}>
+          <h1 className="calendar-title" style={{ fontSize: '36px', fontWeight: 800, color: 'var(--accent-coral)', margin: 0, flexShrink: 0 }}>
             {viewMode === 'weekly' ? currentDateNum : currentMonthName.substring(0,3)}
           </h1>
         </div>
@@ -417,7 +426,8 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
                         const m2 = String(item.dateObj.getMonth() + 1).padStart(2, '0');
                         const d2 = String(item.dateObj.getDate()).padStart(2, '0');
                         const dateStr = `${y2}-${m2}-${d2}`;
-                        return taskDates.has(dateStr) ? (
+                        const hasTask = tasks.some(t => t.status !== doneStatus && isTaskOnDate(t, dateStr));
+                        return hasTask ? (
                           <div style={{ position: 'absolute', bottom: '3px', width: '4px', height: '4px', borderRadius: '50%', background: item.active ? '#fff' : 'var(--accent-coral)' }}></div>
                         ) : null;
                       })()}

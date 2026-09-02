@@ -1,15 +1,29 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import GlassCard from '../UI/GlassCard';
 import { Plus, Clock, CheckCircle2, Circle, Calendar as CalendarIcon, Tag, CheckSquare, FileText } from 'lucide-react';
+import { isTaskOnDate } from '../../utils/recurrence';
 
-const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const QUARTERS = ['00', '15', '30', '45'];
 const SLOT_HEIGHT = 28; // Height in px for each 15-minute slot
 
-const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTask, onAddTask }) => {
+const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTask, onAddTask, startHour = 0, endHour = 23 }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const timelineRef = useRef(null);
   const hourRowRefs = useRef({});
+
+  const validStartHour = typeof startHour === 'number' ? Math.max(0, Math.min(23, startHour)) : 0;
+  const validEndHour = typeof endHour === 'number' ? Math.max(validStartHour, Math.min(23, endHour)) : 23;
+
+  const hours = useMemo(() => {
+    const list = [];
+    for (let h = validStartHour; h <= validEndHour; h++) {
+      list.push(h);
+    }
+    return list;
+  }, [validStartHour, validEndHour]);
+
+  const startHourMinutes = validStartHour * 60;
+  const endHourMinutes = (validEndHour + 1) * 60;
 
   // Keep current time updated every 15 seconds
   useEffect(() => {
@@ -37,9 +51,9 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
 
   const doneStatus = statuses.length > 0 ? statuses[statuses.length - 1] : 'done';
 
-  // Filter tasks for this day
+  // Filter tasks for this day (including recurring tasks)
   const dayTasks = useMemo(() => {
-    return tasks.filter(t => t.deadline === dateStr);
+    return tasks.filter(t => isTaskOnDate(t, dateStr));
   }, [tasks, dateStr]);
 
   // Separate all-day tasks and timed tasks with exact minute layout
@@ -75,13 +89,17 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
           endM = startM + 30;
         }
 
-        timed.push({
-          task,
-          startM,
-          endM,
-          durationM: Math.max(15, endM - startM),
-          isDone: task.status === doneStatus
-        });
+        if (endM <= startHourMinutes || startM >= endHourMinutes) {
+          allDay.push(task);
+        } else {
+          timed.push({
+            task,
+            startM,
+            endM,
+            durationM: Math.max(15, endM - startM),
+            isDone: task.status === doneStatus
+          });
+        }
       } else {
         allDay.push(task);
       }
@@ -121,13 +139,14 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
       completedCount: completed, 
       totalCount: dayTasks.length 
     };
-  }, [dayTasks, doneStatus]);
+  }, [dayTasks, doneStatus, startHourMinutes, endHourMinutes]);
 
   // Scroll to current hour or first task on mount/date change
   useEffect(() => {
+    const currentH = new Date().getHours();
     const targetHour = isToday 
-      ? Math.max(0, new Date().getHours() - 1)
-      : (timedTasks.length > 0 ? Math.floor(timedTasks[0].startM / 60) : 8);
+      ? Math.max(validStartHour, Math.min(validEndHour, currentH - 1))
+      : (timedTasks.length > 0 ? Math.max(validStartHour, Math.min(validEndHour, Math.floor(timedTasks[0].startM / 60))) : Math.max(validStartHour, Math.min(validEndHour, 8)));
 
     const targetEl = hourRowRefs.current[targetHour];
     if (targetEl && timelineRef.current) {
@@ -136,10 +155,12 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
       const scrollOffset = elTop - containerTop + timelineRef.current.scrollTop - 10;
       timelineRef.current.scrollTo({ top: Math.max(0, scrollOffset), behavior: 'smooth' });
     }
-  }, [dateStr, isToday]);
+  }, [dateStr, isToday, validStartHour, validEndHour]);
 
   const currentMinutesFromMidnight = currentTime.getHours() * 60 + currentTime.getMinutes();
-  const currentTimelineTopPx = (currentMinutesFromMidnight / 15) * SLOT_HEIGHT;
+  const isCurrentTimeVisible = isToday && currentMinutesFromMidnight >= startHourMinutes && currentMinutesFromMidnight <= endHourMinutes;
+  const relativeCurrentM = currentMinutesFromMidnight - startHourMinutes;
+  const currentTimelineTopPx = (relativeCurrentM / 15) * SLOT_HEIGHT;
   const currentFormattedTime = `${String(currentTime.getHours()).padStart(2, '0')}:${String(currentTime.getMinutes()).padStart(2, '0')}`;
 
   const formatHourLabel = (hour) => {
@@ -315,7 +336,7 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
         <div ref={timelineRef} style={{ display: 'flex', flexDirection: 'column', position: 'relative' }}>
           
           {/* Main Grid Rows (Hours & 15-min slots) */}
-          {HOURS.map(hour => {
+          {hours.map(hour => {
             const isCurrentHour = isToday && currentTime.getHours() === hour;
 
             return (
@@ -334,15 +355,13 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
               >
                 {/* Hour / 15-min Time Marks Column */}
                 <div style={{
-                  padding: '2px 6px 2px 0',
                   userSelect: 'none',
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'space-between',
                   borderRight: '1px solid var(--card-border)'
                 }}>
                   {/* :00 */}
-                  <div style={{ display: 'flex', alignItems: 'center', height: `${SLOT_HEIGHT}px` }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: `${SLOT_HEIGHT}px`, padding: '0 6px' }}>
                     <span style={{
                       fontSize: '11px',
                       fontWeight: isCurrentHour ? 800 : 700,
@@ -353,29 +372,30 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
                       boxShadow: isCurrentHour ? '0 2px 6px rgba(164, 201, 229, 0.5)' : 'var(--shadow-inner)',
                       transition: 'all 0.2s ease',
                       width: '100%',
-                      textAlign: 'center'
+                      textAlign: 'center',
+                      lineHeight: '1.2'
                     }}>
                       {formatHourLabel(hour)}
                     </span>
                   </div>
 
                   {/* :15 */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: `${SLOT_HEIGHT}px`, paddingRight: '4px' }}>
-                    <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-muted)', opacity: 0.7 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: `${SLOT_HEIGHT}px`, paddingRight: '8px' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-muted)', opacity: 0.7, lineHeight: '1' }}>
                       :15
                     </span>
                   </div>
 
                   {/* :30 */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: `${SLOT_HEIGHT}px`, paddingRight: '4px' }}>
-                    <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-muted)', opacity: 0.7 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: `${SLOT_HEIGHT}px`, paddingRight: '8px' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-muted)', opacity: 0.7, lineHeight: '1' }}>
                       :30
                     </span>
                   </div>
 
                   {/* :45 */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: `${SLOT_HEIGHT}px`, paddingRight: '4px' }}>
-                    <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-muted)', opacity: 0.7 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: `${SLOT_HEIGHT}px`, paddingRight: '8px' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-muted)', opacity: 0.7, lineHeight: '1' }}>
                       :45
                     </span>
                   </div>
@@ -399,11 +419,9 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
                           alignItems: 'center',
                           position: 'relative',
                           cursor: 'pointer',
-                          borderRadius: '6px',
-                          transition: 'background 0.15s ease'
+                          borderRadius: '6px'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'var(--item-bg-hover)';
                           const addBtn = e.currentTarget.querySelector('.slot-quick-add-btn');
                           if (addBtn) {
                             addBtn.style.opacity = '1';
@@ -411,7 +429,6 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
                           }
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'transparent';
                           const addBtn = e.currentTarget.querySelector('.slot-quick-add-btn');
                           if (addBtn) {
                             addBtn.style.opacity = '0';
@@ -419,7 +436,7 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
                           }
                         }}
                       >
-                        {/* Compact Quick Add Button on Hover */}
+                        {/* Compact Time Badge on Hover */}
                         <div
                           className="slot-quick-add-btn"
                           style={{
@@ -431,22 +448,21 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
                             transition: 'all 0.15s ease',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '4px',
+                            justifyContent: 'center',
                             color: 'var(--accent-blue)',
                             fontSize: '11px',
                             fontWeight: 700,
                             background: 'var(--card-bg)',
                             backdropFilter: 'blur(10px)',
-                            padding: '4px 10px',
-                            borderRadius: '16px',
+                            padding: '3px 9px',
+                            borderRadius: '12px',
                             boxShadow: 'var(--shadow-soft)',
                             border: '1px solid var(--card-border)',
                             pointerEvents: 'none',
                             zIndex: 5
                           }}
                         >
-                          <Plus size={12} />
-                          <span>+ {slotTimeStr}</span>
+                          <span>{slotTimeStr}</span>
                         </div>
                       </div>
                     );
@@ -468,8 +484,13 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
             }}
           >
             {timedTasks.map(({ task, startM, endM, durationM, isDone, column, totalColumns }) => {
-              const topPx = (startM / 15) * SLOT_HEIGHT;
-              const heightPx = Math.max(SLOT_HEIGHT - 2, (durationM / 15) * SLOT_HEIGHT - 2);
+              const visibleStartM = Math.max(startHourMinutes, startM);
+              const visibleEndM = Math.min(endHourMinutes, endM);
+              const relativeStartM = visibleStartM - startHourMinutes;
+              const visibleDurationM = Math.max(15, visibleEndM - visibleStartM);
+
+              const topPx = (relativeStartM / 15) * SLOT_HEIGHT;
+              const heightPx = Math.max(SLOT_HEIGHT - 2, (visibleDurationM / 15) * SLOT_HEIGHT - 2);
               const colWidthPercent = 100 / totalColumns;
               const leftPercent = column * colWidthPercent;
               const priorityColor = getPriorityColor(task.priority);
@@ -662,7 +683,7 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
           </div>
 
           {/* Current Time Indicator Line with live red/coral glow across the whole timeline */}
-          {isToday && (
+          {isCurrentTimeVisible && (
             <div 
               style={{
                 position: 'absolute',

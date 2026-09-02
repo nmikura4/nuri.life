@@ -6,6 +6,7 @@ import CustomDatePicker from '../UI/CustomDatePicker';
 import { X, Edit2, ChevronDown, ChevronUp, Tag as TagIcon } from 'lucide-react';
 import { useConfirm } from '../../hooks/useConfirm';
 import FileUploader from '../UI/FileUploader';
+import { formatDisplayDate } from '../../utils/recurrence';
 import '../UI/UI.css';
 
 const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = [], parentDeadline, parentDeadlineTime }) => {
@@ -99,6 +100,93 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
   );
 };
 
+const RecurrenceModal = ({ recurrence, recurrenceEndDate, onClose, onSave }) => {
+  const [selectedRecurrence, setSelectedRecurrence] = useState(recurrence && recurrence !== 'none' ? recurrence : 'daily');
+  const [endDate, setEndDate] = useState(recurrenceEndDate || '');
+
+  useEscapeKey(onClose);
+
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const handleApply = (e) => {
+    e.preventDefault();
+    onSave({
+      recurrence: selectedRecurrence,
+      recurrenceEndDate: endDate
+    });
+    onClose();
+  };
+
+  const handleDisable = () => {
+    onSave({
+      recurrence: 'none',
+      recurrenceEndDate: ''
+    });
+    onClose();
+  };
+
+  return (
+    <div className="modal-overlay" onClick={handleBackdropClick} style={{ zIndex: 1100 }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '400px', margin: 'auto' }}>
+        <GlassCard className="responsive-card" style={{ padding: '24px', background: 'var(--solid-card-bg)', position: 'relative', boxShadow: 'var(--shadow-card)', borderRadius: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>
+              Repeat Task
+            </h3>
+            <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}>
+              <X size={20} />
+            </button>
+          </div>
+
+          <form onSubmit={handleApply} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Frequency</label>
+              <CustomSelect 
+                value={selectedRecurrence} 
+                onChange={(val) => setSelectedRecurrence(val)}
+                options={[
+                  { value: 'daily', label: 'Daily (Every day)' },
+                  { value: 'weekly', label: 'Weekly (Every week)' },
+                  { value: 'monthly', label: 'Monthly (Every month)' },
+                  { value: 'yearly', label: 'Yearly (Every year)' }
+                ]}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>End Date (Optional)</label>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>
+                Repeat indefinitely or stop after this date.
+              </p>
+              <CustomDatePicker 
+                value={endDate} 
+                onChange={(val) => setEndDate(val)} 
+                alignRight={true}
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
+              {recurrence && recurrence !== 'none' ? (
+                <button type="button" onClick={handleDisable} className="pill-btn danger" style={{ fontSize: '13px', padding: '6px 14px' }}>
+                  Disable
+                </button>
+              ) : <div />}
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button type="button" className="pill-btn" onClick={onClose}>Cancel</button>
+                <button type="submit" className="pill-btn primary">Apply</button>
+              </div>
+            </div>
+          </form>
+        </GlassCard>
+      </div>
+    </div>
+  );
+};
+
 const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = [], priorities = [], statuses = [], notes = [], onOpenNote, zIndex, initialStatus, initialDeadline, initialStartTime, initialDeadlineTime }) => {
   useEscapeKey(onClose);
   const confirm = useConfirm();
@@ -116,6 +204,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
     startTime: initialStartTime || '',
     deadlineTime: initialDeadlineTime || '',
     recurrence: 'none',
+    recurrenceEndDate: '',
     subtasks: [],
     linkedNotes: [],
     file: null
@@ -133,6 +222,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
   const [editingSubtask, setEditingSubtask] = useState(null);
   const [isDescOpen, setIsDescOpen] = useState(false);
   const [tagInput, setTagInput] = useState('');
+  const [isRecurrenceModalOpen, setIsRecurrenceModalOpen] = useState(false);
 
   useEffect(() => {
     const d = new Date();
@@ -153,6 +243,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
         startTime: task.startTime || '',
         deadlineTime: task.deadlineTime || '',
         recurrence: task.recurrence || 'none',
+        recurrenceEndDate: task.recurrenceEndDate || '',
         subtasks: task.subtasks || [],
         linkedNotes: task.linkedNotes || [],
         file: task.file || null
@@ -170,6 +261,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
         startTime: initialStartTime || '',
         deadlineTime: initialDeadlineTime || '',
         recurrence: 'none',
+        recurrenceEndDate: '',
         subtasks: [],
         linkedNotes: [],
         file: null
@@ -401,10 +493,28 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
 
               <div className="responsive-grid-2">
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Recurrence</label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: 600, margin: 0 }}>Recurrence</label>
+                    {formData.recurrence && formData.recurrence !== 'none' && (
+                      <button
+                        type="button"
+                        onClick={() => setIsRecurrenceModalOpen(true)}
+                        style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', fontSize: '12px', fontWeight: 600, cursor: 'pointer', padding: 0 }}
+                      >
+                        {formData.recurrenceEndDate ? `Until ${formatDisplayDate(formData.recurrenceEndDate)}` : 'Set End Date'}
+                      </button>
+                    )}
+                  </div>
                   <CustomSelect 
-                    value={formData.recurrence} 
-                    onChange={(val) => setFormData(prev => ({ ...prev, recurrence: val }))}
+                    value={formData.recurrence || 'none'} 
+                    onChange={(val) => {
+                      if (val === 'none') {
+                        setFormData(prev => ({ ...prev, recurrence: 'none', recurrenceEndDate: '' }));
+                      } else {
+                        setFormData(prev => ({ ...prev, recurrence: val }));
+                        setIsRecurrenceModalOpen(true);
+                      }
+                    }}
                     options={[
                       { value: 'none', label: 'None' },
                       { value: 'daily', label: 'Daily' },
@@ -414,6 +524,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
                     ]}
                   />
                 </div>
+
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Tags (Press Enter)</label>
                   <div className="neu-input" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '10px 16px', minHeight: '44px', alignItems: 'center' }}>
@@ -519,6 +630,21 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
             statuses={statuses} 
             parentDeadline={formData.deadline}
             parentDeadlineTime={formData.deadlineTime}
+          />
+        )}
+
+        {isRecurrenceModalOpen && (
+          <RecurrenceModal
+            recurrence={formData.recurrence}
+            recurrenceEndDate={formData.recurrenceEndDate}
+            onClose={() => setIsRecurrenceModalOpen(false)}
+            onSave={(result) => {
+              setFormData(prev => ({
+                ...prev,
+                recurrence: result.recurrence,
+                recurrenceEndDate: result.recurrenceEndDate
+              }));
+            }}
           />
         )}
       </div>

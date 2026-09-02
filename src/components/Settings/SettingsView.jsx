@@ -1,11 +1,17 @@
 import { useState } from 'react';
 import GlassCard from '../UI/GlassCard';
-import { Plus, Trash2, Edit2, Check, X, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Trash2, Edit2, Check, X, ChevronDown, ChevronUp, ArrowUp, ArrowDown, Clock } from 'lucide-react';
+import CustomSelect from '../UI/CustomSelect';
 import '../UI/UI.css';
 import FinanceCategoriesManager from './FinanceCategoriesManager';
 import { useConfirm } from '../../hooks/useConfirm';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
+
+const HOUR_OPTIONS = Array.from({ length: 24 }, (_, i) => ({
+  value: i,
+  label: `${String(i).padStart(2, '0')}:00`
+}));
 
 export const ListManager = ({ title, items, setItems, onRename, onDelete, placeholder }) => {
   const confirm = useConfirm();
@@ -158,7 +164,9 @@ const SettingsView = ({
   priorities = [], setPriorities, onRenamePriority, onDeletePriority,
   statuses = [], setStatuses, onRenameStatus, onDeleteStatus,
   avatarUrl, setAvatarUrl,
-  geminiApiKey, setGeminiApiKey
+  geminiApiKey, setGeminiApiKey,
+  calendarStartHour = 0, setCalendarStartHour,
+  calendarEndHour = 23, setCalendarEndHour
 }) => {
 
   const handleAvatarUpload = (e) => {
@@ -207,6 +215,12 @@ const SettingsView = ({
               General
             </button>
             <button 
+              onClick={() => setActiveSettingsTab('tasks')}
+              style={{ padding: '8px 16px', borderRadius: '16px', border: 'none', cursor: 'pointer', background: activeSettingsTab === 'tasks' ? 'var(--solid-card-bg)' : 'transparent', fontWeight: activeSettingsTab === 'tasks' ? 600 : 400, color: 'var(--text-main)', boxShadow: activeSettingsTab === 'tasks' ? 'var(--shadow-card)' : 'none', transition: 'all 0.3s ease' }}
+            >
+              Tasks
+            </button>
+            <button 
               onClick={() => setActiveSettingsTab('finances')}
               style={{ padding: '8px 16px', borderRadius: '16px', border: 'none', cursor: 'pointer', background: activeSettingsTab === 'finances' ? 'var(--solid-card-bg)' : 'transparent', fontWeight: activeSettingsTab === 'finances' ? 600 : 400, color: 'var(--text-main)', boxShadow: activeSettingsTab === 'finances' ? 'var(--shadow-card)' : 'none', transition: 'all 0.3s ease' }}
             >
@@ -215,95 +229,142 @@ const SettingsView = ({
           </div>
         </div>
         
-        {activeSettingsTab === 'general' ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-          
-          <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '20px' }}>Profile Avatar</h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-              {avatarUrl ? (
-                <img src={avatarUrl} alt="Avatar Preview" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', boxShadow: 'var(--shadow-inner)' }} />
-              ) : (
-                <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--accent-coral)', boxShadow: 'var(--shadow-inner)' }}></div>
-              )}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <label className="pill-btn primary" style={{ cursor: 'pointer', textAlign: 'center', padding: '8px 16px', fontSize: '13px' }}>
-                  Upload Photo
-                  <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
-                </label>
-                {avatarUrl && (
-                  <button onClick={handleRemoveAvatar} className="pill-btn danger" style={{ padding: '8px 16px', fontSize: '13px' }}>
-                    Remove
-                  </button>
+        {activeSettingsTab === 'general' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+            
+            <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '20px' }}>Profile Avatar</h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Avatar Preview" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', boxShadow: 'var(--shadow-inner)' }} />
+                ) : (
+                  <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--accent-coral)', boxShadow: 'var(--shadow-inner)' }}></div>
                 )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <label className="pill-btn primary" style={{ cursor: 'pointer', textAlign: 'center', padding: '8px 16px', fontSize: '13px' }}>
+                    Upload Photo
+                    <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
+                  </label>
+                  {avatarUrl && (
+                    <button onClick={handleRemoveAvatar} className="pill-btn danger" style={{ padding: '8px 16px', fontSize: '13px' }}>
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '20px' }}>AI Coach Integration</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <label style={{ fontSize: '14px', fontWeight: 600 }}>Google Gemini API Key</label>
+                <input 
+                  type="password" 
+                  value={geminiApiKey} 
+                  onChange={(e) => setGeminiApiKey(e.target.value)} 
+                  className="neu-input" 
+                  placeholder="Paste your Gemini API Key here..."
+                />
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Get your free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-blue)' }}>Google AI Studio</a>. The key is saved locally and synced to your secure database.</p>
+              </div>
+            </div>
+
+            <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '20px' }}>Data Management</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0 }}>Export your tasks, notes, habits, and finances.</p>
+                <button 
+                  className="pill-btn primary"
+                  style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '8px' }}
+                  onClick={async () => {
+                    if (!user) return;
+                    try {
+                      const exportData = {};
+                      for (const colName of ['tasks', 'notes', 'habits', 'transactions']) {
+                        const snap = await getDocs(collection(db, 'users', user.uid, colName));
+                        exportData[colName] = snap.docs.map(d => d.data());
+                      }
+                      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+                      const downloadAnchorNode = document.createElement('a');
+                      downloadAnchorNode.setAttribute("href", dataStr);
+                      downloadAnchorNode.setAttribute("download", "nuri_life_export_" + new Date().toISOString().split('T')[0] + ".json");
+                      document.body.appendChild(downloadAnchorNode);
+                      downloadAnchorNode.click();
+                      downloadAnchorNode.remove();
+                    } catch (e) {
+                      alert('Error exporting data: ' + e.message);
+                    }
+                  }}
+                >
+                  <ArrowDown size={18} /> Export Data (JSON)
+                </button>
               </div>
             </div>
           </div>
+        )}
 
-          <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '20px' }}>AI Coach Integration</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <label style={{ fontSize: '14px', fontWeight: 600 }}>Google Gemini API Key</label>
-              <input 
-                type="password" 
-                value={geminiApiKey} 
-                onChange={(e) => setGeminiApiKey(e.target.value)} 
-                className="neu-input" 
-                placeholder="Paste your Gemini API Key here..."
-              />
-              <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Get your free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-blue)' }}>Google AI Studio</a>. The key is saved locally and synced to your secure database.</p>
+        {activeSettingsTab === 'tasks' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+            <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                <Clock size={20} color="var(--accent-blue)" />
+                <h2 style={{ fontSize: '20px', fontWeight: 600, margin: 0 }}>Часы отображения календаря</h2>
+              </div>
+              <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: '0 0 20px 0' }}>
+                Укажите диапазон часов для дневного расписания задач (с какого часа начинать и каким часом заканчивать).
+              </p>
+              
+              <div className="responsive-grid-2" style={{ maxWidth: '500px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Начало дня (С)</label>
+                  <CustomSelect 
+                    value={calendarStartHour}
+                    onChange={(val) => {
+                      const newStart = Number(val);
+                      if (setCalendarStartHour) setCalendarStartHour(newStart);
+                      if (newStart >= calendarEndHour && setCalendarEndHour) {
+                        setCalendarEndHour(Math.min(23, newStart + 1));
+                      }
+                    }}
+                    options={HOUR_OPTIONS.filter(opt => opt.value < calendarEndHour)}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Конец дня (По)</label>
+                  <CustomSelect 
+                    value={calendarEndHour}
+                    onChange={(val) => {
+                      const newEnd = Number(val);
+                      if (setCalendarEndHour) setCalendarEndHour(newEnd);
+                      if (newEnd <= calendarStartHour && setCalendarStartHour) {
+                        setCalendarStartHour(Math.max(0, newEnd - 1));
+                      }
+                    }}
+                    options={HOUR_OPTIONS.filter(opt => opt.value > calendarStartHour)}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '20px' }}>Data Management</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0 }}>Export your tasks, notes, habits, and finances.</p>
-              <button 
-                className="pill-btn primary"
-                style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '8px' }}
-                onClick={async () => {
-                  if (!user) return;
-                  try {
-                    const exportData = {};
-                    for (const colName of ['tasks', 'notes', 'habits', 'transactions']) {
-                      const snap = await getDocs(collection(db, 'users', user.uid, colName));
-                      exportData[colName] = snap.docs.map(d => d.data());
-                    }
-                    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
-                    const downloadAnchorNode = document.createElement('a');
-                    downloadAnchorNode.setAttribute("href", dataStr);
-                    downloadAnchorNode.setAttribute("download", "nuri_life_export_" + new Date().toISOString().split('T')[0] + ".json");
-                    document.body.appendChild(downloadAnchorNode);
-                    downloadAnchorNode.click();
-                    downloadAnchorNode.remove();
-                  } catch (e) {
-                    alert('Error exporting data: ' + e.message);
-                  }
-                }}
-              >
-                <ArrowDown size={18} /> Export Data (JSON)
-              </button>
-            </div>
+            <ListManager 
+              title="Manage Projects" 
+              items={projects} setItems={setProjects} onRename={onRenameProject} onDelete={onDeleteProject} 
+              placeholder="Enter new project name..." 
+            />
+            <ListManager 
+              title="Manage Priorities" 
+              items={priorities} setItems={setPriorities} onRename={onRenamePriority} onDelete={onDeletePriority} 
+              placeholder="Enter new priority name (e.g. Urgent)..." 
+            />
+            <ListManager 
+              title="Manage Statuses" 
+              items={statuses} setItems={setStatuses} onRename={onRenameStatus} onDelete={onDeleteStatus} 
+              placeholder="Enter new status (e.g. Review)..." 
+            />
           </div>
+        )}
 
-          <ListManager 
-            title="Manage Projects" 
-            items={projects} setItems={setProjects} onRename={onRenameProject} onDelete={onDeleteProject} 
-            placeholder="Enter new project name..." 
-          />
-          <ListManager 
-            title="Manage Priorities" 
-            items={priorities} setItems={setPriorities} onRename={onRenamePriority} onDelete={onDeletePriority} 
-            placeholder="Enter new priority name (e.g. Urgent)..." 
-          />
-          <ListManager 
-            title="Manage Statuses" 
-            items={statuses} setItems={setStatuses} onRename={onRenameStatus} onDelete={onDeleteStatus} 
-            placeholder="Enter new status (e.g. Review)..." 
-          />
-        </div>
-        ) : (
+        {activeSettingsTab === 'finances' && (
           <FinanceCategoriesManager user={user} />
         )}
       </GlassCard>

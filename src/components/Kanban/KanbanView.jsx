@@ -13,6 +13,7 @@ import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } 
 import { CSS } from '@dnd-kit/utilities';
 import GlassCard from '../UI/GlassCard';
 import Badge from '../UI/Badge';
+import { formatDisplayDate } from '../../utils/recurrence';
 
 const DraggableTask = ({ task, onEditTask, statuses }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -104,7 +105,7 @@ const DraggableTask = ({ task, onEditTask, statuses }) => {
           const isOverdue = deadlineDate < today;
           return (
             <span style={{ fontSize: '11px', color: isOverdue ? 'var(--accent-coral)' : 'var(--text-muted)' }}>
-              {deadlineDate.toLocaleDateString()}{task.deadlineTime ? ` ${task.deadlineTime}` : ''}
+              {formatDisplayDate(task.deadline)}{task.deadlineTime ? ` ${task.deadlineTime}` : ''}
             </span>
           );
         })()}

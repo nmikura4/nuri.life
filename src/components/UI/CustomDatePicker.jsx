@@ -69,9 +69,8 @@ const CustomDatePicker = ({
 
   const formatTimeRangeText = () => {
     if (!enableTime) return '';
-    if (startTimeValue && timeValue) return `, ${startTimeValue} – ${timeValue}`;
-    if (startTimeValue) return `, с ${startTimeValue}`;
-    if (timeValue) return `, до ${timeValue}`;
+    if (timeValue) return `, ${timeValue}`;
+    if (startTimeValue) return `, ${startTimeValue}`;
     return '';
   };
 
@@ -193,7 +192,7 @@ const CustomDatePicker = ({
           </div>
 
           {enableTime && (
-            <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 {/* Start Time */}
                 <div>
