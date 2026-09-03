@@ -69,12 +69,12 @@ const WelcomeCard = ({
 
   return (
     <GlassCard className="welcome-card-header" style={{
-      padding: '24px 30px',
+      padding: '20px 24px',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       position: 'relative',
-      minHeight: '140px',
+      minHeight: 'auto',
       width: '100%',
       overflow: 'visible', /* Changed to visible so track is not clipped */
       zIndex: 10
@@ -87,23 +87,13 @@ const WelcomeCard = ({
         </svg>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-main)', marginBottom: '4px' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
             {getGreeting()}, {user?.displayName || user?.email?.split('@')[0] || 'User'}
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>You have {tasksCount} tasks for today. Let's get things done!</p>
         </div>
       </div>
-
-      {dueTasks.length > 0 && (
-        <div style={{ background: 'rgba(239, 154, 138, 0.15)', borderLeft: '4px solid var(--accent-coral)', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '18px' }}>🔥</span>
-          <p style={{ margin: 0, fontSize: '14px', color: 'var(--accent-coral)', fontWeight: 600 }}>
-            {dueTasks.length} task(s) require your immediate attention (due today or overdue)!
-          </p>
-        </div>
-      )}
 
       <div className="welcome-controls" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
         <div className="welcome-search-wrapper" style={{
