@@ -346,7 +346,7 @@ const FinanceCategoriesManager = ({ user }) => {
                         onChange={(e) => setEditCatBudget(e.target.value)}
                         className="neu-input"
                         placeholder="Budget"
-                        style={{ width: '90px', padding: '6px 10px', minHeight: '32px', fontSize: '14px' }}
+                        style={{ width: '115px', padding: '6px 12px', minHeight: '32px', fontSize: '14px', boxSizing: 'border-box' }}
                       />
                     )}
                     <button onClick={() => saveEdit(cat)} style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', cursor: 'pointer', padding: '4px' }}>
@@ -596,7 +596,7 @@ const FinanceCategoriesManager = ({ user }) => {
                     placeholder="Monthly Budget" 
                     value={newCatBudget}
                     onChange={(e) => setNewCatBudget(e.target.value)}
-                    style={{ width: '140px' }}
+                    style={{ width: '165px', padding: '10px 14px', boxSizing: 'border-box' }}
                   />
                 )}
                 <button type="submit" className="pill-btn primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
