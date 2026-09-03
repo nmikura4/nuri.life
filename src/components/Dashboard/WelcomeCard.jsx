@@ -87,25 +87,23 @@ const WelcomeCard = ({
         </svg>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
             {getGreeting()}, {user?.displayName || user?.email?.split('@')[0] || 'User'}
           </h1>
         </div>
-      </div>
 
-      <div className="welcome-controls" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
         <div className="welcome-search-wrapper" style={{
           background: 'var(--item-bg-hover)',
           borderRadius: '16px',
-          padding: '10px 16px',
+          padding: '8px 14px',
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
           boxShadow: 'var(--shadow-inner)',
-          flex: 1,
-          maxWidth: '350px'
+          width: '100%',
+          maxWidth: '320px'
         }}>
           <Search size={16} color="var(--text-muted)" />
           <input 
@@ -127,14 +125,16 @@ const WelcomeCard = ({
           {localSearch && (
             <button 
               onClick={() => setLocalSearch('')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px', minWidth: '44px', minHeight: '44px' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px' }}
               aria-label="Clear search"
             >
               <X size={14} />
             </button>
           )}
         </div>
+      </div>
 
+      <div className="welcome-controls" style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
         <button className="pill-btn primary" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', fontSize: '13px' }} onClick={onAddTask}>
           <Plus size={16} /> New Task
         </button>
