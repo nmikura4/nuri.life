@@ -60,99 +60,99 @@ export const ListManager = ({ title, items, setItems, onRename, onDelete, placeh
   };
 
   return (
-    <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
+    <div style={{ background: 'var(--item-bg)', padding: '16px 20px', borderRadius: '16px', boxShadow: 'var(--shadow-soft)' }}>
       <div 
         onClick={() => setIsOpen(!isOpen)} 
         style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
       >
-        <h2 style={{ fontSize: '20px', fontWeight: 600 }}>{title}</h2>
+        <h2 style={{ fontSize: '18px', fontWeight: 600 }}>{title}</h2>
         <button style={{ background: 'none', border: 'none', color: 'var(--text-main)', display: 'flex', alignItems: 'center' }}>
-          {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
         </button>
       </div>
       
       {isOpen && (
-        <div style={{ marginTop: '20px' }}>
-          <form className="settings-item" onSubmit={handleAdd} style={{ display: 'flex', gap: '16px', marginBottom: '30px' }}>
-        <input 
-          type="text" 
-          className="neu-input" 
-          placeholder={placeholder} 
-          value={newItem}
-          onChange={(e) => setNewItem(e.target.value)}
-          style={{ flex: 1 }}
-        />
-        <button type="submit" className="pill-btn primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Plus size={18} /> Add
-        </button>
-      </form>
+        <div style={{ marginTop: '16px' }}>
+          <form className="settings-item" onSubmit={handleAdd} style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+            <input 
+              type="text" 
+              className="neu-input" 
+              placeholder={placeholder} 
+              value={newItem}
+              onChange={(e) => setNewItem(e.target.value)}
+              style={{ flex: 1, padding: '8px 14px', minHeight: '36px', fontSize: '14px' }}
+            />
+            <button type="submit" className="pill-btn primary" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', fontSize: '13px' }}>
+              <Plus size={16} /> Add
+            </button>
+          </form>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {items.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)' }}>No items available.</p>
-        ) : (
-          items.map((item, index) => (
-            <div className="settings-item" key={item} style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              background: 'var(--item-bg-hover)', padding: '16px 20px', borderRadius: '16px',
-              boxShadow: 'var(--shadow-inner)'
-            }}>
-              {editingItem === item ? (
-                <div style={{ display: 'flex', gap: '12px', flex: 1, marginRight: '16px' }}>
-                  <input 
-                    type="text" 
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(item); if (e.key === 'Escape') cancelEdit(); }}
-                    className="neu-input"
-                    style={{ flex: 1, padding: '8px 12px' }}
-                    autoFocus
-                  />
-                  <button onClick={() => saveEdit(item)} style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', cursor: 'pointer', padding: '10px', display: 'flex', alignItems: 'center' }}>
-                    <Check size={20} />
-                  </button>
-                  <button onClick={cancelEdit} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '10px', display: 'flex', alignItems: 'center' }}>
-                    <X size={20} />
-                  </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {items.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>No items available.</p>
+            ) : (
+              items.map((item, index) => (
+                <div className="settings-item" key={item} style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  background: 'var(--item-bg-hover)', padding: '8px 14px', borderRadius: '12px',
+                  boxShadow: 'var(--shadow-inner)'
+                }}>
+                  {editingItem === item ? (
+                    <div style={{ display: 'flex', gap: '8px', flex: 1, marginRight: '12px', alignItems: 'center' }}>
+                      <input 
+                        type="text" 
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(item); if (e.key === 'Escape') cancelEdit(); }}
+                        className="neu-input"
+                        style={{ flex: 1, padding: '6px 12px', minHeight: '32px', fontSize: '14px' }}
+                        autoFocus
+                      />
+                      <button onClick={() => saveEdit(item)} style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}>
+                        <Check size={18} />
+                      </button>
+                      <button onClick={cancelEdit} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}>
+                        <X size={18} />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <span style={{ fontWeight: 600, fontSize: '14px' }}>{item}</span>
+                      <div style={{ display: 'flex', gap: '2px' }}>
+                        <button 
+                          onClick={() => moveItem(index, 'up')}
+                          disabled={index === 0}
+                          style={{ background: 'none', border: 'none', color: index === 0 ? 'transparent' : 'var(--text-muted)', cursor: index === 0 ? 'default' : 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}
+                        >
+                          <ArrowUp size={15} />
+                        </button>
+                        <button 
+                          onClick={() => moveItem(index, 'down')}
+                          disabled={index === items.length - 1}
+                          style={{ background: 'none', border: 'none', color: index === items.length - 1 ? 'transparent' : 'var(--text-muted)', cursor: index === items.length - 1 ? 'default' : 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}
+                        >
+                          <ArrowDown size={15} />
+                        </button>
+                        <button 
+                          onClick={() => startEdit(item)}
+                          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}
+                        >
+                          <Edit2 size={15} />
+                        </button>
+                        <button 
+                          onClick={async () => { if (await confirm(`Delete "${item}"?`)) onDelete(item); }}
+                          style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
-              ) : (
-                <>
-                  <span style={{ fontWeight: 600 }}>{item}</span>
-                  <div style={{ display: 'flex', gap: '4px' }}>
-                    <button 
-                      onClick={() => moveItem(index, 'up')}
-                      disabled={index === 0}
-                      style={{ background: 'none', border: 'none', color: index === 0 ? 'transparent' : 'var(--text-muted)', cursor: index === 0 ? 'default' : 'pointer', padding: '10px', display: 'flex', alignItems: 'center' }}
-                    >
-                      <ArrowUp size={18} />
-                    </button>
-                    <button 
-                      onClick={() => moveItem(index, 'down')}
-                      disabled={index === items.length - 1}
-                      style={{ background: 'none', border: 'none', color: index === items.length - 1 ? 'transparent' : 'var(--text-muted)', cursor: index === items.length - 1 ? 'default' : 'pointer', padding: '10px', display: 'flex', alignItems: 'center' }}
-                    >
-                      <ArrowDown size={18} />
-                    </button>
-                    <button 
-                      onClick={() => startEdit(item)}
-                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '10px', display: 'flex', alignItems: 'center' }}
-                    >
-                      <Edit2 size={18} />
-                    </button>
-                    <button 
-                      onClick={async () => { if (await confirm(`Delete "${item}"?`)) onDelete(item); }}
-                      style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer', padding: '10px', display: 'flex', alignItems: 'center' }}
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
-      </div>
       )}
     </div>
   );

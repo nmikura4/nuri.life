@@ -517,11 +517,11 @@ const FinanceCategoriesManager = ({ user }) => {
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       
       {/* Currency Settings */}
-      <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
-        <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '20px' }}>Global Currency</h2>
+      <div style={{ background: 'var(--item-bg)', padding: '16px 20px', borderRadius: '16px', boxShadow: 'var(--shadow-soft)' }}>
+        <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '14px' }}>Global Currency</h2>
         <div style={{ maxWidth: '300px' }}>
           <CustomSelect 
             options={CURRENCIES.map(c => ({ label: c.name, value: c.code }))}
@@ -546,21 +546,21 @@ const FinanceCategoriesManager = ({ user }) => {
       />
 
       {/* Categories Manager */}
-      <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
+      <div style={{ background: 'var(--item-bg)', padding: '16px 20px', borderRadius: '16px', boxShadow: 'var(--shadow-soft)' }}>
         <div 
           onClick={() => setIsOpen(!isOpen)} 
           style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
         >
-          <h2 style={{ fontSize: '20px', fontWeight: 600 }}>Manage Categories</h2>
+          <h2 style={{ fontSize: '18px', fontWeight: 600 }}>Manage Categories</h2>
           <button style={{ background: 'none', border: 'none', color: 'var(--text-main)', display: 'flex', alignItems: 'center' }}>
-            {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </button>
         </div>
         
         {isOpen && (
-          <div style={{ marginTop: '30px' }}>
-            <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '40px', background: 'var(--item-bg-hover)', padding: '20px', borderRadius: '20px', boxShadow: 'var(--shadow-inner)' }}>
-              <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ marginTop: '16px' }}>
+            <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px', background: 'var(--item-bg-hover)', padding: '12px 16px', borderRadius: '14px', boxShadow: 'var(--shadow-inner)' }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <button 
                   type="button"
                   onClick={() => setIconPickerState({
