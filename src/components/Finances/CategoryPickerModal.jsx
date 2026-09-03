@@ -201,9 +201,9 @@ const CategoryPickerModal = ({
               <div 
                 style={{ 
                   display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', 
-                  gap: '12px',
-                  paddingBottom: '10px'
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', 
+                  gap: '8px',
+                  paddingBottom: '8px'
                 }}
               >
                 {filteredOptions.map(opt => {
@@ -220,8 +220,8 @@ const CategoryPickerModal = ({
                       className="category-picker-card"
                       style={{
                         background: isSelected ? 'var(--item-bg)' : 'var(--card-bg)',
-                        borderRadius: '14px',
-                        padding: '12px 14px',
+                        borderRadius: '11px',
+                        padding: '7px 11px',
                         boxShadow: isSelected ? 'var(--shadow-inner)' : 'var(--shadow-soft)',
                         border: isSelected ? '1px solid var(--accent-blue)' : '1px solid var(--card-border)',
                         cursor: 'pointer',
@@ -229,31 +229,31 @@ const CategoryPickerModal = ({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        gap: '10px',
+                        gap: '8px',
                         transition: 'all 0.2s ease'
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
                         <div 
                           style={{ 
-                            width: '36px', 
-                            height: '36px', 
-                            borderRadius: '10px', 
+                            width: '28px', 
+                            height: '28px', 
+                            borderRadius: '8px', 
                             background: isSelected ? 'var(--accent-blue)' : 'var(--item-bg-hover)', 
                             color: isSelected ? '#ffffff' : (type === 'expense' ? 'var(--accent-coral)' : 'var(--accent-blue)'),
                             display: 'flex', 
                             alignItems: 'center', 
                             justifyContent: 'center',
                             flexShrink: 0,
-                            boxShadow: isSelected ? '0 3px 8px rgba(74, 137, 220, 0.3)' : 'var(--shadow-soft)'
+                            boxShadow: isSelected ? '0 2px 6px rgba(74, 137, 220, 0.3)' : 'var(--shadow-soft)'
                           }}
                         >
-                          <IconComp size={18} />
+                          <IconComp size={15} />
                         </div>
 
                         <span style={{ 
                           fontWeight: isSelected ? 700 : 600, 
-                          fontSize: '14px', 
+                          fontSize: '13px', 
                           color: 'var(--text-main)', 
                           whiteSpace: 'nowrap', 
                           overflow: 'hidden', 
@@ -265,8 +265,8 @@ const CategoryPickerModal = ({
 
                       {isSelected && (
                         <div style={{ 
-                          width: '20px', 
-                          height: '20px', 
+                          width: '18px', 
+                          height: '18px', 
                           borderRadius: '50%', 
                           background: 'var(--accent-blue)', 
                           color: 'white', 
@@ -275,7 +275,7 @@ const CategoryPickerModal = ({
                           justifyContent: 'center',
                           flexShrink: 0
                         }}>
-                          <Check size={12} />
+                          <Check size={11} />
                         </div>
                       )}
                     </div>
