@@ -18,7 +18,7 @@ const TransactionsTable = () => {
 
   return (
     <GlassCard style={{ padding: '30px', overflowX: 'auto' }}>
-      <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '20px' }}>Recent Transactions</h3>
+      <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '20px' }}>Transactions</h3>
       
       {transactions.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>
