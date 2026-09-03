@@ -187,7 +187,22 @@ const FinancesDashboard = () => {
     return null;
   };
 
-  const COLORS = ['#ef9a8a', '#a4c9e5', '#fbbba1', '#b7d5ec', '#f4c2c2', '#d46f5b', '#5b8fb9'];
+  const COLORS = [
+    '#f26a5b', // Warm Coral
+    '#3a86ff', // Royal Blue
+    '#2ec4b6', // Turquoise Teal
+    '#ff9f1c', // Vibrant Amber
+    '#8338ec', // Purple
+    '#06d6a0', // Mint Green
+    '#ff006e', // Magenta Pink
+    '#4cc9f0', // Sky Blue
+    '#e76f51', // Terracotta
+    '#9d4edd', // Orchid
+    '#588157', // Forest Sage
+    '#f77f00', // Deep Orange
+    '#4895ef', // Cornflower Blue
+    '#d62828'  // Crimson
+  ];
 
   const renderActiveShape = (props) => {
     const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
