@@ -1,9 +1,30 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+const spaFallbackPlugin = () => ({
+  name: 'spa-fallback-plugin',
+  closeBundle() {
+    try {
+      const indexPath = path.resolve(__dirname, 'dist/index.html')
+      const fallbackPath = path.resolve(__dirname, 'dist/404.html')
+      if (fs.existsSync(indexPath)) {
+        fs.copyFileSync(indexPath, fallbackPath)
+      }
+    } catch (e) {
+      console.error('Failed to copy 404.html:', e)
+    }
+  }
+})
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), spaFallbackPlugin()],
   server: {
     host: true, // Listen on all network interfaces for mobile/local testing
     port: 3000,

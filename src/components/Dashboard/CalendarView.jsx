@@ -80,6 +80,11 @@ const CalendarView = ({ tasks = [], statuses = [], onEditTask, onAddTask, startH
   today.setHours(0, 0, 0, 0);
 
   const doneStatus = statuses.length > 0 ? statuses[statuses.length - 1] : 'done';
+  const isTaskCompleted = (t) => t.status === doneStatus || t.status === 'done' || t.completed === true;
+
+  const activeTasks = useMemo(() => {
+    return tasks.filter(t => !isTaskCompleted(t));
+  }, [tasks, doneStatus]);
 
   const formatHeaderTitle = () => {
     if (viewMode === 'month') {
@@ -177,7 +182,7 @@ const CalendarView = ({ tasks = [], statuses = [], onEditTask, onAddTask, startH
       {viewMode === 'day' ? (
         <DayHourlyView 
           date={selectedDate}
-          tasks={tasks}
+          tasks={activeTasks}
           statuses={statuses}
           onEditTask={onEditTask}
           onAddTask={onAddTask}
@@ -201,7 +206,7 @@ const CalendarView = ({ tasks = [], statuses = [], onEditTask, onAddTask, startH
               
               const isToday = day.getTime() === today.getTime();
               const dateStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
-              const dayTasks = tasks.filter(t => isTaskOnDate(t, dateStr));
+              const dayTasks = activeTasks.filter(t => isTaskOnDate(t, dateStr));
 
               return (
                 <div 

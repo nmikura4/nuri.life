@@ -4,6 +4,7 @@ import { db } from '../../firebase';
 import { Plus, Trash2, Edit2, Check, X, Tag, ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
 import { ICON_OPTIONS } from './icons';
 import CustomSelect from '../UI/CustomSelect';
+import IconPickerModal from '../UI/IconPickerModal';
 import { ListManager } from './SettingsView';
 import { useConfirm } from '../../hooks/useConfirm';
 import '../UI/UI.css';
@@ -26,24 +27,24 @@ const FinanceCategoriesManager = ({ user }) => {
   const [newCatType, setNewCatType] = useState('expense');
   const [newCatIcon, setNewCatIcon] = useState('Tag');
   const [newCatBudget, setNewCatBudget] = useState('');
-  const [isNewIconPickerOpen, setIsNewIconPickerOpen] = useState(false);
   
   const [editingCatId, setEditingCatId] = useState(null);
   const [editCatName, setEditCatName] = useState('');
   const [editCatIcon, setEditCatIcon] = useState('Tag');
   const [editCatBudget, setEditCatBudget] = useState('');
-  const [isEditIconPickerOpen, setIsEditIconPickerOpen] = useState(false);
 
   const [expandedCats, setExpandedCats] = useState({});
 
   // Subcategory states
   const [newSubcatName, setNewSubcatName] = useState({});
   const [newSubcatIcon, setNewSubcatIcon] = useState({});
-  const [isNewSubcatIconPickerOpen, setIsNewSubcatIconPickerOpen] = useState({});
   const [editingSubcatId, setEditingSubcatId] = useState(null);
   const [editSubcatName, setEditSubcatName] = useState('');
   const [editSubcatIcon, setEditSubcatIcon] = useState('Tag');
-  const [isEditSubcatIconPickerOpen, setIsEditSubcatIconPickerOpen] = useState(false);
+
+  // Universal Icon Picker Modal state
+  const [iconPickerState, setIconPickerState] = useState(null);
+
 
   const [currency, setCurrency] = useState('USD');
   const [counterparties, setCounterparties] = useState([]);
@@ -126,7 +127,6 @@ const FinanceCategoriesManager = ({ user }) => {
     });
     setNewCatName('');
     setNewCatBudget('');
-    setIsNewIconPickerOpen(false);
   };
 
   const startEdit = (cat) => {
@@ -134,7 +134,6 @@ const FinanceCategoriesManager = ({ user }) => {
     setEditCatName(cat.name);
     setEditCatIcon(cat.iconName || 'Tag');
     setEditCatBudget(cat.budget ? String(cat.budget) : '');
-    setIsEditIconPickerOpen(false);
   };
 
   const saveEdit = async (cat) => {
@@ -172,14 +171,12 @@ const FinanceCategoriesManager = ({ user }) => {
     }, { merge: true });
     
     setNewSubcatName(prev => ({ ...prev, [cat.id]: '' }));
-    setIsNewSubcatIconPickerOpen(prev => ({ ...prev, [cat.id]: false }));
   };
 
   const startEditSubcat = (subcat) => {
     setEditingSubcatId(subcat.id);
     setEditSubcatName(subcat.name);
     setEditSubcatIcon(subcat.iconName || 'Tag');
-    setIsEditSubcatIconPickerOpen(false);
   };
 
   const saveEditSubcat = async (cat, subcatId) => {
@@ -322,8 +319,14 @@ const FinanceCategoriesManager = ({ user }) => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <button 
-                      onClick={() => setIsEditIconPickerOpen(!isEditIconPickerOpen)}
+                      type="button"
+                      onClick={() => setIconPickerState({
+                        selectedIcon: editCatIcon,
+                        onSelect: (name) => setEditCatIcon(name),
+                        title: 'Иконка категории'
+                      })}
                       className="neu-icon-btn" 
+                      title="Выбрать иконку"
                       style={{ width: '40px', height: '40px', borderRadius: '12px', flexShrink: 0 }}
                     >
                       {renderIcon(editCatIcon)}
@@ -353,25 +356,6 @@ const FinanceCategoriesManager = ({ user }) => {
                       <X size={20} />
                     </button>
                   </div>
-                  {isEditIconPickerOpen && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', padding: '15px', background: 'var(--card-bg)', borderRadius: '16px', boxShadow: 'var(--shadow-soft)', maxHeight: '200px', overflowY: 'auto' }}>
-                      {ICON_OPTIONS.map(opt => {
-                        const IconComponent = opt.icon;
-                        return (
-                          <button 
-                            key={opt.name} 
-                            type="button"
-                            onClick={() => { setEditCatIcon(opt.name); setIsEditIconPickerOpen(false); }}
-                            className={`neu-icon-btn ${editCatIcon === opt.name ? 'selected' : ''}`}
-                            style={{ width: '40px', height: '40px', borderRadius: '12px' }}
-                            title={opt.name}
-                          >
-                            <IconComponent size={18} />
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
                 </div>
               ) : (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -445,8 +429,14 @@ const FinanceCategoriesManager = ({ user }) => {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
                           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '100%' }}>
                             <button 
-                              onClick={() => setIsEditSubcatIconPickerOpen(!isEditSubcatIconPickerOpen)}
+                              type="button"
+                              onClick={() => setIconPickerState({
+                                selectedIcon: editSubcatIcon,
+                                onSelect: (name) => setEditSubcatIcon(name),
+                                title: 'Иконка подкатегории'
+                              })}
                               className="neu-icon-btn" 
+                              title="Выбрать иконку"
                               style={{ width: '32px', height: '32px', borderRadius: '8px', flexShrink: 0 }}
                             >
                               {renderIcon(editSubcatIcon)}
@@ -466,25 +456,6 @@ const FinanceCategoriesManager = ({ user }) => {
                               <X size={18} />
                             </button>
                           </div>
-                          {isEditSubcatIconPickerOpen && (
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '10px', background: 'var(--card-bg)', borderRadius: '12px', boxShadow: 'var(--shadow-soft)', maxHeight: '150px', overflowY: 'auto' }}>
-                              {ICON_OPTIONS.map(opt => {
-                                const IconComponent = opt.icon;
-                                return (
-                                  <button 
-                                    key={opt.name} 
-                                    type="button"
-                                    onClick={() => { setEditSubcatIcon(opt.name); setIsEditSubcatIconPickerOpen(false); }}
-                                    className={`neu-icon-btn ${editSubcatIcon === opt.name ? 'selected' : ''}`}
-                                    style={{ width: '32px', height: '32px', borderRadius: '8px' }}
-                                    title={opt.name}
-                                  >
-                                    <IconComponent size={14} />
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          )}
                         </div>
                       ) : (
                         <>
@@ -512,9 +483,13 @@ const FinanceCategoriesManager = ({ user }) => {
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       <button 
                         type="button"
-                        onClick={() => setIsNewSubcatIconPickerOpen(p => ({ ...p, [cat.id]: !p[cat.id] }))}
+                        onClick={() => setIconPickerState({
+                          selectedIcon: newSubcatIcon[cat.id] || 'Tag',
+                          onSelect: (name) => setNewSubcatIcon(p => ({ ...p, [cat.id]: name })),
+                          title: `Иконка подкатегории (${cat.name})`
+                        })}
                         className="neu-icon-btn"
-                        title="Choose Icon"
+                        title="Выбрать иконку"
                         style={{ width: '32px', height: '32px', borderRadius: '8px', flexShrink: 0, background: 'var(--solid-card-bg)' }}
                       >
                         {renderIcon(newSubcatIcon[cat.id] || 'Tag')}
@@ -531,28 +506,6 @@ const FinanceCategoriesManager = ({ user }) => {
                         Add
                       </button>
                     </div>
-                    {isNewSubcatIconPickerOpen[cat.id] && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '10px', background: 'var(--card-bg)', borderRadius: '12px', boxShadow: 'var(--shadow-soft)', maxHeight: '150px', overflowY: 'auto' }}>
-                        {ICON_OPTIONS.map(opt => {
-                          const IconComponent = opt.icon;
-                          return (
-                            <button 
-                              key={opt.name} 
-                              type="button"
-                              onClick={() => { 
-                                setNewSubcatIcon(p => ({ ...p, [cat.id]: opt.name })); 
-                                setIsNewSubcatIconPickerOpen(p => ({ ...p, [cat.id]: false })); 
-                              }}
-                              className={`neu-icon-btn ${(newSubcatIcon[cat.id] || 'Tag') === opt.name ? 'selected' : ''}`}
-                              title={opt.name}
-                              style={{ width: '32px', height: '32px', borderRadius: '8px' }}
-                            >
-                              <IconComponent size={14} />
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
                   </form>
                 </div>
               )}
@@ -610,9 +563,13 @@ const FinanceCategoriesManager = ({ user }) => {
               <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <button 
                   type="button"
-                  onClick={() => setIsNewIconPickerOpen(!isNewIconPickerOpen)}
+                  onClick={() => setIconPickerState({
+                    selectedIcon: newCatIcon,
+                    onSelect: (name) => setNewCatIcon(name),
+                    title: 'Иконка категории'
+                  })}
                   className="neu-icon-btn"
-                  title="Choose Icon"
+                  title="Выбрать иконку"
                   style={{ flexShrink: 0 }}
                 >
                   {renderIcon(newCatIcon)}
@@ -646,25 +603,6 @@ const FinanceCategoriesManager = ({ user }) => {
                   <Plus size={18} /> Add
                 </button>
               </div>
-              
-              {isNewIconPickerOpen && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', padding: '20px', background: 'var(--card-bg)', borderRadius: '20px', boxShadow: 'var(--shadow-soft)', maxHeight: '250px', overflowY: 'auto', marginTop: '10px' }}>
-                  {ICON_OPTIONS.map(opt => {
-                    const IconComponent = opt.icon;
-                    return (
-                      <button 
-                        key={opt.name} 
-                        type="button"
-                        onClick={() => { setNewCatIcon(opt.name); setIsNewIconPickerOpen(false); }}
-                        className={`neu-icon-btn ${newCatIcon === opt.name ? 'selected' : ''}`}
-                        title={opt.name}
-                      >
-                        <IconComponent size={20} />
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
             </form>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '30px' }}>
@@ -674,6 +612,21 @@ const FinanceCategoriesManager = ({ user }) => {
           </div>
         )}
       </div>
+
+      {/* Global Icon Picker Modal */}
+      {iconPickerState && (
+        <IconPickerModal
+          isOpen={!!iconPickerState}
+          onClose={() => setIconPickerState(null)}
+          selectedIcon={iconPickerState.selectedIcon || 'Tag'}
+          onSelect={(name) => {
+            if (iconPickerState.onSelect) {
+              iconPickerState.onSelect(name);
+            }
+          }}
+          title={iconPickerState.title || 'Выберите иконку'}
+        />
+      )}
     </div>
   );
 };

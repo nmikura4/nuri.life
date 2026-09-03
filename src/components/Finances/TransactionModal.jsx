@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 import GlassCard from '../UI/GlassCard';
-import { X, Tag as TagIcon, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Tag as TagIcon, ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
 import CustomDatePicker from '../UI/CustomDatePicker';
 import CustomSelect from '../UI/CustomSelect';
 import FileUploader from '../UI/FileUploader';
+import CategoryPickerModal from './CategoryPickerModal';
+import { ICON_OPTIONS } from '../Settings/icons';
 import safeStorage from '../../utils/safeStorage';
 import '../UI/UI.css';
 
@@ -26,6 +28,8 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
   
   const [tagInput, setTagInput] = useState('');
   const [isCommentOpen, setIsCommentOpen] = useState(false);
+  const [isCategoryPickerOpen, setIsCategoryPickerOpen] = useState(false);
+  const [isSubcategoryPickerOpen, setIsSubcategoryPickerOpen] = useState(false);
   
   const commentRef = useRef(null);
   useEffect(() => {
@@ -71,7 +75,11 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
     }
   }, [transaction, categories, isOpen]);
 
-  useEscapeKey(onClose);
+  useEscapeKey(() => {
+    if (!isCategoryPickerOpen && !isSubcategoryPickerOpen) {
+      onClose();
+    }
+  });
 
   if (!isOpen) return null;
 
@@ -173,6 +181,9 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
 
   const filteredCategories = categories.filter(c => c.type === formData.type).sort((a, b) => (a.order || 0) - (b.order || 0));
   const selectedCategory = categories.find(c => c.id === formData.categoryId);
+  const selectedSubcategory = selectedCategory?.subcategories?.find(s => s.id === formData.subcategoryId);
+  const SelectedCatIcon = ICON_OPTIONS.find(i => i.name === selectedCategory?.iconName)?.icon || TagIcon;
+  const SelectedSubcatIcon = selectedSubcategory ? (ICON_OPTIONS.find(i => i.name === selectedSubcategory.iconName)?.icon || TagIcon) : null;
   const subcategories = [...(selectedCategory?.subcategories || [])].sort((a, b) => (a.order || 0) - (b.order || 0));
 
   return (
@@ -217,12 +228,46 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
 
             <div>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Category</label>
-              <CustomSelect 
-                options={filteredCategories.map(c => ({ label: c.name, value: c.id }))}
-                value={formData.categoryId}
-                onChange={(val) => setFormData(prev => ({ ...prev, categoryId: val, subcategoryId: '' }))}
-                placeholder="Select a category"
-              />
+
+              <div 
+                className="neu-input" 
+                onClick={() => setIsCategoryPickerOpen(true)}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                  padding: '10px 14px',
+                  userSelect: 'none',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                  <div style={{
+                    width: '34px',
+                    height: '34px',
+                    borderRadius: '10px',
+                    background: selectedCategory ? 'var(--item-bg)' : 'var(--item-bg-hover)',
+                    color: formData.type === 'expense' ? 'var(--accent-coral)' : 'var(--accent-blue)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    boxShadow: 'var(--shadow-soft)'
+                  }}>
+                    <SelectedCatIcon size={18} />
+                  </div>
+
+                  <span style={{ fontWeight: 700, fontSize: '14px', color: selectedCategory ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                    {selectedCategory ? selectedCategory.name : 'Select a category...'}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)' }}>
+                  <ChevronDown size={16} />
+                </div>
+              </div>
+
               {filteredCategories.length === 0 && (
                 <p style={{ fontSize: '12px', color: 'var(--accent-coral)', marginTop: '8px' }}>Please create categories in Settings first.</p>
               )}
@@ -230,12 +275,44 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
               {subcategories.length > 0 && (
                 <div style={{ marginTop: '16px' }}>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Subcategory (Optional)</label>
-                  <CustomSelect 
-                    options={[{ label: 'None', value: '' }, ...subcategories.map(s => ({ label: s.name, value: s.id }))]}
-                    value={formData.subcategoryId || ''}
-                    onChange={(val) => setFormData(prev => ({ ...prev, subcategoryId: val }))}
-                    placeholder="Select a subcategory"
-                  />
+                  <div 
+                    className="neu-input" 
+                    onClick={() => setIsSubcategoryPickerOpen(true)}
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
+                      padding: '10px 14px',
+                      userSelect: 'none',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                      <div style={{
+                        width: '34px',
+                        height: '34px',
+                        borderRadius: '10px',
+                        background: selectedSubcategory ? 'var(--item-bg)' : 'var(--item-bg-hover)',
+                        color: 'var(--accent-blue)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        boxShadow: 'var(--shadow-soft)'
+                      }}>
+                        {SelectedSubcatIcon ? <SelectedSubcatIcon size={18} /> : <TagIcon size={18} />}
+                      </div>
+
+                      <span style={{ fontWeight: 600, fontSize: '14px', color: selectedSubcategory ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                        {selectedSubcategory ? selectedSubcategory.name : 'None (No subcategory)'}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)' }}>
+                      <ChevronDown size={16} />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -339,8 +416,54 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
           </form>
         </GlassCard>
       </div>
+
+      {/* Category Picker Modal */}
+      {isCategoryPickerOpen && (
+        <CategoryPickerModal
+          isOpen={isCategoryPickerOpen}
+          onClose={() => setIsCategoryPickerOpen(false)}
+          title="Выберите категорию"
+          options={filteredCategories}
+          selectedId={formData.categoryId}
+          type={formData.type}
+          showTypeSwitch={true}
+          onTypeChange={handleTypeChange}
+          onSelect={(catId) => {
+            setFormData(prev => ({
+              ...prev,
+              categoryId: catId,
+              subcategoryId: ''
+            }));
+          }}
+          placeholder="Поиск категории..."
+        />
+      )}
+
+      {/* Subcategory Picker Modal */}
+      {isSubcategoryPickerOpen && (
+        <CategoryPickerModal
+          isOpen={isSubcategoryPickerOpen}
+          onClose={() => setIsSubcategoryPickerOpen(false)}
+          title={`Подкатегории: ${selectedCategory?.name || ''}`}
+          options={[
+            { id: '', name: 'Без подкатегории (None)', iconName: 'Tag' },
+            ...subcategories
+          ]}
+          selectedId={formData.subcategoryId}
+          type={formData.type}
+          showTypeSwitch={false}
+          onSelect={(subId) => {
+            setFormData(prev => ({
+              ...prev,
+              subcategoryId: subId
+            }));
+          }}
+          placeholder="Поиск подкатегории..."
+        />
+      )}
     </div>
   );
 };
 
 export default TransactionModal;
+

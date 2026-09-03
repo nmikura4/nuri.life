@@ -2,12 +2,34 @@ import React, { useMemo, useState } from 'react';
 import GlassCard from '../UI/GlassCard';
 import { useFinance } from './FinancesView';
 import TransactionsToolbar from './TransactionsToolbar';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, Wallet, CheckCircle, Clock } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, Sector } from 'recharts';
+import { ArrowUpRight, ArrowDownRight, Wallet, CheckCircle, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import safeStorage from '../../utils/safeStorage';
 
 const FinancesDashboard = () => {
   const { transactions, allTransactions, allMonthTransactions, categories, currency, handleSaveTransaction } = useFinance();
   const [isProcessingRecurring, setIsProcessingRecurring] = useState(false);
+  const [activeCategoryIndex, setActiveCategoryIndex] = useState(null);
+  const [isTrendsCollapsed, setIsTrendsCollapsed] = useState(() => {
+    return safeStorage.getItem('finances_trends_collapsed', false);
+  });
+
+  const [trendsPeriod, setTrendsPeriod] = useState(() => {
+    return safeStorage.getItem('finances_trends_period', 6);
+  });
+
+  const toggleTrendsCollapsed = () => {
+    setIsTrendsCollapsed(prev => {
+      const next = !prev;
+      safeStorage.setItem('finances_trends_collapsed', next);
+      return next;
+    });
+  };
+
+  const handlePeriodChange = (period) => {
+    setTrendsPeriod(period);
+    safeStorage.setItem('finances_trends_period', period);
+  };
 
   const formatMoney = (val) => {
     const num = new Intl.NumberFormat('en-US', {
@@ -112,12 +134,13 @@ const FinancesDashboard = () => {
     setIsProcessingRecurring(false);
   };
 
-  // Trend Chart logic (Last 6 months)
+  // Trend Chart logic (Last 6 or 12 months)
   const trendsData = useMemo(() => {
     const monthsMap = {};
     const today = new Date();
+    const count = Number(trendsPeriod) || 6;
     
-    for (let i = 5; i >= 0; i--) {
+    for (let i = count - 1; i >= 0; i--) {
       const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
       const label = d.toLocaleString('en-US', { month: 'short' });
@@ -135,7 +158,8 @@ const FinancesDashboard = () => {
     }
 
     return Object.values(monthsMap).sort((a, b) => a.sortKey.localeCompare(b.sortKey));
-  }, [allTransactions]);
+  }, [allTransactions, trendsPeriod]);
+
 
   const categoriesWithBudgets = categories ? categories.filter(c => c.type === 'expense' && c.budget > 0) : [];
 
@@ -164,6 +188,79 @@ const FinancesDashboard = () => {
   };
 
   const COLORS = ['#ef9a8a', '#a4c9e5', '#fbbba1', '#b7d5ec', '#f4c2c2', '#d46f5b', '#5b8fb9'];
+
+  const renderActiveShape = (props) => {
+    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
+    return (
+      <g>
+        <Sector
+          cx={cx}
+          cy={cy}
+          innerRadius={innerRadius - 3}
+          outerRadius={outerRadius + 6}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          fill={fill}
+          style={{ filter: 'drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2))', transition: 'all 0.2s ease' }}
+        />
+      </g>
+    );
+  };
+
+  const renderCustomLegend = (props) => {
+    const { payload } = props;
+    return (
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px 12px', paddingTop: '12px' }}>
+        {payload.map((entry, index) => {
+          const isHovered = activeCategoryIndex === index;
+          const isOtherHovered = activeCategoryIndex !== null && !isHovered;
+          const catData = stats.chartData[index];
+          const percent = stats.expense > 0 && catData ? Math.round((catData.value / stats.expense) * 100) : 0;
+
+          return (
+            <div
+              key={`legend-${index}`}
+              onMouseEnter={() => setActiveCategoryIndex(index)}
+              onMouseLeave={() => setActiveCategoryIndex(null)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                cursor: 'pointer',
+                opacity: isOtherHovered ? 0.4 : 1,
+                transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+                padding: '4px 10px',
+                borderRadius: '12px',
+                background: isHovered ? 'var(--item-bg)' : 'transparent',
+                boxShadow: isHovered ? 'var(--shadow-soft)' : 'none',
+                transition: 'all 0.2s ease',
+                userSelect: 'none'
+              }}
+            >
+              <span
+                style={{
+                  width: '10px',
+                  height: '10px',
+                  borderRadius: '50%',
+                  background: entry.color,
+                  display: 'inline-block',
+                  flexShrink: 0
+                }}
+              />
+              <span style={{ 
+                fontSize: '13px', 
+                fontWeight: isHovered ? 700 : 500, 
+                color: isHovered ? 'var(--text-main)' : 'var(--text-muted)',
+                transition: 'color 0.2s ease'
+              }}>
+                {entry.value} {percent > 0 && <span style={{ opacity: 0.75, fontSize: '11px', marginLeft: '2px' }}>({percent}%)</span>}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
@@ -247,13 +344,26 @@ const FinancesDashboard = () => {
                     paddingAngle={5}
                     dataKey="value"
                     stroke="none"
+                    activeIndex={activeCategoryIndex !== null ? activeCategoryIndex : undefined}
+                    activeShape={renderActiveShape}
+                    onMouseEnter={(_, index) => setActiveCategoryIndex(index)}
+                    onMouseLeave={() => setActiveCategoryIndex(null)}
                   >
-                    {stats.chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
+                    {stats.chartData.map((entry, index) => {
+                      const isHovered = activeCategoryIndex === index;
+                      const isOtherHovered = activeCategoryIndex !== null && !isHovered;
+                      return (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={COLORS[index % COLORS.length]} 
+                          opacity={isOtherHovered ? 0.35 : 1}
+                          style={{ transition: 'opacity 0.2s ease', cursor: 'pointer' }}
+                        />
+                      );
+                    })}
                   </Pie>
                   <RechartsTooltip content={<CustomTooltip />} />
-                  <Legend wrapperStyle={{ fontSize: '14px', paddingTop: '10px' }} />
+                  <Legend content={renderCustomLegend} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -269,24 +379,82 @@ const FinancesDashboard = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))', gap: '30px' }}>
         
         {/* Trend Chart */}
-        <GlassCard style={{ padding: '24px', display: 'flex', flexDirection: 'column', height: '350px', minWidth: 0 }}>
-          <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '20px' }}>6-Month Trends</h3>
-          <div style={{ flex: 1, width: '100%', minHeight: '240px', minWidth: 0 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={trendsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--card-border)" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(0)}k` : val} />
-                <RechartsTooltip 
-                  cursor={{ fill: 'rgba(0,0,0,0.05)' }}
-                  content={<CustomTooltip />}
-                />
-                <Legend iconType="circle" wrapperStyle={{ paddingTop: '10px', fontSize: '13px' }} />
-                <Bar dataKey="Income" fill="var(--accent-blue)" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                <Bar dataKey="Expenses" fill="var(--accent-coral)" radius={[4, 4, 0, 0]} maxBarSize={40} />
-              </BarChart>
-            </ResponsiveContainer>
+        <GlassCard style={{ padding: '24px', display: 'flex', flexDirection: 'column', height: isTrendsCollapsed ? 'auto' : '350px', minWidth: 0, transition: 'all 0.3s ease' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isTrendsCollapsed ? '0' : '20px', flexWrap: 'wrap', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>
+                {trendsPeriod === 12 ? '1-Year Trends' : '6-Month Trends'}
+              </h3>
+              <div style={{ display: 'flex', gap: '3px', background: 'var(--item-bg)', padding: '3px', borderRadius: '16px' }}>
+                <button
+                  type="button"
+                  onClick={() => handlePeriodChange(6)}
+                  style={{
+                    padding: '4px 10px',
+                    borderRadius: '12px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    background: trendsPeriod === 6 ? 'var(--solid-card-bg)' : 'transparent',
+                    fontWeight: trendsPeriod === 6 ? 700 : 500,
+                    fontSize: '12px',
+                    color: trendsPeriod === 6 ? 'var(--accent-blue)' : 'var(--text-muted)',
+                    boxShadow: trendsPeriod === 6 ? 'var(--shadow-soft)' : 'none',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  6M
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handlePeriodChange(12)}
+                  style={{
+                    padding: '4px 10px',
+                    borderRadius: '12px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    background: trendsPeriod === 12 ? 'var(--solid-card-bg)' : 'transparent',
+                    fontWeight: trendsPeriod === 12 ? 700 : 500,
+                    fontSize: '12px',
+                    color: trendsPeriod === 12 ? 'var(--accent-blue)' : 'var(--text-muted)',
+                    boxShadow: trendsPeriod === 12 ? 'var(--shadow-soft)' : 'none',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  1Y
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={toggleTrendsCollapsed}
+              className="neu-icon-btn"
+              style={{ width: '32px', height: '32px', borderRadius: '50%', color: 'var(--text-muted)' }}
+              title={isTrendsCollapsed ? "Развернуть график" : "Свернуть график"}
+              aria-label={isTrendsCollapsed ? "Развернуть график" : "Свернуть график"}
+            >
+              {isTrendsCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+            </button>
           </div>
+
+          {!isTrendsCollapsed && (
+            <div style={{ flex: 1, width: '100%', minHeight: '240px', minWidth: 0 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={trendsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--card-border)" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(0)}k` : val} />
+                  <RechartsTooltip 
+                    cursor={{ fill: 'rgba(0,0,0,0.05)' }}
+                    content={<CustomTooltip />}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ paddingTop: '10px', fontSize: '13px' }} />
+                  <Bar dataKey="Income" fill="var(--accent-blue)" radius={[4, 4, 0, 0]} maxBarSize={trendsPeriod === 12 ? 24 : 40} />
+                  <Bar dataKey="Expenses" fill="var(--accent-coral)" radius={[4, 4, 0, 0]} maxBarSize={trendsPeriod === 12 ? 24 : 40} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </GlassCard>
 
         {/* Budgets */}
