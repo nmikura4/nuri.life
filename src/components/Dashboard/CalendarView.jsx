@@ -4,6 +4,7 @@ import Badge from '../UI/Badge';
 import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import DayHourlyView from './DayHourlyView';
 import { isTaskOnDate } from '../../utils/recurrence';
+import safeStorage from '../../utils/safeStorage';
 
 const WEEKDAYS = [
   { full: 'Mon', short: 'M' },
@@ -17,7 +18,9 @@ const WEEKDAYS = [
 
 const CalendarView = ({ tasks = [], statuses = [], onEditTask, onAddTask, startHour = 0, endHour = 23 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState('month'); // 'month' | 'day'
+  const [viewMode, setViewMode] = useState(() => {
+    return safeStorage.getItem('calendar_view_mode', 'day');
+  });
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const getDaysInMonth = (date) => {
@@ -74,6 +77,15 @@ const CalendarView = ({ tasks = [], statuses = [], onEditTask, onAddTask, startH
   const handleSelectDay = (day) => {
     setSelectedDate(day);
     setViewMode('day');
+    safeStorage.setItem('calendar_view_mode', 'day');
+  };
+
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
+    safeStorage.setItem('calendar_view_mode', mode);
+    if (mode === 'day' && !selectedDate) {
+      setSelectedDate(new Date());
+    }
   };
 
   const today = new Date();
@@ -117,7 +129,7 @@ const CalendarView = ({ tasks = [], statuses = [], onEditTask, onAddTask, startH
             gap: '4px'
           }}>
             <button 
-              onClick={() => setViewMode('month')} 
+              onClick={() => handleViewModeChange('month')} 
               className={viewMode === 'month' ? 'pill-btn primary' : 'pill-btn'}
               style={{
                 padding: '6px 14px',
@@ -138,10 +150,7 @@ const CalendarView = ({ tasks = [], statuses = [], onEditTask, onAddTask, startH
               <span>Месяц</span>
             </button>
             <button 
-              onClick={() => {
-                setViewMode('day');
-                if (!selectedDate) setSelectedDate(new Date());
-              }} 
+              onClick={() => handleViewModeChange('day')} 
               className={viewMode === 'day' ? 'pill-btn primary' : 'pill-btn'}
               style={{
                 padding: '6px 14px',
