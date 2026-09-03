@@ -109,9 +109,10 @@
 
 /* Pill Button (Primary) */
 .pill-btn {
-  padding: 12px 24px;
-  border-radius: 24px;
+  padding: 10px 20px;
+  border-radius: 20px;
   border: none;
+  font-size: 14px;
   background: var(--card-bg);
   box-shadow: var(--shadow-soft);
   color: var(--text-main);
@@ -260,6 +261,11 @@ body.dark-theme .welcome-search-input::placeholder {
   background: #ffffff;
   border: 2px solid #000000;
   cursor: pointer;
+}
+
+.custom-select-dropdown {
+  max-height: none !important;
+  overflow: visible !important;
 }
 
 .custom-select-dropdown.top {
