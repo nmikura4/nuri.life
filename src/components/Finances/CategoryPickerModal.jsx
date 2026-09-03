@@ -63,7 +63,7 @@ const CategoryPickerModal = ({
             display: 'flex',
             flexDirection: 'column',
             gap: '16px',
-            boxShadow: 'var(--shadow-card)',
+            boxShadow: 'var(--shadow-modal)',
             border: '1px solid var(--card-border)'
           }}
         >
