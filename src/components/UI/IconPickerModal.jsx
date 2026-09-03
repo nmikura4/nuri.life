@@ -47,13 +47,13 @@ const IconPickerModal = ({
         <GlassCard 
           className="responsive-card" 
           style={{ 
-            padding: '24px', 
+            padding: '16px 20px', 
             position: 'relative', 
             background: 'var(--solid-card-bg)', 
             maxHeight: '85vh', 
             display: 'flex',
             flexDirection: 'column',
-            gap: '16px',
+            gap: '12px',
             boxShadow: 'var(--shadow-modal)',
             border: '1px solid var(--card-border)'
           }}
