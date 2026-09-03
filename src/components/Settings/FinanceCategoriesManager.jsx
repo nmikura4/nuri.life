@@ -275,9 +275,9 @@ const FinanceCategoriesManager = ({ user }) => {
   };
 
   const renderCategoryList = (list, title) => (
-    <div style={{ marginBottom: '30px' }}>
-      <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '15px', color: 'var(--text-muted)' }}>{title}</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div style={{ marginBottom: '24px' }}>
+      <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '12px', color: 'var(--text-muted)' }}>{title}</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {list.length === 0 ? (
           <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>No categories yet.</p>
         ) : (
@@ -309,15 +309,15 @@ const FinanceCategoriesManager = ({ user }) => {
                 background: draggingCatId === cat.id ? 'var(--card-bg)' : 'var(--item-bg-hover)',
                 opacity: draggingCatId === cat.id ? 0.5 : 1,
                 borderTop: dragOverCatTargetId === cat.id ? '2px solid var(--accent-blue)' : '2px solid transparent',
-                padding: '16px 20px', borderRadius: '16px',
+                padding: '8px 14px', borderRadius: '12px',
                 boxShadow: 'var(--shadow-inner)',
                 transition: 'all 0.2s ease',
                 cursor: 'grab'
             }}>
               {/* Category Header */}
               {editingCatId === cat.id ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <button 
                       type="button"
                       onClick={() => setIconPickerState({
@@ -327,7 +327,7 @@ const FinanceCategoriesManager = ({ user }) => {
                       })}
                       className="neu-icon-btn" 
                       title="Выбрать иконку"
-                      style={{ width: '40px', height: '40px', borderRadius: '12px', flexShrink: 0 }}
+                      style={{ width: '32px', height: '32px', borderRadius: '8px', flexShrink: 0 }}
                     >
                       {renderIcon(editCatIcon)}
                     </button>
@@ -336,7 +336,7 @@ const FinanceCategoriesManager = ({ user }) => {
                       value={editCatName}
                       onChange={(e) => setEditCatName(e.target.value)}
                       className="neu-input"
-                      style={{ flex: 1 }}
+                      style={{ flex: 1, padding: '6px 10px', minHeight: '32px', fontSize: '14px' }}
                       autoFocus
                     />
                     {cat.type === 'expense' && (
@@ -346,41 +346,41 @@ const FinanceCategoriesManager = ({ user }) => {
                         onChange={(e) => setEditCatBudget(e.target.value)}
                         className="neu-input"
                         placeholder="Budget"
-                        style={{ width: '100px' }}
+                        style={{ width: '90px', padding: '6px 10px', minHeight: '32px', fontSize: '14px' }}
                       />
                     )}
-                    <button onClick={() => saveEdit(cat)} style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', cursor: 'pointer' }}>
-                      <Check size={20} />
+                    <button onClick={() => saveEdit(cat)} style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', cursor: 'pointer', padding: '4px' }}>
+                      <Check size={18} />
                     </button>
-                    <button onClick={() => setEditingCatId(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-                      <X size={20} />
+                    <button onClick={() => setEditingCatId(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}>
+                      <X size={18} />
                     </button>
                   </div>
                 </div>
               ) : (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '15px', cursor: 'pointer', flex: 1 }} onClick={() => toggleCatExpand(cat.id)}>
-                    <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', width: '20px' }}>
-                      {expandedCats[cat.id] ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', flex: 1 }} onClick={() => toggleCatExpand(cat.id)}>
+                    <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', width: '16px' }}>
+                      {expandedCats[cat.id] ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
                     </div>
-                    <div className="neu-icon-btn" style={{ width: '40px', height: '40px', borderRadius: '12px', cursor: 'pointer' }}>
+                    <div className="neu-icon-btn" style={{ width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer' }}>
                       {renderIcon(cat.iconName)}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontWeight: 600 }}>{cat.name}</span>
+                      <span style={{ fontWeight: 600, fontSize: '14px' }}>{cat.name}</span>
                       {cat.subcategories && cat.subcategories.length > 0 && (
-                        <span style={{ background: 'var(--card-bg)', color: 'var(--text-muted)', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 600, boxShadow: 'var(--shadow-soft)' }}>
+                        <span style={{ background: 'var(--card-bg)', color: 'var(--text-muted)', padding: '1px 6px', borderRadius: '10px', fontSize: '11px', fontWeight: 600, boxShadow: 'var(--shadow-soft)' }}>
                           {cat.subcategories.length}
                         </span>
                       )}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '4px' }}>
-                    <button onClick={() => startEdit(cat)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '10px' }}>
-                      <Edit2 size={18} />
+                  <div style={{ display: 'flex', gap: '2px' }}>
+                    <button onClick={() => startEdit(cat)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px' }}>
+                      <Edit2 size={15} />
                     </button>
-                    <button onClick={() => handleDelete(cat.id)} style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer', padding: '10px' }}>
-                      <Trash2 size={18} />
+                    <button onClick={() => handleDelete(cat.id)} style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer', padding: '6px' }}>
+                      <Trash2 size={15} />
                     </button>
                   </div>
                 </div>
@@ -388,7 +388,7 @@ const FinanceCategoriesManager = ({ user }) => {
 
               {/* Subcategories Section */}
               {expandedCats[cat.id] && !editingCatId && (
-                <div style={{ marginTop: '16px', paddingLeft: '40px', borderLeft: '2px solid var(--card-border)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ marginTop: '10px', paddingLeft: '32px', borderLeft: '2px solid var(--card-border)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   
                   {/* Existing Subcategories */}
                   {(cat.subcategories || []).sort((a, b) => (a.order || 0) - (b.order || 0)).map(sub => (
@@ -421,7 +421,7 @@ const FinanceCategoriesManager = ({ user }) => {
                         background: draggingSubcatId === sub.id ? 'var(--item-bg)' : 'var(--solid-card-bg)', 
                         opacity: draggingSubcatId === sub.id ? 0.5 : 1,
                         borderTop: dragOverSubcatTargetId === sub.id ? '2px solid var(--accent-blue)' : '2px solid transparent',
-                        padding: '10px 16px', borderRadius: '12px', boxShadow: 'var(--shadow-soft)',
+                        padding: '6px 12px', borderRadius: '10px', boxShadow: 'var(--shadow-soft)',
                         transition: 'all 0.2s ease', cursor: 'grab'
                       }}
                     >
