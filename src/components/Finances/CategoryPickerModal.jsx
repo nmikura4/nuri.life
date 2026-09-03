@@ -217,13 +217,12 @@ const CategoryPickerModal = ({
                         onSelect(opt.id, opt);
                         onClose();
                       }}
-                      className="category-picker-card"
+                      className={`category-picker-card ${isSelected ? 'selected' : ''}`}
                       style={{
                         background: isSelected ? 'var(--item-bg)' : 'var(--card-bg)',
                         borderRadius: '11px',
                         padding: '7px 11px',
                         boxShadow: isSelected ? 'var(--shadow-inner)' : 'var(--shadow-soft)',
-                        border: isSelected ? '1px solid var(--accent-blue)' : '1px solid var(--card-border)',
                         cursor: 'pointer',
                         userSelect: 'none',
                         display: 'flex',

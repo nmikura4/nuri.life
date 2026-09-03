@@ -287,11 +287,28 @@ body.dark-theme .welcome-search-input::placeholder {
   }
 }
 
+.category-picker-card {
+  border: 1px solid rgba(190, 168, 159, 0.35) !important;
+}
+
+body.dark-theme .category-picker-card {
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.category-picker-card.selected {
+  border: 1.5px solid var(--accent-blue) !important;
+}
+
 .category-picker-card:hover {
   transform: translateY(-2px);
+  border-color: rgba(190, 168, 159, 0.55) !important;
   box-shadow: 
     8px 8px 16px var(--shadow-color),
     -8px -8px 16px var(--highlight-color) !important;
+}
+
+body.dark-theme .category-picker-card:hover {
+  border-color: rgba(255, 255, 255, 0.25) !important;
 }
 
 @media (max-width: 640px) {
