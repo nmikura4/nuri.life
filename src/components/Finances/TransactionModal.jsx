@@ -237,16 +237,18 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
                   alignItems: 'center', 
                   justifyContent: 'space-between',
                   cursor: 'pointer',
-                  padding: '10px 14px',
+                  padding: '6px 12px',
                   userSelect: 'none',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  minHeight: '38px',
+                  boxSizing: 'border-box'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
                   <div style={{
-                    width: '34px',
-                    height: '34px',
-                    borderRadius: '10px',
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '8px',
                     background: selectedCategory ? 'var(--item-bg)' : 'var(--item-bg-hover)',
                     color: formData.type === 'expense' ? 'var(--accent-coral)' : 'var(--accent-blue)',
                     display: 'flex',
@@ -255,16 +257,16 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
                     flexShrink: 0,
                     boxShadow: 'var(--shadow-soft)'
                   }}>
-                    <SelectedCatIcon size={18} />
+                    <SelectedCatIcon size={15} />
                   </div>
 
-                  <span style={{ fontWeight: 700, fontSize: '14px', color: selectedCategory ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                  <span style={{ fontWeight: 700, fontSize: '13.5px', color: selectedCategory ? 'var(--text-main)' : 'var(--text-muted)' }}>
                     {selectedCategory ? selectedCategory.name : 'Select a category...'}
                   </span>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)' }}>
-                  <ChevronDown size={16} />
+                  <ChevronDown size={15} />
                 </div>
               </div>
 
@@ -273,7 +275,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
               )}
 
               {subcategories.length > 0 && (
-                <div style={{ marginTop: '16px' }}>
+                <div style={{ marginTop: '12px' }}>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Subcategory (Optional)</label>
                   <div 
                     className="neu-input" 
@@ -283,16 +285,18 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
                       alignItems: 'center', 
                       justifyContent: 'space-between',
                       cursor: 'pointer',
-                      padding: '10px 14px',
+                      padding: '6px 12px',
                       userSelect: 'none',
-                      transition: 'all 0.2s ease'
+                      transition: 'all 0.2s ease',
+                      minHeight: '38px',
+                      boxSizing: 'border-box'
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
                       <div style={{
-                        width: '34px',
-                        height: '34px',
-                        borderRadius: '10px',
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '8px',
                         background: selectedSubcategory ? 'var(--item-bg)' : 'var(--item-bg-hover)',
                         color: 'var(--accent-blue)',
                         display: 'flex',
@@ -301,16 +305,16 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
                         flexShrink: 0,
                         boxShadow: 'var(--shadow-soft)'
                       }}>
-                        {SelectedSubcatIcon ? <SelectedSubcatIcon size={18} /> : <TagIcon size={18} />}
+                        {SelectedSubcatIcon ? <SelectedSubcatIcon size={15} /> : <TagIcon size={15} />}
                       </div>
 
-                      <span style={{ fontWeight: 600, fontSize: '14px', color: selectedSubcategory ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                      <span style={{ fontWeight: 600, fontSize: '13.5px', color: selectedSubcategory ? 'var(--text-main)' : 'var(--text-muted)' }}>
                         {selectedSubcategory ? selectedSubcategory.name : 'None (No subcategory)'}
                       </span>
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)' }}>
-                      <ChevronDown size={16} />
+                      <ChevronDown size={15} />
                     </div>
                   </div>
                 </div>
