@@ -70,9 +70,11 @@ const CategoryPickerModal = ({
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <h2 style={{ fontSize: '19px', fontWeight: 700, margin: 0 }}>
-                {title}
-              </h2>
+              {title ? (
+                <h2 style={{ fontSize: '19px', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>
+                  {title}
+                </h2>
+              ) : null}
               {showTypeSwitch && (
                 <div style={{ display: 'flex', gap: '4px', background: 'var(--item-bg)', padding: '4px', borderRadius: '20px' }}>
                   <button 

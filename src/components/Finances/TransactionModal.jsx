@@ -422,7 +422,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
         <CategoryPickerModal
           isOpen={isCategoryPickerOpen}
           onClose={() => setIsCategoryPickerOpen(false)}
-          title="Выберите категорию"
+          title=""
           options={filteredCategories}
           selectedId={formData.categoryId}
           type={formData.type}
@@ -435,7 +435,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
               subcategoryId: ''
             }));
           }}
-          placeholder="Поиск категории..."
+          placeholder="Поиск..."
         />
       )}
 
@@ -444,10 +444,10 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
         <CategoryPickerModal
           isOpen={isSubcategoryPickerOpen}
           onClose={() => setIsSubcategoryPickerOpen(false)}
-          title={`Подкатегории: ${selectedCategory?.name || ''}`}
+          title={selectedCategory?.name || ''}
           options={[
-            { id: '', name: 'Без подкатегории (None)', iconName: 'Tag' },
-            ...subcategories
+            ...subcategories,
+            { id: '', name: 'Без подкатегории', iconName: 'Tag' }
           ]}
           selectedId={formData.subcategoryId}
           type={formData.type}
@@ -458,7 +458,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
               subcategoryId: subId
             }));
           }}
-          placeholder="Поиск подкатегории..."
+          placeholder="Поиск..."
         />
       )}
     </div>
