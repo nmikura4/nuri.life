@@ -183,9 +183,9 @@ const CategoryPickerModal = ({
           <div 
             style={{ 
               overflowY: 'auto', 
-              paddingRight: '4px',
-              marginRight: '-4px',
-              maxHeight: 'calc(85vh - 170px)'
+              padding: '6px 6px 16px 6px',
+              margin: '-6px -6px 0 -6px',
+              maxHeight: 'calc(85vh - 160px)'
             }}
           >
             {filteredOptions.length === 0 ? (
@@ -202,7 +202,8 @@ const CategoryPickerModal = ({
                 style={{ 
                   display: 'grid', 
                   gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', 
-                  gap: '10px' 
+                  gap: '12px',
+                  paddingBottom: '10px'
                 }}
               >
                 {filteredOptions.map(opt => {
