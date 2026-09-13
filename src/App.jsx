@@ -541,7 +541,7 @@ function App() {
                       statuses={statuses}
                       onClearDate={() => setSelectedDate(null)}
                     />
-                    <div className="dashboard-right-col" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div className="dashboard-right-col">
                       <div className="calendar-widget-container">
                         {calendarType === 'weekly' ? (
                           <WeeklyCalendarWidget tasks={tasks} statuses={statuses} onAddTask={handleOpenNewTask} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('mini')} />
@@ -549,11 +549,13 @@ function App() {
                           <MiniCalendarWidget tasks={tasks} statuses={statuses} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('weekly')} />
                         )}
                       </div>
-                      <div className="progress-widget-container">
-                        <ProgressWidget tasks={tasks} statuses={statuses} />
-                      </div>
-                      <div className="pomodoro-widget-container">
-                        <PomodoroWidget />
+                      <div className="dashboard-sub-widgets">
+                        <div className="progress-widget-container">
+                          <ProgressWidget tasks={tasks} statuses={statuses} />
+                        </div>
+                        <div className="pomodoro-widget-container">
+                          <PomodoroWidget />
+                        </div>
                       </div>
                     </div>
                   </div>

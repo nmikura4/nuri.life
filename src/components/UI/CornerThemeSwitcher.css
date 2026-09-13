@@ -1,101 +1,52 @@
-.offset-track-container {
+.corner-theme-toggle {
   position: absolute;
-  top: -60px;
-  right: -60px;
-  width: 160px;
-  height: 160px;
+  top: 18px;
+  right: 20px;
   z-index: 1000;
-  pointer-events: none;
-}
-
-.offset-track-svg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.offset-track-path {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.4);
-  stroke-width: 24;
-  stroke-linecap: round;
-  pointer-events: stroke; /* clickable only on the thick line */
-  cursor: pointer;
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.05));
-  transition: stroke 0.3s;
-}
-
-body.dark-theme .offset-track-path {
-  stroke: rgba(0, 0, 0, 0.2);
-}
-
-.offset-thumb {
-  position: absolute;
-  top: 0; 
-  left: 0;
-  width: 24px; 
-  height: 24px;
-  background: var(--card-bg);
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  /* 
-    The motion path coordinates: 
-    Start at top straight: (10, 68) -> (48, 68)
-    Arc: to (92, 112) with radius 44
-    End at right straight: (92, 140)
-  */
-  offset-path: path('M 50 48 L 68 48 A 44 44 0 0 1 112 92 L 112 110');
-  offset-rotate: 0deg; /* Keep icon upright */
-  
-  /* offsetDistance is set inline based on state */
-  transition: offset-distance 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15), inset 0 2px 4px rgba(255,255,255,0.8);
-  
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  border: 1px solid var(--card-border);
+  background: var(--solid-card-bg);
+  box-shadow: var(--shadow-soft);
+  color: var(--text-main);
   cursor: pointer;
-  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease, background 0.3s ease, box-shadow 0.3s ease;
 }
 
-body.dark-theme .offset-thumb {
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.1);
+.corner-theme-toggle:hover {
+  transform: scale(1.08) rotate(15deg);
+  box-shadow: var(--shadow-card);
 }
 
-.offset-thumb-glow {
-  position: absolute;
-  top: 50%; 
-  left: 50%;
-  width: 20px; 
-  height: 20px;
-  background: radial-gradient(circle, rgba(255, 140, 0, 0.7) 0%, rgba(255, 140, 0, 0) 70%);
-  transform: translate(-50%, -50%);
-  z-index: 1;
-  transition: background 0.3s;
+.corner-theme-toggle:active {
+  transform: scale(0.94);
+  box-shadow: var(--shadow-inner);
 }
 
-body.dark-theme .offset-thumb-glow {
-  background: radial-gradient(circle, rgba(200, 220, 255, 0.6) 0%, rgba(200, 220, 255, 0) 70%);
+.theme-sun-icon {
+  color: #f59e0b;
+  filter: drop-shadow(0 2px 6px rgba(245, 158, 11, 0.4));
 }
 
-.offset-thumb-icon {
-  z-index: 2;
-  color: #FDB813; /* Желтое солнце */
-  opacity: 0.9;
-  transition: color 0.3s;
+.theme-moon-icon {
+  color: #38bdf8;
+  filter: drop-shadow(0 2px 6px rgba(56, 189, 248, 0.4));
 }
 
-body.dark-theme .offset-thumb-icon {
-  color: #FFFFFF; /* Белая луна */
+body.dark-theme .corner-theme-toggle {
+  background: var(--solid-card-bg);
+  border-color: var(--card-border);
 }
 
-@media (max-width: 900px) {
-  .offset-track-container {
-    top: -50px;
-    right: -15px;
-    transform-origin: top right;
-    transform: scale(0.65);
+@media (max-width: 650px) {
+  .corner-theme-toggle {
+    top: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
   }
 }

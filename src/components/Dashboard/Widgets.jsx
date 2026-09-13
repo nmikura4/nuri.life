@@ -57,7 +57,7 @@ export const ProgressWidget = ({ tasks = [], statuses = [] }) => {
   const doneTasks = filteredTasks.filter(t => t.status === doneStatus).length;
   const progress = totalTasks === 0 ? 0 : Math.round((doneTasks / totalTasks) * 100);
   
-  const radius = 50;
+  const radius = 46;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (progress / 100) * circumference;
 
@@ -72,10 +72,10 @@ export const ProgressWidget = ({ tasks = [], statuses = [] }) => {
   const handleMouseLeave = () => setTooltip({ visible: false, text: '', x: 0, y: 0 });
 
   return (
-    <GlassCard ref={widgetRef} className="responsive-card" style={{ padding: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '20px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: 600 }}>Progress</h3>
-        <div style={{ width: '100px' }}>
+    <GlassCard ref={widgetRef} className="responsive-card" style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', boxSizing: 'border-box' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '14px' }}>
+        <h3 style={{ fontSize: '15px', fontWeight: 600, margin: 0 }}>Progress</h3>
+        <div style={{ width: '90px' }}>
           <CustomSelect 
             value={timeframe} 
             onChange={setTimeframe}
@@ -93,16 +93,16 @@ export const ProgressWidget = ({ tasks = [], statuses = [] }) => {
         </div>
       </div>
       
-      <div style={{ position: 'relative', width: '140px', height: '140px' }}>
-        <svg width="140" height="140" style={{ transform: 'rotate(-90deg)' }}>
+      <div style={{ position: 'relative', width: '120px', height: '120px' }}>
+        <svg width="120" height="120" style={{ transform: 'rotate(-90deg)' }}>
           <circle 
-            cx="70" cy="70" r={radius} fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="16" 
+            cx="60" cy="60" r={radius} fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="10" 
             style={{ filter: 'drop-shadow(2px 4px 6px rgba(0,0,0,0.1))', cursor: 'pointer', pointerEvents: 'stroke' }} 
             onPointerMove={(e) => handleMouseMove(e, `Осталось: ${totalTasks - doneTasks}`)}
             onPointerLeave={handleMouseLeave}
           />
           <circle 
-            cx="70" cy="70" r={radius} fill="none" stroke="var(--accent-coral)" strokeWidth="16" 
+            cx="60" cy="60" r={radius} fill="none" stroke="var(--accent-coral)" strokeWidth="10" 
             strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" 
             style={{ transition: 'stroke-dashoffset 0.5s ease-in-out', cursor: 'pointer', pointerEvents: 'stroke' }}
             onPointerMove={(e) => handleMouseMove(e, `Сделано: ${doneTasks}`)}
@@ -114,7 +114,7 @@ export const ProgressWidget = ({ tasks = [], statuses = [] }) => {
         </div>
       </div>
       
-      <p style={{ marginTop: '20px', fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center' }}>
+      <p style={{ marginTop: '14px', fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>
         {totalTasks === 0 ? "No tasks for this period." : (doneTasks === totalTasks ? "All done! Great job!" : `${totalTasks - doneTasks} tasks remaining.`)}
       </p>
 
@@ -278,8 +278,7 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
         dateObj: d,
         day: d.toLocaleString('en-US', { weekday: 'short' }),
         date: d.getDate(),
-        active: isSelected,
-        offset: i === 3 ? '-2px' : (i === 2 || i === 4 ? '0px' : (i === 1 || i === 5 ? '5px' : '15px'))
+        active: isSelected
       };
     });
   };
@@ -315,28 +314,28 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
   return (
     <div className="responsive-card" style={{ 
       position: 'relative',
-      borderRadius: '32px',
-      padding: '30px', 
+      borderRadius: '28px',
+      padding: '20px 22px', 
       display: 'flex', 
       flexDirection: 'column', 
       width: '100%', 
       boxSizing: 'border-box', 
-      gap: '24px',
+      gap: '16px',
       overflow: 'hidden',
       boxShadow: 'var(--shadow-card)',
       background: 'var(--card-bg)',
       backdropFilter: 'blur(20px)',
       WebkitBackdropFilter: 'blur(20px)',
     }}>
-      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {/* Секция 1: Шапка (Top Bar) */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ 
             display: 'flex', 
             background: 'var(--item-bg)', 
-            borderRadius: '24px', 
+            borderRadius: '20px', 
             padding: '4px',
-            width: '180px',
+            width: '160px',
             maxWidth: '100%',
             boxShadow: 'var(--shadow-inner)'
           }}>
@@ -346,9 +345,9 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
               flex: 1,
               background: viewMode === 'weekly' ? 'var(--card-bg)' : 'transparent', 
               border: 'none', 
-              borderRadius: '20px', 
-              padding: '8px 0', 
-              fontSize: '13px', 
+              borderRadius: '16px', 
+              padding: '6px 0', 
+              fontSize: '12px', 
               fontWeight: viewMode === 'weekly' ? 700 : 600, 
               color: viewMode === 'weekly' ? 'var(--text-main)' : 'var(--text-muted)',
               boxShadow: viewMode === 'weekly' ? 'var(--shadow-soft)' : 'none',
@@ -361,9 +360,9 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
               flex: 1,
               background: viewMode === 'monthly' ? 'var(--card-bg)' : 'transparent', 
               border: 'none', 
-              borderRadius: '20px', 
-              padding: '8px 0', 
-              fontSize: '13px', 
+              borderRadius: '16px', 
+              padding: '6px 0', 
+              fontSize: '12px', 
               fontWeight: viewMode === 'monthly' ? 700 : 600, 
               color: viewMode === 'monthly' ? 'var(--text-main)' : 'var(--text-muted)',
               boxShadow: viewMode === 'monthly' ? 'var(--shadow-soft)' : 'none',
@@ -371,80 +370,90 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
               transition: 'all 0.2s'
             }}>Monthly</button>
           </div>
-          <button onClick={onToggleCalendar} className="neu-btn" style={{ height: '44px', padding: '0 14px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600 }}>
+          <button onClick={onToggleCalendar} className="neu-btn" style={{ height: '36px', padding: '0 12px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, borderRadius: '16px' }}>
             <Eye size={14} /> View
           </button>
         </div>
 
         {/* Секция 2: Заголовок даты (Header) */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
-          <h1 className="calendar-title" style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-main)', margin: 0, lineHeight: 1, letterSpacing: '-0.5px' }}>
+          <h1 className="calendar-title" style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-main)', margin: 0, lineHeight: 1, letterSpacing: '-0.5px' }}>
             {viewMode === 'weekly' ? currentMonthName : referenceDate.getFullYear()}
           </h1>
-          <h1 className="calendar-title" style={{ fontSize: '32px', fontWeight: 800, color: 'var(--accent-coral)', margin: 0, lineHeight: 1, flexShrink: 0 }}>
+          <h1 className="calendar-title" style={{ fontSize: '26px', fontWeight: 800, color: 'var(--accent-coral)', margin: 0, lineHeight: 1, flexShrink: 0 }}>
             {viewMode === 'weekly' ? currentDateNum : currentMonthName.substring(0,3)}
           </h1>
         </div>
 
         {/* Секция 3: Выбор дней/месяцев */}
-        <div style={{ position: 'relative', height: viewMode === 'weekly' ? '90px' : 'auto', display: 'flex', alignItems: 'center' }}>
+        <div style={{ position: 'relative', minHeight: viewMode === 'weekly' ? '70px' : 'auto', display: 'flex', alignItems: 'center' }}>
           {viewMode === 'weekly' ? (
-            <>
-              {/* Curved band SVG aligned behind dates */}
-              <svg viewBox="0 0 400 100" preserveAspectRatio="none" style={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, zIndex: 0, overflow: 'visible' }}>
-                <path d="M 0 65 Q 200 17 400 65 L 400 105 Q 200 57 0 105 Z" fill="var(--item-bg-hover)" />
-              </svg>
-
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(7, 1fr)', 
-                width: '100%',
-                position: 'relative',
-                zIndex: 1
-              }}>
-                {weekDays.map((item, idx) => (
-                  <div key={idx} onClick={() => handleDateClick(item.dateObj)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', transform: `translateY(${item.offset})`, cursor: 'pointer' }}>
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: item.active ? 'var(--text-main)' : 'var(--text-muted)' }}>{item.day}</span>
-                    <div style={{
-                      position: 'relative',
-                      width: item.active ? '36px' : '32px',
-                      height: item.active ? '36px' : '32px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: '50%',
-                      fontSize: '15px',
-                      fontWeight: 700,
-                      background: item.active ? 'linear-gradient(135deg, var(--accent-coral), var(--accent-pink))' : 'transparent',
-                      color: item.active ? '#fff' : 'var(--text-main)',
-                      boxShadow: item.active ? '4px 4px 12px rgba(0,0,0,0.3)' : 'none',
-                      marginTop: item.active ? '-2px' : '0'
-                    }}>
-                      {item.date}
-                      {(() => {
-                        const y2 = item.dateObj.getFullYear();
-                        const m2 = String(item.dateObj.getMonth() + 1).padStart(2, '0');
-                        const d2 = String(item.dateObj.getDate()).padStart(2, '0');
-                        const dateStr = `${y2}-${m2}-${d2}`;
-                        const hasTask = tasks.some(t => t.status !== doneStatus && isTaskOnDate(t, dateStr));
-                        return hasTask ? (
-                          <div style={{ position: 'absolute', bottom: '3px', width: '4px', height: '4px', borderRadius: '50%', background: item.active ? '#fff' : 'var(--accent-coral)' }}></div>
-                        ) : null;
-                      })()}
-                    </div>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(7, 1fr)', 
+              gap: '4px',
+              width: '100%',
+              background: 'var(--item-bg)',
+              borderRadius: '20px',
+              padding: '8px 4px',
+              boxShadow: 'var(--shadow-inner)'
+            }}>
+              {weekDays.map((item, idx) => (
+                <div 
+                  key={idx} 
+                  onClick={() => handleDateClick(item.dateObj)} 
+                  style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center', 
+                    gap: '4px', 
+                    cursor: 'pointer',
+                    padding: '4px 2px',
+                    borderRadius: '14px',
+                    background: item.active ? 'var(--card-bg)' : 'transparent',
+                    boxShadow: item.active ? 'var(--shadow-soft)' : 'none',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <span style={{ fontSize: '11px', fontWeight: 600, color: item.active ? 'var(--accent-coral)' : 'var(--text-muted)' }}>{item.day}</span>
+                  <div style={{
+                    position: 'relative',
+                    width: '30px',
+                    height: '30px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '50%',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    background: item.active ? 'linear-gradient(135deg, var(--accent-coral), var(--accent-pink))' : 'transparent',
+                    color: item.active ? '#fff' : 'var(--text-main)',
+                    boxShadow: item.active ? '0 3px 8px rgba(239, 154, 138, 0.4)' : 'none'
+                  }}>
+                    {item.date}
+                    {(() => {
+                      const y2 = item.dateObj.getFullYear();
+                      const m2 = String(item.dateObj.getMonth() + 1).padStart(2, '0');
+                      const d2 = String(item.dateObj.getDate()).padStart(2, '0');
+                      const dateStr = `${y2}-${m2}-${d2}`;
+                      const hasTask = tasks.some(t => t.status !== doneStatus && isTaskOnDate(t, dateStr));
+                      return hasTask ? (
+                        <div style={{ position: 'absolute', bottom: '2px', width: '4px', height: '4px', borderRadius: '50%', background: item.active ? '#fff' : 'var(--accent-coral)' }}></div>
+                      ) : null;
+                    })()}
                   </div>
-                ))}
-              </div>
-            </>
+                </div>
+              ))}
+            </div>
           ) : (
             <div style={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(4, 1fr)', 
-              gap: '12px',
+              gap: '10px',
               width: '100%',
               background: 'var(--item-bg)',
-              borderRadius: '24px',
-              padding: '16px',
+              borderRadius: '20px',
+              padding: '12px',
               boxShadow: 'var(--shadow-inner)'
             }}>
               {months.map((item, idx) => (
@@ -452,14 +461,14 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  padding: '12px 0',
-                  borderRadius: '16px',
-                  fontSize: '14px',
+                  padding: '8px 0',
+                  borderRadius: '12px',
+                  fontSize: '13px',
                   fontWeight: 600,
                   cursor: 'pointer',
                   background: item.active ? 'linear-gradient(135deg, var(--accent-coral), var(--accent-pink))' : 'transparent',
                   color: item.active ? '#fff' : 'var(--text-main)',
-                  boxShadow: item.active ? '4px 4px 12px rgba(0,0,0,0.3)' : 'none',
+                  boxShadow: item.active ? '2px 2px 8px rgba(0,0,0,0.2)' : 'none',
                   transition: 'all 0.2s'
                 }}>
                   {item.month}
@@ -467,21 +476,6 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
               ))}
             </div>
           )}
-        </div>
-
-        {/* Секция 4: Подвал (Footer) */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)' }}>
-          </div>
-          <button className="pill-btn primary" onClick={onAddTask} style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '6px', 
-            padding: '8px 16px',
-            fontSize: '13px'
-          }}>
-            <Plus size={16} /> New Task
-          </button>
         </div>
       </div>
     </div>
@@ -529,29 +523,29 @@ export const PomodoroWidget = () => {
   const progress = mode === 'work' ? ((25 * 60 - timeLeft) / (25 * 60)) * 100 : ((5 * 60 - timeLeft) / (5 * 60)) * 100;
 
   return (
-    <GlassCard style={{ padding: '24px', display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h3 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>Focus Timer</h3>
-        <span style={{ fontSize: '12px', fontWeight: 700, color: mode === 'work' ? 'var(--accent-coral)' : 'var(--accent-green)', background: mode === 'work' ? 'rgba(239, 154, 138, 0.2)' : 'rgba(164, 201, 229, 0.2)', padding: '4px 10px', borderRadius: '12px' }}>
+    <GlassCard className="responsive-card" style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+        <h3 style={{ fontSize: '15px', fontWeight: 600, margin: 0 }}>Focus Timer</h3>
+        <span style={{ fontSize: '11px', fontWeight: 700, color: mode === 'work' ? 'var(--accent-coral)' : 'var(--accent-green)', background: mode === 'work' ? 'rgba(239, 154, 138, 0.2)' : 'rgba(164, 201, 229, 0.2)', padding: '3px 8px', borderRadius: '10px' }}>
           {mode === 'work' ? 'WORK' : 'BREAK'}
         </span>
       </div>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ position: 'relative', width: '150px', height: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <svg width="150" height="150" style={{ position: 'absolute', top: 0, left: 0, transform: 'rotate(-90deg)' }}>
-            <circle cx="75" cy="75" r="70" fill="none" stroke="var(--card-border)" strokeWidth="8" />
-            <circle cx="75" cy="75" r="70" fill="none" stroke={mode === 'work' ? 'var(--accent-coral)' : 'var(--accent-green)'} strokeWidth="8" strokeDasharray="439.8" strokeDashoffset={439.8 - (progress / 100) * 439.8} style={{ transition: 'stroke-dashoffset 1s linear' }} strokeLinecap="round" />
+        <div style={{ position: 'relative', width: '120px', height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <svg width="120" height="120" style={{ position: 'absolute', top: 0, left: 0, transform: 'rotate(-90deg)' }}>
+            <circle cx="60" cy="60" r="54" fill="none" stroke="var(--card-border)" strokeWidth="8" />
+            <circle cx="60" cy="60" r="54" fill="none" stroke={mode === 'work' ? 'var(--accent-coral)' : 'var(--accent-green)'} strokeWidth="8" strokeDasharray="339.3" strokeDashoffset={339.3 - (progress / 100) * 339.3} style={{ transition: 'stroke-dashoffset 1s linear' }} strokeLinecap="round" />
           </svg>
-          <span style={{ fontSize: '36px', fontWeight: 700, color: 'var(--text-main)', zIndex: 1 }}>{timeString}</span>
+          <span style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-main)', zIndex: 1 }}>{timeString}</span>
         </div>
 
-        <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
-          <button onClick={toggleTimer} className="pill-btn primary" style={{ width: '50px', height: '50px', borderRadius: '50%', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: mode === 'work' ? 'var(--accent-coral)' : 'var(--accent-green)' }}>
-            {isRunning ? <Pause size={20} color="#fff" /> : <Play size={20} color="#fff" />}
+        <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+          <button onClick={toggleTimer} className="pill-btn primary" style={{ width: '42px', height: '42px', borderRadius: '50%', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: mode === 'work' ? 'var(--accent-coral)' : 'var(--accent-green)' }}>
+            {isRunning ? <Pause size={18} color="#fff" /> : <Play size={18} color="#fff" />}
           </button>
-          <button onClick={resetTimer} className="neu-icon-btn" style={{ width: '50px', height: '50px', borderRadius: '50%' }}>
-            <RotateCcw size={20} />
+          <button onClick={resetTimer} className="neu-icon-btn" style={{ width: '42px', height: '42px', borderRadius: '50%' }}>
+            <RotateCcw size={18} />
           </button>
         </div>
       </div>
