@@ -2,6 +2,13 @@ import React from 'react';
 import { useFinance } from './FinancesView';
 import { Plus, Search, Download } from 'lucide-react';
 import CustomMonthPicker from '../UI/CustomMonthPicker';
+import CustomSelect from '../UI/CustomSelect';
+
+const FILTER_OPTIONS = [
+  { value: 'all', label: 'All Types' },
+  { value: 'income', label: 'Income' },
+  { value: 'expense', label: 'Expense' }
+];
 
 const TransactionsToolbar = () => {
   const { transactions, categories, selectedMonth, setSelectedMonth, searchQuery, setSearchQuery, filterType, setFilterType, openNewTransaction } = useFinance();
@@ -56,17 +63,13 @@ const TransactionsToolbar = () => {
         />
       </div>
 
-      <div style={{ flexShrink: 0 }}>
-        <select 
-          className="neu-input"
+      <div style={{ flexShrink: 0, minWidth: '125px' }}>
+        <CustomSelect 
           value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-          style={{ padding: '8px 12px', fontSize: '14px', borderRadius: '15px' }}
-        >
-          <option value="all">All Types</option>
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
-        </select>
+          onChange={setFilterType}
+          options={FILTER_OPTIONS}
+          innerStyle={{ padding: '8px 14px', fontSize: '13px', borderRadius: '15px' }}
+        />
       </div>
 
       <div style={{ flexShrink: 0, display: 'flex', gap: '10px' }}>

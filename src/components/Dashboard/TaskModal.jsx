@@ -36,7 +36,7 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
   return (
     <div className="modal-overlay" onClick={handleBackdropClick}>
       <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '500px' }}>
-        <GlassCard className="responsive-card" style={{ padding: '30px', position: 'relative', background: 'var(--solid-card-bg)', maxHeight: '90vh', overflowY: 'auto' }}>
+        <GlassCard className="responsive-card" style={{ padding: '24px', position: 'relative', background: 'var(--solid-card-bg)', maxHeight: 'min(90vh, calc(100dvh - 30px))', overflowY: 'auto', overscrollBehavior: 'contain' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
             <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0 }}>
               Edit Subtask
@@ -364,7 +364,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
     <>
       <div className="modal-overlay" onClick={handleBackdropClick} role="dialog" aria-modal="true" aria-label={task ? 'Edit Task' : 'New Task'} style={{ zIndex }}>
         <div onClick={e => e.stopPropagation()} style={{ margin: 'auto', width: '100%', maxWidth: '500px' }}>
-          <GlassCard className="responsive-card" style={{ padding: '16px 30px 26px 30px', position: 'relative', background: 'var(--solid-card-bg)', maxHeight: '90vh', overflowY: 'auto' }}>
+          <GlassCard className="responsive-card" style={{ padding: '16px 24px 24px 24px', position: 'relative', background: 'var(--solid-card-bg)', maxHeight: 'min(90vh, calc(100dvh - 30px))', overflowY: 'auto', overscrollBehavior: 'contain' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
               <h2 style={{ fontSize: '22px', fontWeight: 700, margin: 0 }}>
                 {task ? 'Edit Task' : 'New Task'}

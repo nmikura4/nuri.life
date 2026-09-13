@@ -107,7 +107,7 @@ const NotesView = ({ tasks = [], notes = [], onSaveNote, onDeleteNote, onAddNote
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
           <div className="welcome-search-wrapper" style={{
             background: 'var(--item-bg-hover)', borderRadius: '16px', padding: '10px 16px',
-            display: 'flex', alignItems: 'center', gap: '10px', boxShadow: 'var(--shadow-inner)', flex: 1, minWidth: '250px'
+            display: 'flex', alignItems: 'center', gap: '10px', boxShadow: 'var(--shadow-inner)', flex: 1, minWidth: 'min(100%, 200px)'
           }}>
             <Search size={16} color="var(--text-muted)" />
             <input 

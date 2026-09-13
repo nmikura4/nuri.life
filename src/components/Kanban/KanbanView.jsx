@@ -139,7 +139,9 @@ const DroppableColumn = ({ col, tasks, isCollapsed, toggleCollapse, onEditTask, 
         transition: 'all 0.3s ease',
         transform: isOver ? 'scale(1.02)' : 'scale(1)',
         alignItems: isCollapsed ? 'center' : 'stretch',
-        cursor: isCollapsed ? 'pointer' : 'default'
+        cursor: isCollapsed ? 'pointer' : 'default',
+        scrollSnapAlign: 'start',
+        scrollMargin: '0 16px'
       }}
     >
       {isCollapsed ? (
@@ -253,7 +255,7 @@ const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, onReorderTask
     useSensor(TouchSensor, {
       activationConstraint: {
         delay: 250,
-        tolerance: 5,
+        tolerance: 10,
       },
     })
   );
@@ -341,7 +343,7 @@ const KanbanView = ({ tasks, onEditTask, setTasks, onStatusChange, onReorderTask
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
-      <div style={{ flex: 1, display: 'flex', gap: '20px', minHeight: 'calc(100dvh - 95px)', overflowX: 'auto', paddingBottom: '20px' }}>
+      <div style={{ flex: 1, display: 'flex', gap: '20px', minHeight: 'calc(100dvh - 95px)', overflowX: 'auto', paddingBottom: '20px', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}>
         {columns.map(col => {
           const columnTasks = boardTasks.filter(t => t.status === col.id);
           const isCollapsed = collapsedCols.includes(col.id);

@@ -88,10 +88,10 @@ const AuthView = () => {
     }}>
       <div style={{
         width: '100%',
-        maxWidth: '380px',
-        padding: '40px 30px',
+        maxWidth: '400px',
+        padding: 'clamp(24px, 5vw, 40px) clamp(18px, 4vw, 30px)',
         background: 'var(--solid-card-bg)',
-        borderRadius: '30px',
+        borderRadius: 'clamp(22px, 4vw, 30px)',
         boxShadow: 'var(--shadow-soft)', // Uses project's neumorphic shadow
         display: 'flex',
         flexDirection: 'column',

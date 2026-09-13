@@ -201,7 +201,7 @@ const CategoryPickerModal = ({
               <div 
                 style={{ 
                   display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', 
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 150px), 1fr))', 
                   gap: '8px',
                   paddingBottom: '8px'
                 }}

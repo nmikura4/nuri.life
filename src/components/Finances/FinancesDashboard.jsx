@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import GlassCard from '../UI/GlassCard';
 import { useFinance } from './FinancesView';
 import TransactionsToolbar from './TransactionsToolbar';
@@ -10,6 +10,16 @@ const FinancesDashboard = () => {
   const { transactions, allTransactions, allMonthTransactions, categories, currency, handleSaveTransaction } = useFinance();
   const [isProcessingRecurring, setIsProcessingRecurring] = useState(false);
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(null);
+  const [isSmallScreen, setIsSmallScreen] = useState(() => typeof window !== 'undefined' && window.innerWidth < 520);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 520);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [isTrendsCollapsed, setIsTrendsCollapsed] = useState(() => {
     return safeStorage.getItem('finances_trends_collapsed', false);
   });
@@ -305,37 +315,37 @@ const FinancesDashboard = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '30px' }}>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }}>
-          <GlassCard style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{ background: 'var(--accent-cream)', padding: '16px', borderRadius: '50%', boxShadow: 'var(--shadow-inner)' }}>
-              <Wallet size={28} color="var(--text-main)" />
+          <GlassCard style={{ padding: isSmallScreen ? '18px 16px' : '24px', display: 'flex', alignItems: 'center', gap: isSmallScreen ? '14px' : '20px' }}>
+            <div style={{ background: 'var(--accent-cream)', padding: isSmallScreen ? '12px' : '16px', borderRadius: '50%', boxShadow: 'var(--shadow-inner)', flexShrink: 0 }}>
+              <Wallet size={isSmallScreen ? 22 : 28} color="var(--text-main)" />
             </div>
-            <div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: 600, textTransform: 'uppercase' }}>Net Balance</p>
-              <h2 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-main)' }}>
+            <div style={{ minWidth: 0, overflow: 'hidden' }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>Net Balance</p>
+              <h2 style={{ fontSize: isSmallScreen ? '24px' : '32px', fontWeight: 700, color: 'var(--text-main)', wordBreak: 'break-word', lineHeight: 1.2 }}>
                 {formatMoney(stats.balance)}
               </h2>
             </div>
           </GlassCard>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', gap: '20px' }}>
-            <GlassCard style={{ padding: '20px' }}>
+            <GlassCard style={{ padding: isSmallScreen ? '14px 16px' : '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                 <div style={{ background: 'rgba(164, 201, 229, 0.2)', padding: '8px', borderRadius: '50%' }}>
                   <ArrowUpRight size={20} color="var(--accent-blue)" />
                 </div>
                 <p style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600 }}>INCOME</p>
               </div>
-              <h3 style={{ fontSize: '24px', fontWeight: 700 }}>{formatMoney(stats.income)}</h3>
+              <h3 style={{ fontSize: isSmallScreen ? '20px' : '24px', fontWeight: 700 }}>{formatMoney(stats.income)}</h3>
             </GlassCard>
 
-            <GlassCard style={{ padding: '20px' }}>
+            <GlassCard style={{ padding: isSmallScreen ? '14px 16px' : '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                 <div style={{ background: 'rgba(239, 154, 138, 0.2)', padding: '8px', borderRadius: '50%' }}>
                   <ArrowDownRight size={20} color="var(--accent-coral)" />
                 </div>
                 <p style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600 }}>EXPENSES</p>
               </div>
-              <h3 style={{ fontSize: '24px', fontWeight: 700 }}>{formatMoney(stats.expense)}</h3>
+              <h3 style={{ fontSize: isSmallScreen ? '20px' : '24px', fontWeight: 700 }}>{formatMoney(stats.expense)}</h3>
             </GlassCard>
           </div>
 
@@ -344,19 +354,19 @@ const FinancesDashboard = () => {
           </div>
         </div>
 
-        <GlassCard style={{ padding: '20px', minHeight: '300px', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '20px' }}>Expenses by Category</h3>
+        <GlassCard style={{ padding: isSmallScreen ? '16px 12px' : '20px', minHeight: '300px', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '20px', padding: isSmallScreen ? '0 6px' : '0' }}>Expenses by Category</h3>
           {stats.chartData.length > 0 ? (
-            <div style={{ flex: 1, width: '100%', minHeight: '250px', minWidth: 0 }}>
-              <ResponsiveContainer width="100%" height={250}>
+            <div style={{ flex: 1, width: '100%', minHeight: isSmallScreen ? '260px' : '250px', minWidth: 0 }}>
+              <ResponsiveContainer width="100%" height={isSmallScreen ? 260 : 250}>
                 <PieChart>
                   <Pie
                     data={stats.chartData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    paddingAngle={5}
+                    innerRadius={isSmallScreen ? 38 : 60}
+                    outerRadius={isSmallScreen ? 64 : 90}
+                    paddingAngle={4}
                     dataKey="value"
                     stroke="none"
                     activeIndex={activeCategoryIndex !== null ? activeCategoryIndex : undefined}
@@ -394,7 +404,7 @@ const FinancesDashboard = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))', gap: '30px' }}>
         
         {/* Trend Chart */}
-        <GlassCard style={{ padding: '24px', display: 'flex', flexDirection: 'column', height: isTrendsCollapsed ? 'auto' : '350px', minWidth: 0, transition: 'all 0.3s ease' }}>
+        <GlassCard style={{ padding: isSmallScreen ? '16px' : '24px', display: 'flex', flexDirection: 'column', height: isTrendsCollapsed ? 'auto' : (isSmallScreen ? '290px' : '350px'), minWidth: 0, transition: 'all 0.3s ease' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isTrendsCollapsed ? '0' : '20px', flexWrap: 'wrap', gap: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>
@@ -453,9 +463,9 @@ const FinancesDashboard = () => {
           </div>
 
           {!isTrendsCollapsed && (
-            <div style={{ flex: 1, width: '100%', minHeight: '240px', minWidth: 0 }}>
+            <div style={{ flex: 1, width: '100%', minHeight: isSmallScreen ? '200px' : '240px', minWidth: 0 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={trendsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <BarChart data={trendsData} margin={{ top: 10, right: 10, left: isSmallScreen ? -25 : -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--card-border)" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} dy={10} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(0)}k` : val} />

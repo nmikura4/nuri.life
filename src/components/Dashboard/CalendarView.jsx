@@ -307,6 +307,27 @@ const CalendarView = ({ tasks = [], statuses = [], onEditTask, onAddTask, startH
                       </div>
                     ))}
                   </div>
+
+                  {/* Mobile Tasks Dots Indicator */}
+                  {dayTasks.length > 0 && (
+                    <div className="calendar-tasks-dots-mobile" style={{ display: 'none' }}>
+                      {dayTasks.slice(0, 3).map((task, dotIdx) => (
+                        <span 
+                          key={dotIdx} 
+                          style={{
+                            width: '5px',
+                            height: '5px',
+                            borderRadius: '50%',
+                            background: task.priority === 'high' ? 'var(--accent-coral)' : (task.priority === 'medium' ? 'var(--accent-peach)' : 'var(--accent-blue)'),
+                            display: 'inline-block'
+                          }} 
+                        />
+                      ))}
+                      {dayTasks.length > 3 && (
+                        <span style={{ fontSize: '8px', fontWeight: 700, color: 'var(--text-muted)', lineHeight: 1 }}>+</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}

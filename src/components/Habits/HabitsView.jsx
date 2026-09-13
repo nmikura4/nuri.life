@@ -160,23 +160,23 @@ const HabitsView = () => {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
       {/* Header */}
-      <GlassCard className="welcome-card-header" style={{ padding: '24px 30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <GlassCard className="welcome-card-header" style={{ padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h1 style={{ fontSize: '28px', fontWeight: 700, margin: '0 0 8px 0', color: 'var(--text-main)' }}>Habits Tracker</h1>
-          <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '14px' }}>
+          <h1 style={{ fontSize: '26px', fontWeight: 700, margin: '0 0 6px 0', color: 'var(--text-main)' }}>Habits Tracker</h1>
+          <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '13px' }}>
             Build good habits and track your daily progress.
           </p>
         </div>
         
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <button 
             className="pill-btn secondary" 
             onClick={() => setShowArchived(!showArchived)}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', fontSize: '13px' }}
           >
             {showArchived ? 'Hide Archived' : 'Show Archived'}
           </button>
-          <button className="pill-btn primary" onClick={handleOpenNewHabit} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button className="pill-btn primary" onClick={handleOpenNewHabit} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', fontSize: '13px' }}>
             <Plus size={18} /> New Habit
           </button>
         </div>

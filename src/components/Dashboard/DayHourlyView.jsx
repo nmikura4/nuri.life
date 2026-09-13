@@ -329,7 +329,7 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
           flexDirection: 'column', 
           position: 'relative', 
           overflowY: 'auto',
-          maxHeight: 'calc(100vh - 210px)',
+          maxHeight: 'calc(100dvh - 240px)',
           borderRadius: '24px'
         }}
       >
@@ -346,7 +346,7 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
                 className="hour-slot-row"
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '65px 1fr',
+                  gridTemplateColumns: 'var(--hourly-time-col-width, 65px) 1fr',
                   minHeight: `${SLOT_HEIGHT * 4}px`,
                   borderTop: '1px solid var(--card-border)',
                   position: 'relative',

@@ -118,30 +118,34 @@ export const ListManager = ({ title, items, setItems, onRename, onDelete, placeh
                   ) : (
                     <>
                       <span style={{ fontWeight: 600, fontSize: '14px' }}>{item}</span>
-                      <div style={{ display: 'flex', gap: '2px' }}>
+                      <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
                         <button 
                           onClick={() => moveItem(index, 'up')}
                           disabled={index === 0}
-                          style={{ background: 'none', border: 'none', color: index === 0 ? 'transparent' : 'var(--text-muted)', cursor: index === 0 ? 'default' : 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}
+                          style={{ background: 'none', border: 'none', color: index === 0 ? 'transparent' : 'var(--text-muted)', cursor: index === 0 ? 'default' : 'pointer', padding: '6px', minWidth: '30px', minHeight: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          title="Move up"
                         >
                           <ArrowUp size={15} />
                         </button>
                         <button 
                           onClick={() => moveItem(index, 'down')}
                           disabled={index === items.length - 1}
-                          style={{ background: 'none', border: 'none', color: index === items.length - 1 ? 'transparent' : 'var(--text-muted)', cursor: index === items.length - 1 ? 'default' : 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}
+                          style={{ background: 'none', border: 'none', color: index === items.length - 1 ? 'transparent' : 'var(--text-muted)', cursor: index === items.length - 1 ? 'default' : 'pointer', padding: '6px', minWidth: '30px', minHeight: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          title="Move down"
                         >
                           <ArrowDown size={15} />
                         </button>
                         <button 
                           onClick={() => startEdit(item)}
-                          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}
+                          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px', minWidth: '30px', minHeight: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          title="Edit"
                         >
                           <Edit2 size={15} />
                         </button>
                         <button 
                           onClick={async () => { if (await confirm(`Delete "${item}"?`)) onDelete(item); }}
-                          style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}
+                          style={{ background: 'none', border: 'none', color: 'var(--accent-coral)', cursor: 'pointer', padding: '6px', minWidth: '30px', minHeight: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          title="Delete"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -203,26 +207,26 @@ const SettingsView = ({
   const [activeSettingsTab, setActiveSettingsTab] = useState('general');
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
-      <GlassCard className="responsive-card" style={{ padding: '40px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '20px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 700 }}>Settings</h1>
-          <div style={{ display: 'flex', gap: '10px', background: 'var(--item-bg)', padding: '5px', borderRadius: '20px', boxShadow: 'var(--shadow-inner)' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <GlassCard className="responsive-card" style={{ padding: 'clamp(20px, 3.5vw, 40px)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+          <h1 style={{ fontSize: '26px', fontWeight: 700 }}>Settings</h1>
+          <div style={{ display: 'flex', gap: '6px', background: 'var(--item-bg)', padding: '4px', borderRadius: '20px', boxShadow: 'var(--shadow-inner)', flexWrap: 'wrap' }}>
             <button 
               onClick={() => setActiveSettingsTab('general')}
-              style={{ padding: '8px 16px', borderRadius: '16px', border: 'none', cursor: 'pointer', background: activeSettingsTab === 'general' ? 'var(--solid-card-bg)' : 'transparent', fontWeight: activeSettingsTab === 'general' ? 600 : 400, color: 'var(--text-main)', boxShadow: activeSettingsTab === 'general' ? 'var(--shadow-card)' : 'none', transition: 'all 0.3s ease' }}
+              style={{ padding: '7px 14px', borderRadius: '16px', border: 'none', cursor: 'pointer', background: activeSettingsTab === 'general' ? 'var(--solid-card-bg)' : 'transparent', fontWeight: activeSettingsTab === 'general' ? 600 : 400, color: 'var(--text-main)', boxShadow: activeSettingsTab === 'general' ? 'var(--shadow-card)' : 'none', transition: 'all 0.3s ease', fontSize: '13px' }}
             >
               General
             </button>
             <button 
               onClick={() => setActiveSettingsTab('tasks')}
-              style={{ padding: '8px 16px', borderRadius: '16px', border: 'none', cursor: 'pointer', background: activeSettingsTab === 'tasks' ? 'var(--solid-card-bg)' : 'transparent', fontWeight: activeSettingsTab === 'tasks' ? 600 : 400, color: 'var(--text-main)', boxShadow: activeSettingsTab === 'tasks' ? 'var(--shadow-card)' : 'none', transition: 'all 0.3s ease' }}
+              style={{ padding: '7px 14px', borderRadius: '16px', border: 'none', cursor: 'pointer', background: activeSettingsTab === 'tasks' ? 'var(--solid-card-bg)' : 'transparent', fontWeight: activeSettingsTab === 'tasks' ? 600 : 400, color: 'var(--text-main)', boxShadow: activeSettingsTab === 'tasks' ? 'var(--shadow-card)' : 'none', transition: 'all 0.3s ease', fontSize: '13px' }}
             >
               Tasks
             </button>
             <button 
               onClick={() => setActiveSettingsTab('finances')}
-              style={{ padding: '8px 16px', borderRadius: '16px', border: 'none', cursor: 'pointer', background: activeSettingsTab === 'finances' ? 'var(--solid-card-bg)' : 'transparent', fontWeight: activeSettingsTab === 'finances' ? 600 : 400, color: 'var(--text-main)', boxShadow: activeSettingsTab === 'finances' ? 'var(--shadow-card)' : 'none', transition: 'all 0.3s ease' }}
+              style={{ padding: '7px 14px', borderRadius: '16px', border: 'none', cursor: 'pointer', background: activeSettingsTab === 'finances' ? 'var(--solid-card-bg)' : 'transparent', fontWeight: activeSettingsTab === 'finances' ? 600 : 400, color: 'var(--text-main)', boxShadow: activeSettingsTab === 'finances' ? 'var(--shadow-card)' : 'none', transition: 'all 0.3s ease', fontSize: '13px' }}
             >
               Finances
             </button>
@@ -230,9 +234,9 @@ const SettingsView = ({
         </div>
         
         {activeSettingsTab === 'general' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
-            <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
+            <div style={{ background: 'var(--item-bg)', padding: 'clamp(16px, 2.5vw, 24px)', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
               <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '20px' }}>Profile Avatar</h2>
               <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                 {avatarUrl ? (

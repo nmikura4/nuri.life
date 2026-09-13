@@ -25,17 +25,101 @@ const TransactionsTable = () => {
           <p>No transactions found for this period.</p>
         </div>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--card-border)', color: 'var(--text-muted)', fontSize: '14px' }}>
-              <th style={{ padding: '12px 16px', fontWeight: 600 }}>Date</th>
-              <th style={{ padding: '12px 16px', fontWeight: 600 }}>Category</th>
-              <th style={{ padding: '12px 16px', fontWeight: 600 }}>Details</th>
-              <th style={{ padding: '12px 16px', fontWeight: 600, textAlign: 'right' }}>Amount</th>
-              <th style={{ padding: '12px 16px', fontWeight: 600, textAlign: 'center' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+        <>
+          {/* Desktop Table View */}
+          <table className="transactions-table-desktop" style={{ borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--card-border)', color: 'var(--text-muted)', fontSize: '14px' }}>
+                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Date</th>
+                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Category</th>
+                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Details</th>
+                <th style={{ padding: '12px 16px', fontWeight: 600, textAlign: 'right' }}>Amount</th>
+                <th style={{ padding: '12px 16px', fontWeight: 600, textAlign: 'center' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transactions.map(t => {
+                const cat = categories.find(c => c.id === t.categoryId);
+                const subcat = cat?.subcategories?.find(s => s.id === t.subcategoryId);
+                
+                const CatIcon = ICON_OPTIONS.find(i => i.name === cat?.iconName)?.icon || TagIcon;
+                const SubcatIcon = subcat ? (ICON_OPTIONS.find(i => i.name === subcat.iconName)?.icon || TagIcon) : null;
+                
+                let formattedDate = 'Invalid Date';
+                if (t.date) {
+                  const dateObj = new Date(t.date.includes('T') ? t.date : t.date + 'T12:00:00');
+                  if (!isNaN(dateObj.getTime())) {
+                    formattedDate = dateObj.toLocaleDateString('en-GB', {
+                      day: 'numeric', month: 'short', year: 'numeric'
+                    });
+                  }
+                }
+
+                return (
+                  <tr key={t.id} className="transaction-row" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', transition: 'background 0.2s' }}>
+                    <td style={{ padding: '10px 16px' }}>
+                      <div style={{ fontWeight: 600, fontSize: '15px' }}>{formattedDate}</div>
+                    </td>
+                    <td style={{ padding: '10px 16px' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--item-bg)', padding: '6px 12px', borderRadius: '12px', fontSize: '13px', fontWeight: 600 }}>
+                        {subcat ? (
+                          <>
+                            <SubcatIcon size={14} color={t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)'} />
+                            {cat?.name} → {subcat.name}
+                          </>
+                        ) : (
+                          <>
+                            <CatIcon size={14} color={t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)'} />
+                            {cat?.name || 'Uncategorized'}
+                          </>
+                        )}
+                      </div>
+                    </td>
+                    <td style={{ padding: '10px 16px', maxWidth: '300px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ fontWeight: 600, fontSize: '14px' }}>
+                          {t.counterparty} {t.person && `• ${t.person}`}
+                        </div>
+                        {t.comment && <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{t.comment}</div>}
+                        {t.tags && t.tags.length > 0 && (
+                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
+                            {t.tags.map(tag => (
+                              <span key={tag} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', background: 'var(--card-bg)', padding: '2px 8px', borderRadius: '8px', color: 'var(--text-muted)' }}>
+                                <TagIcon size={10} /> {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {t.file && t.file.url && (
+                          <div style={{ marginTop: '4px' }}>
+                            <a href={t.file.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--accent-blue)', textDecoration: 'none', background: 'var(--item-bg)', padding: '4px 8px', borderRadius: '8px' }}>
+                              <Paperclip size={12} /> {t.file.name || 'Attachment'}
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td style={{ padding: '10px 16px', textAlign: 'right', fontWeight: 600, fontSize: '14px', color: t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)' }}>
+                      {t.type === 'income' ? '+' : '-'}{formatMoney(Number(t.amount))}
+                    </td>
+                    <td style={{ padding: '10px 16px', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                        <button onClick={() => openEditTransaction(t)} style={{ background: 'var(--item-bg)', border: 'none', padding: '8px', borderRadius: '12px', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                          <Edit2 size={16} />
+                        </button>
+                        <button onClick={() => handleDeleteTransaction(t.id)} style={{ background: 'var(--item-bg)', border: 'none', padding: '8px', borderRadius: '12px', cursor: 'pointer', color: 'var(--accent-coral)' }}>
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+
+          {/* Mobile Cards View */}
+          <div className="transactions-cards-mobile">
             {transactions.map(t => {
               const cat = categories.find(c => c.id === t.categoryId);
               const subcat = cat?.subcategories?.find(s => s.id === t.subcategoryId);
@@ -54,67 +138,124 @@ const TransactionsTable = () => {
               }
 
               return (
-                <tr key={t.id} className="transaction-row" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', transition: 'background 0.2s' }}>
-                  <td style={{ padding: '10px 16px' }}>
-                    <div style={{ fontWeight: 600, fontSize: '15px' }}>{formattedDate}</div>
-                  </td>
-                  <td style={{ padding: '10px 16px' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--item-bg)', padding: '6px 12px', borderRadius: '12px', fontSize: '13px', fontWeight: 600 }}>
+                <div 
+                  key={t.id}
+                  style={{
+                    background: 'var(--item-bg)',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                    boxShadow: 'var(--shadow-soft)',
+                    border: '1px solid var(--card-border)'
+                  }}
+                >
+                  {/* Top Row: Category + Amount */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--card-bg)', padding: '6px 12px', borderRadius: '12px', fontSize: '13px', fontWeight: 600 }}>
                       {subcat ? (
                         <>
                           <SubcatIcon size={14} color={t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)'} />
-                          {cat?.name} → {subcat.name}
+                          <span style={{ maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {cat?.name} → {subcat.name}
+                          </span>
                         </>
                       ) : (
                         <>
                           <CatIcon size={14} color={t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)'} />
-                          {cat?.name || 'Uncategorized'}
+                          <span style={{ maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {cat?.name || 'Uncategorized'}
+                          </span>
                         </>
                       )}
                     </div>
-                  </td>
-                  <td style={{ padding: '10px 16px', maxWidth: '300px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <div style={{ fontWeight: 600, fontSize: '14px' }}>
-                        {t.counterparty} {t.person && `• ${t.person}`}
+
+                    <div style={{ fontWeight: 700, fontSize: '16px', color: t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)' }}>
+                      {t.type === 'income' ? '+' : '-'}{formatMoney(Number(t.amount))}
+                    </div>
+                  </div>
+
+                  {/* Middle: Details */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>
+                      <span>{formattedDate}</span>
+                      {(t.counterparty || t.person) && (
+                        <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>
+                          {t.counterparty} {t.person && `• ${t.person}`}
+                        </span>
+                      )}
+                    </div>
+
+                    {t.comment && (
+                      <div style={{ fontSize: '13px', color: 'var(--text-main)', marginTop: '2px' }}>
+                        {t.comment}
                       </div>
-                      {t.comment && <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{t.comment}</div>}
-                      {t.tags && t.tags.length > 0 && (
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
-                          {t.tags.map(tag => (
-                            <span key={tag} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', background: 'var(--card-bg)', padding: '2px 8px', borderRadius: '8px', color: 'var(--text-muted)' }}>
-                              <TagIcon size={10} /> {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      {t.file && t.file.url && (
-                        <div style={{ marginTop: '4px' }}>
-                          <a href={t.file.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--accent-blue)', textDecoration: 'none', background: 'var(--item-bg)', padding: '4px 8px', borderRadius: '8px' }}>
-                            <Paperclip size={12} /> {t.file.name || 'Attachment'}
-                          </a>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td style={{ padding: '10px 16px', textAlign: 'right', fontWeight: 600, fontSize: '14px', color: t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)' }}>
-                    {t.type === 'income' ? '+' : '-'}{formatMoney(Number(t.amount))}
-                  </td>
-                  <td style={{ padding: '10px 16px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                      <button onClick={() => openEditTransaction(t)} style={{ background: 'var(--item-bg)', border: 'none', padding: '8px', borderRadius: '12px', cursor: 'pointer', color: 'var(--text-muted)' }}>
-                        <Edit2 size={16} />
-                      </button>
-                      <button onClick={() => handleDeleteTransaction(t.id)} style={{ background: 'var(--item-bg)', border: 'none', padding: '8px', borderRadius: '12px', cursor: 'pointer', color: 'var(--accent-coral)' }}>
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                    )}
+
+                    {t.tags && t.tags.length > 0 && (
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px' }}>
+                        {t.tags.map(tag => (
+                          <span key={tag} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', background: 'var(--card-bg)', padding: '2px 8px', borderRadius: '8px', color: 'var(--text-muted)' }}>
+                            <TagIcon size={10} /> {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {t.file && t.file.url && (
+                      <div style={{ marginTop: '6px' }}>
+                        <a href={t.file.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--accent-blue)', textDecoration: 'none', background: 'var(--card-bg)', padding: '4px 10px', borderRadius: '8px' }}>
+                          <Paperclip size={12} /> {t.file.name || 'Attachment'}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bottom: Action Buttons */}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', paddingTop: '6px', borderTop: '1px solid var(--card-border)' }}>
+                    <button 
+                      onClick={() => openEditTransaction(t)} 
+                      style={{ 
+                        background: 'var(--card-bg)', 
+                        border: 'none', 
+                        padding: '8px 14px', 
+                        borderRadius: '12px', 
+                        cursor: 'pointer', 
+                        color: 'var(--text-main)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '12px',
+                        fontWeight: 600
+                      }}
+                    >
+                      <Edit2 size={14} /> Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteTransaction(t.id)} 
+                      style={{ 
+                        background: 'var(--card-bg)', 
+                        border: 'none', 
+                        padding: '8px 14px', 
+                        borderRadius: '12px', 
+                        cursor: 'pointer', 
+                        color: 'var(--accent-coral)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '12px',
+                        fontWeight: 600
+                      }}
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </div>
+                </div>
               );
             })}
-          </tbody>
-        </table>
+          </div>
+        </>
       )}
     </GlassCard>
   );

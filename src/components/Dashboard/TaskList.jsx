@@ -40,30 +40,24 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
           </div>
         ) : (
           tasks.map(task => (
-              <div className="task-row" key={task.id} 
+            <div className="task-row" key={task.id} 
               onClick={() => onEditTask(task)}
               style={{
-                background: 'var(--item-bg)',
-                borderRadius: '16px',
-                padding: '14px 20px',
+                padding: '16px 22px',
                 display: 'flex',
                 alignItems: 'flex-start',
                 justifyContent: 'space-between',
-                boxShadow: 'var(--shadow-soft)',
-                transition: 'transform 0.3s ease',
                 cursor: 'pointer',
                 gap: '16px'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
             >
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', flex: 1, minWidth: 0 }}>
                 <div 
                   onClick={(e) => { e.stopPropagation(); onToggleStatus(task.id, e); }}
                   style={{
-                    width: '24px', height: '24px', minWidth: '24px', minHeight: '24px', borderRadius: '6px',
+                    width: '24px', height: '24px', minWidth: '24px', minHeight: '24px', borderRadius: '8px',
                     border: '2px solid var(--accent-blue)',
-                    background: isDone(task) ? 'var(--accent-blue)' : 'transparent',
+                    background: isDone(task) ? 'var(--accent-blue)' : 'rgba(255, 255, 255, 0.6)',
                     boxShadow: 'var(--shadow-inner)',
                     cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff',
@@ -130,7 +124,7 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
                     today.setHours(0, 0, 0, 0);
                     const isOverdue = deadlineDate < today;
                     return (
-                      <span style={{ fontSize: '12px', fontWeight: 600, color: isOverdue ? 'var(--accent-coral)' : 'var(--text-muted)', lineHeight: '20px', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--accent-coral)', lineHeight: '20px', whiteSpace: 'nowrap' }}>
                         {formatDisplayDate(task.deadline)}{task.deadlineTime ? ` ${task.deadlineTime}` : ''}
                       </span>
                     );
