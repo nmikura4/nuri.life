@@ -265,11 +265,16 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
     tasks.filter(t => t.deadline && t.status !== doneStatus).map(t => t.deadline)
   );
 
+  const [noteText, setNoteText] = useState('');
+
   const getDaysOfWeek = () => {
     const date = new Date(referenceDate);
     const startOfWindow = new Date(date);
     startOfWindow.setDate(date.getDate() - 3);
     
+    // Parabolic wave offsets: center rises by -13px, adjacent by -9px and -4px
+    const offsets = ['0px', '-4px', '-9px', '-13px', '-9px', '-4px', '0px'];
+
     return Array.from({ length: 7 }).map((_, i) => {
       const d = new Date(startOfWindow);
       d.setDate(d.getDate() + i);
@@ -278,7 +283,8 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
         dateObj: d,
         day: d.toLocaleString('en-US', { weekday: 'short' }),
         date: d.getDate(),
-        active: isSelected
+        active: isSelected,
+        offset: offsets[i]
       };
     });
   };
@@ -315,19 +321,19 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
     <div className="responsive-card" style={{ 
       position: 'relative',
       borderRadius: '28px',
-      padding: '20px 22px', 
+      padding: '18px 20px', 
       display: 'flex', 
       flexDirection: 'column', 
       width: '100%', 
       boxSizing: 'border-box', 
-      gap: '16px',
+      gap: '14px',
       overflow: 'hidden',
       boxShadow: 'var(--shadow-card)',
       background: 'var(--card-bg)',
       backdropFilter: 'blur(20px)',
       WebkitBackdropFilter: 'blur(20px)',
     }}>
-      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {/* Секция 1: Шапка (Top Bar) */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ 
@@ -370,81 +376,84 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
               transition: 'all 0.2s'
             }}>Monthly</button>
           </div>
-          <button onClick={onToggleCalendar} className="neu-btn" style={{ height: '36px', padding: '0 12px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, borderRadius: '16px' }}>
+          <button onClick={onToggleCalendar} className="neu-btn" style={{ height: '34px', padding: '0 12px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, borderRadius: '16px' }}>
             <Eye size={14} /> View
           </button>
         </div>
 
         {/* Секция 2: Заголовок даты (Header) */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
-          <h1 className="calendar-title" style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-main)', margin: 0, lineHeight: 1, letterSpacing: '-0.5px' }}>
+          <h1 className="calendar-title" style={{ fontSize: 'clamp(22px, 2.2vw, 28px)', fontWeight: 800, color: 'var(--text-main)', margin: 0, lineHeight: 1, letterSpacing: '-0.5px' }}>
             {viewMode === 'weekly' ? currentMonthName : referenceDate.getFullYear()}
           </h1>
-          <h1 className="calendar-title" style={{ fontSize: '26px', fontWeight: 800, color: 'var(--accent-coral)', margin: 0, lineHeight: 1, flexShrink: 0 }}>
+          <h1 className="calendar-title" style={{ fontSize: 'clamp(22px, 2.2vw, 28px)', fontWeight: 800, color: 'var(--accent-coral)', margin: 0, lineHeight: 1, flexShrink: 0 }}>
             {viewMode === 'weekly' ? currentDateNum : currentMonthName.substring(0,3)}
           </h1>
         </div>
 
-        {/* Секция 3: Выбор дней/месяцев */}
-        <div style={{ position: 'relative', minHeight: viewMode === 'weekly' ? '70px' : 'auto', display: 'flex', alignItems: 'center' }}>
+        {/* Секция 3: Выбор дней/месяцев с дугой волны */}
+        <div style={{ position: 'relative', minHeight: viewMode === 'weekly' ? '84px' : 'auto', display: 'flex', alignItems: 'center' }}>
           {viewMode === 'weekly' ? (
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(7, 1fr)', 
-              gap: '4px',
-              width: '100%',
-              background: 'var(--item-bg)',
-              borderRadius: '20px',
-              padding: '8px 4px',
-              boxShadow: 'var(--shadow-inner)'
-            }}>
-              {weekDays.map((item, idx) => (
-                <div 
-                  key={idx} 
-                  onClick={() => handleDateClick(item.dateObj)} 
-                  style={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    alignItems: 'center', 
-                    gap: '4px', 
-                    cursor: 'pointer',
-                    padding: '4px 2px',
-                    borderRadius: '14px',
-                    background: item.active ? 'var(--card-bg)' : 'transparent',
-                    boxShadow: item.active ? 'var(--shadow-soft)' : 'none',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <span style={{ fontSize: '11px', fontWeight: 600, color: item.active ? 'var(--accent-coral)' : 'var(--text-muted)' }}>{item.day}</span>
-                  <div style={{
-                    position: 'relative',
-                    width: '30px',
-                    height: '30px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '50%',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    background: item.active ? 'linear-gradient(135deg, var(--accent-coral), var(--accent-pink))' : 'transparent',
-                    color: item.active ? '#fff' : 'var(--text-main)',
-                    boxShadow: item.active ? '0 3px 8px rgba(239, 154, 138, 0.4)' : 'none'
-                  }}>
-                    {item.date}
-                    {(() => {
-                      const y2 = item.dateObj.getFullYear();
-                      const m2 = String(item.dateObj.getMonth() + 1).padStart(2, '0');
-                      const d2 = String(item.dateObj.getDate()).padStart(2, '0');
-                      const dateStr = `${y2}-${m2}-${d2}`;
-                      const hasTask = tasks.some(t => t.status !== doneStatus && isTaskOnDate(t, dateStr));
-                      return hasTask ? (
-                        <div style={{ position: 'absolute', bottom: '2px', width: '4px', height: '4px', borderRadius: '50%', background: item.active ? '#fff' : 'var(--accent-coral)' }}></div>
-                      ) : null;
-                    })()}
+            <>
+              {/* Dynamic curved wave SVG */}
+              <svg viewBox="0 0 400 90" preserveAspectRatio="none" style={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, zIndex: 0, pointerEvents: 'none' }}>
+                <path d="M 0 52 Q 200 32 400 52 L 400 82 Q 200 62 0 82 Z" fill="var(--item-bg-hover)" />
+              </svg>
+
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(7, 1fr)', 
+                width: '100%',
+                position: 'relative',
+                zIndex: 1
+              }}>
+                {weekDays.map((item, idx) => (
+                  <div 
+                    key={idx} 
+                    onClick={() => handleDateClick(item.dateObj)} 
+                    style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      alignItems: 'center', 
+                      gap: '6px', 
+                      transform: `translateY(${item.offset})`, 
+                      cursor: 'pointer',
+                      transition: 'transform 0.25s ease'
+                    }}
+                  >
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: item.active ? 'var(--text-main)' : 'var(--text-muted)' }}>{item.day}</span>
+                    <div style={{
+                      position: 'relative',
+                      width: item.active ? '34px' : '30px',
+                      height: item.active ? '34px' : '30px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: '50%',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      background: item.active ? 'linear-gradient(135deg, var(--accent-coral), var(--accent-pink))' : 'transparent',
+                      color: item.active ? '#fff' : 'var(--text-main)',
+                      boxShadow: item.active ? '0 4px 12px rgba(239, 154, 138, 0.45)' : 'none',
+                      marginTop: item.active ? '-2px' : '0',
+                      transition: 'all 0.2s ease'
+                    }}>
+                      {item.date}
+                      {(() => {
+                        const y2 = item.dateObj.getFullYear();
+                        const m2 = String(item.dateObj.getMonth() + 1).padStart(2, '0');
+                        const d2 = String(item.dateObj.getDate()).padStart(2, '0');
+                        const dateStr = `${y2}-${m2}-${d2}`;
+                        const hasTask = tasks.some(t => t.status !== doneStatus && isTaskOnDate(t, dateStr));
+                        return hasTask ? (
+                          <div style={{ position: 'absolute', bottom: '2px', width: '4px', height: '4px', borderRadius: '50%', background: item.active ? '#fff' : 'var(--accent-coral)' }}></div>
+                        ) : null;
+                      })()}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </>
           ) : (
             <div style={{ 
               display: 'grid', 
@@ -476,6 +485,40 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], onAddTask, sel
               ))}
             </div>
           )}
+        </div>
+
+        {/* Секция 4: Подвал (Footer) */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)' }}>
+            <Edit2 size={13} />
+            <input 
+              type="text" 
+              placeholder="Add a note..." 
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              className="neu-input"
+              style={{ 
+                border: 'none', 
+                background: 'transparent', 
+                outline: 'none', 
+                boxShadow: 'none',
+                padding: '4px 6px',
+                color: 'var(--text-main)',
+                fontSize: '12px',
+                fontWeight: 600,
+                width: '110px'
+              }} 
+            />
+          </div>
+          <button className="pill-btn primary" onClick={onAddTask} style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '6px', 
+            padding: '6px 14px',
+            fontSize: '12px'
+          }}>
+            <Plus size={14} /> New Task
+          </button>
         </div>
       </div>
     </div>
