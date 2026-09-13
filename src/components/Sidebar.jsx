@@ -141,7 +141,7 @@ const Sidebar = ({ avatarUrl, onLogout, onMenuToggle }) => {
       zIndex: 100
     }}>
       {avatarUrl ? (
-        <img src={avatarUrl} alt="Avatar" style={{
+        <img className="sidebar-avatar" src={avatarUrl} alt="Avatar" style={{
           width: '60px',
           height: '60px',
           borderRadius: '50%',
@@ -151,7 +151,7 @@ const Sidebar = ({ avatarUrl, onLogout, onMenuToggle }) => {
           backgroundColor: 'transparent'
         }} />
       ) : (
-        <div style={{
+        <div className="sidebar-avatar-placeholder" style={{
           width: '60px',
           height: '60px',
           borderRadius: '50%',
@@ -161,7 +161,7 @@ const Sidebar = ({ avatarUrl, onLogout, onMenuToggle }) => {
         }}></div>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1, width: '100%' }}>
+      <div className="sidebar-nav-group" style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1, width: '100%', alignItems: 'center' }}>
         <TooltipButton label="Dashboard" icon={Home} to="/" />
         <TooltipButton label="Tasks" icon={CheckSquare} to="/tasks" />
         <TooltipButton label="Calendar" icon={Calendar} to="/calendar" />
@@ -171,7 +171,7 @@ const Sidebar = ({ avatarUrl, onLogout, onMenuToggle }) => {
         <TooltipButton label="AI Coach" icon={Brain} to="/ai" />
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
+      <div className="sidebar-bottom-group" style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', alignItems: 'center' }}>
         <TooltipButton label="Settings" icon={Settings} to="/settings" />
         <TooltipButton label="Logout" icon={LogOut} onClick={onLogout} color="var(--accent-coral)" />
       </div>

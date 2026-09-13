@@ -174,7 +174,7 @@ const WelcomeCard = ({
         )}
 
         {setViewMode && (
-          <div style={{ marginLeft: sortBy !== undefined ? '0' : 'auto', display: 'flex', background: 'var(--item-bg)', borderRadius: '16px', padding: '4px', boxShadow: 'var(--shadow-inner)' }}>
+          <div className="welcome-view-switch" style={{ marginLeft: sortBy !== undefined ? '0' : 'auto', display: 'flex', background: 'var(--item-bg)', borderRadius: '16px', padding: '4px', boxShadow: 'var(--shadow-inner)' }}>
             <button 
               onClick={() => setViewMode('list')}
               style={{ 
