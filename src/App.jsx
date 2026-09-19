@@ -509,7 +509,7 @@ function App() {
           
           <Routes>
             <Route path="/" element={
-              <div className="main-content dashboard-page" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
+              <div className="main-content dashboard-page" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <WelcomeCard 
                   user={user}
                   onAddTask={handleOpenNewTask} 
@@ -544,18 +544,16 @@ function App() {
                     <div className="dashboard-right-col">
                       <div className="calendar-widget-container">
                         {calendarType === 'weekly' ? (
-                          <WeeklyCalendarWidget tasks={tasks} statuses={statuses} onAddTask={handleOpenNewTask} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('mini')} />
+                          <WeeklyCalendarWidget tasks={tasks} statuses={statuses} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('mini')} />
                         ) : (
                           <MiniCalendarWidget tasks={tasks} statuses={statuses} selectedDate={selectedDate} onSelectDate={handleSelectDate} onToggleCalendar={() => setCalendarType('weekly')} />
                         )}
                       </div>
-                      <div className="dashboard-sub-widgets">
-                        <div className="progress-widget-container">
-                          <ProgressWidget tasks={tasks} statuses={statuses} />
-                        </div>
-                        <div className="pomodoro-widget-container">
-                          <PomodoroWidget />
-                        </div>
+                      <div className="progress-widget-container">
+                        <ProgressWidget tasks={tasks} statuses={statuses} />
+                      </div>
+                      <div className="pomodoro-widget-container">
+                        <PomodoroWidget />
                       </div>
                     </div>
                   </div>
@@ -574,7 +572,7 @@ function App() {
             } />
 
             <Route path="/tasks" element={
-              <div className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '30px' }}>
+              <div className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <WelcomeCard 
                   user={user}
                   onAddTask={handleOpenNewTask} 

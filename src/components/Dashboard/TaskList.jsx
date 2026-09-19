@@ -138,12 +138,16 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
                     </span>
                   </div>
                 )}
-                {task.priority && (
-                  <Badge priority={task.priority}>{task.priority}</Badge>
-                )}
-                {task.linkedNotes && task.linkedNotes.length > 0 && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600 }}>
-                    <FileText size={14} /> {task.linkedNotes.length}
+                {(task.priority || (task.linkedNotes && task.linkedNotes.length > 0)) && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {task.linkedNotes && task.linkedNotes.length > 0 && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600 }}>
+                        <FileText size={14} /> {task.linkedNotes.length}
+                      </div>
+                    )}
+                    {task.priority && (
+                      <Badge priority={task.priority}>{task.priority}</Badge>
+                    )}
                   </div>
                 )}
               </div>

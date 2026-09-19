@@ -2,9 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import './UI.css';
 
-const CustomSelect = ({ options, value, onChange, placeholder = 'Select...', style = {}, innerStyle = {}, menuPlacement = 'bottom' }) => {
+const CustomSelect = ({ options, value, onChange, placeholder = 'Select...', style = {}, innerStyle = {}, menuPlacement = 'auto' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [placement, setPlacement] = useState(menuPlacement === 'top' ? 'top' : 'bottom');
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -16,7 +17,31 @@ const CustomSelect = ({ options, value, onChange, placeholder = 'Select...', sty
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const selectedOption = options.find(opt => opt.value === value);
+  useEffect(() => {
+    if (isOpen && dropdownRef.current) {
+      if (menuPlacement === 'top') {
+        setPlacement('top');
+      } else if (menuPlacement === 'bottom') {
+        setPlacement('bottom');
+      } else {
+        const rect = dropdownRef.current.getBoundingClientRect();
+        let spaceBelow = window.innerHeight - rect.bottom;
+        const scrollParent = dropdownRef.current.closest('.responsive-card, .glass-panel, dialog, [style*="overflow"]');
+        if (scrollParent) {
+          const parentRect = scrollParent.getBoundingClientRect();
+          spaceBelow = Math.min(spaceBelow, parentRect.bottom - rect.bottom);
+        }
+        const neededSpace = (options?.length || 3) * 36 + 24;
+        if (spaceBelow < neededSpace) {
+          setPlacement('top');
+        } else {
+          setPlacement('bottom');
+        }
+      }
+    }
+  }, [isOpen, menuPlacement, options?.length]);
+
+  const selectedOption = options?.find(opt => opt.value === value);
 
   return (
     <div ref={dropdownRef} style={{ position: 'relative', width: '100%', ...style }}>
@@ -37,7 +62,7 @@ const CustomSelect = ({ options, value, onChange, placeholder = 'Select...', sty
       </div>
       
       {isOpen && (
-        <div className={`custom-select-dropdown ${menuPlacement === 'top' ? 'top' : ''}`}>
+        <div className={`custom-select-dropdown ${placement === 'top' ? 'top' : ''}`}>
           {options && options.length > 0 ? (
             options.map((opt) => (
               <div 

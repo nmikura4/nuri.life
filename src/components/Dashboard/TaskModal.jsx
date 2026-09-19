@@ -36,19 +36,30 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
   return (
     <div className="modal-overlay" onClick={handleBackdropClick}>
       <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '500px' }}>
-        <GlassCard className="responsive-card" style={{ padding: '24px', position: 'relative', background: 'var(--solid-card-bg)', maxHeight: 'min(90vh, calc(100dvh - 30px))', overflowY: 'auto', overscrollBehavior: 'contain' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0 }}>
-              Edit Subtask
-            </h2>
-            <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}>
-              <X size={24} />
-            </button>
-          </div>
+        <GlassCard className="responsive-card" style={{ padding: '12px 24px 18px 24px', position: 'relative', background: 'var(--solid-card-bg)', maxHeight: 'min(90vh, calc(100dvh - 30px))', overflow: 'visible', overscrollBehavior: 'contain' }}>
+          <button 
+            type="button" 
+            onClick={onClose} 
+            style={{ 
+              position: 'absolute', 
+              top: '10px', 
+              right: '20px', 
+              background: 'none', 
+              border: 'none', 
+              cursor: 'pointer', 
+              color: 'var(--text-muted)', 
+              display: 'flex',
+              padding: '4px',
+              zIndex: 10
+            }}
+            aria-label="Close"
+          >
+            <X size={20} />
+          </button>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Title</label>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600 }}>Title</label>
               <input 
                 type="text" 
                 value={formData.title || ''}
@@ -60,7 +71,7 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
             
             <div className="responsive-grid-2">
               <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Deadline</label>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600 }}>Deadline</label>
                 <CustomDatePicker 
                   value={formData.deadline || ''} 
                   onChange={(val) => handleChange('deadline', val)} 
@@ -71,7 +82,7 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
                 />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Priority</label>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600 }}>Priority</label>
                 <CustomSelect 
                   value={formData.priority || priorities[0] || 'low'} 
                   onChange={(val) => handleChange('priority', val)}
@@ -81,17 +92,18 @@ const SubtaskModal = ({ subtask, onClose, onSave, priorities = [], statuses = []
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Status</label>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600 }}>Status</label>
               <CustomSelect 
                 value={formData.status || statuses[0] || 'todo'} 
                 onChange={(val) => handleChange('status', val)}
                 options={statuses.map(s => ({ value: s, label: s }))}
+                menuPlacement="top"
               />
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '10px' }}>
-              <button type="button" className="pill-btn" onClick={onClose}>Cancel</button>
-              <button type="submit" className="pill-btn primary">Save Subtask</button>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '6px' }}>
+              <button type="button" className="pill-btn" onClick={onClose} style={{ padding: '8px 16px', fontSize: '13px' }}>Cancel</button>
+              <button type="submit" className="pill-btn primary" style={{ padding: '8px 18px', fontSize: '13px' }}>Save Subtask</button>
             </div>
           </form>
         </GlassCard>
@@ -296,11 +308,16 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
     }));
   };
 
-  const handleDeleteSubtask = (id) => {
-    setFormData(prev => ({
-      ...prev,
-      subtasks: prev.subtasks.filter(s => s.id !== id)
-    }));
+  const handleDeleteSubtask = async (id) => {
+    const subtask = formData.subtasks.find(s => s.id === id);
+    const title = subtask?.title ? ` "${subtask.title}"` : '';
+    const isConfirmed = await confirm(`Вы уверены, что хотите удалить подзадачу${title}?`);
+    if (isConfirmed) {
+      setFormData(prev => ({
+        ...prev,
+        subtasks: prev.subtasks.filter(s => s.id !== id)
+      }));
+    }
   };
 
   const handleSaveSubtask = (updatedSubtask) => {

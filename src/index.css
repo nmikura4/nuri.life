@@ -120,16 +120,17 @@ dialog.native-modal::backdrop{background:rgba(0,0,0,.6);backdrop-filter:none;-we
   gap: 20px;
   min-width: 0;
 }
-.dashboard-sub-widgets {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  width: 100%;
-}
+.calendar-widget-container,
 .progress-widget-container,
 .pomodoro-widget-container {
   min-width: 0;
-  height: 100%;
+  width: 100%;
+}
+.dashboard-widget-card {
+  height: 260px !important;
+  min-height: 260px !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
 }
 .welcome-search-wrapper {
   margin-right: 52px;

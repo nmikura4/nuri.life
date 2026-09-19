@@ -60,7 +60,7 @@ const CustomDatePicker = ({
     const m = String(displayMonth + 1).padStart(2, '0');
     const day = String(d).padStart(2, '0');
     onChange(`${y}-${m}-${day}`);
-    if (!enableTime) setIsOpen(false);
+    setIsOpen(false);
   };
 
   const daysInMonth = new Date(displayYear, displayMonth + 1, 0).getDate();
@@ -77,6 +77,75 @@ const CustomDatePicker = ({
   const displayValue = value 
     ? new Date(value + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + formatTimeRangeText()
     : 'Select a date...';
+
+  const justFocusedRef = useRef(false);
+
+  const handleTimeFocus = (e, currentValue, defaultVal, onChange) => {
+    if (!currentValue && onChange) {
+      onChange(defaultVal);
+    }
+    justFocusedRef.current = true;
+    const input = e.target;
+    setTimeout(() => {
+      if (input) {
+        input.setSelectionRange(0, 0);
+      }
+    }, 10);
+    setTimeout(() => {
+      justFocusedRef.current = false;
+    }, 300);
+  };
+
+  const handleTimeClick = (e) => {
+    if (justFocusedRef.current) {
+      e.target.setSelectionRange(0, 0);
+    }
+  };
+
+  const handleTimeKeyDown = (e, val, defaultVal, onChange) => {
+    if (/^[0-9]$/.test(e.key)) {
+      e.preventDefault();
+      const input = e.target;
+      let start = input.selectionStart;
+
+      if (start === 2) {
+        start = 3;
+      }
+
+      let current = (val && val.length === 5 && val.includes(':')) ? val : defaultVal;
+      let chars = current.split('');
+
+      if (start < 5) {
+        chars[start] = e.key;
+        chars[2] = ':';
+        const newVal = chars.join('');
+        if (onChange) onChange(newVal);
+
+        const nextPos = (start === 1) ? 3 : Math.min(start + 1, 5);
+        setTimeout(() => {
+          if (input) input.setSelectionRange(nextPos, nextPos);
+        }, 0);
+      }
+    } else if (e.key === 'Backspace') {
+      const input = e.target;
+      let start = input.selectionStart;
+      let end = input.selectionEnd;
+
+      if (start === end && start > 0) {
+        e.preventDefault();
+        const prevPos = (start === 3) ? 1 : start - 1;
+        let current = (val && val.length === 5 && val.includes(':')) ? val : defaultVal;
+        let chars = current.split('');
+        chars[prevPos] = '0';
+        chars[2] = ':';
+        const newVal = chars.join('');
+        if (onChange) onChange(newVal);
+        setTimeout(() => {
+          if (input) input.setSelectionRange(prevPos, prevPos);
+        }, 0);
+      }
+    }
+  };
 
   const handleTimeBlur = (rawVal, callback) => {
     if (!rawVal || !callback) return;
@@ -204,6 +273,9 @@ const CustomDatePicker = ({
                     type="text" 
                     placeholder="16:00"
                     value={startTimeValue || ''} 
+                    onFocus={(e) => handleTimeFocus(e, startTimeValue, '16:00', onStartTimeChange)}
+                    onClick={handleTimeClick}
+                    onKeyDown={(e) => handleTimeKeyDown(e, startTimeValue, '16:00', onStartTimeChange)}
                     onChange={(e) => {
                       let val = e.target.value.replace(/[^\d:]/g, '');
                       if (val.length === 2 && !val.includes(':') && (startTimeValue || '').length < 2) {
@@ -228,6 +300,9 @@ const CustomDatePicker = ({
                     type="text" 
                     placeholder="18:00"
                     value={timeValue || ''} 
+                    onFocus={(e) => handleTimeFocus(e, timeValue, '18:00', onTimeChange)}
+                    onClick={handleTimeClick}
+                    onKeyDown={(e) => handleTimeKeyDown(e, timeValue, '18:00', onTimeChange)}
                     onChange={(e) => {
                       let val = e.target.value.replace(/[^\d:]/g, '');
                       if (val.length === 2 && !val.includes(':') && (timeValue || '').length < 2) {
