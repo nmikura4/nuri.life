@@ -94,43 +94,81 @@ const WelcomeCard = ({
           </h1>
         </div>
 
-        <div className="welcome-search-wrapper" style={{
-          background: 'var(--item-bg-hover)',
-          borderRadius: '16px',
-          padding: '8px 14px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          boxShadow: 'var(--shadow-inner)',
-          width: '100%',
-          maxWidth: '320px'
-        }}>
-          <Search size={16} color="var(--text-muted)" />
-          <input 
-            type="text" 
-            className="welcome-search-input"
-            placeholder="Search tasks, projects, tags..." 
-            value={localSearch}
-            onChange={(e) => setLocalSearch(e.target.value)}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, maxWidth: '400px', justifyContent: 'flex-end' }}>
+          <div className="welcome-search-wrapper" style={{
+            background: 'var(--item-bg-hover)',
+            borderRadius: '16px',
+            padding: '8px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            boxShadow: 'var(--shadow-inner)',
+            width: '100%',
+            maxWidth: '320px'
+          }}>
+            <Search size={16} color="var(--text-muted)" />
+            <input 
+              type="text" 
+              className="welcome-search-input"
+              placeholder="Search tasks, projects, tags..." 
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                outline: 'none',
+                fontFamily: 'inherit',
+                fontSize: '13px',
+                color: 'var(--text-main)',
+                width: '100%'
+              }}
+            />
+            {localSearch && (
+              <button 
+                onClick={() => setLocalSearch('')}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px' }}
+                aria-label="Clear search"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          
+          <button 
+            onClick={() => onThemeChange(theme === 'light' ? 'dark' : 'light')}
+            aria-label="Toggle Theme"
             style={{
+              width: '56px',
+              height: '32px',
+              borderRadius: '20px',
+              background: 'var(--item-bg-hover)',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)',
               border: 'none',
-              background: 'transparent',
-              outline: 'none',
-              fontFamily: 'inherit',
-              fontSize: '13px',
-              color: 'var(--text-main)',
-              width: '100%'
+              position: 'relative',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0',
+              transition: 'all 0.3s ease',
+              flexShrink: 0
             }}
-          />
-          {localSearch && (
-            <button 
-              onClick={() => setLocalSearch('')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px' }}
-              aria-label="Clear search"
-            >
-              <X size={14} />
-            </button>
-          )}
+          >
+            <div style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              background: 'var(--card-bg)',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'absolute',
+              left: theme === 'dark' ? 'calc(100% - 28px)' : '4px',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}>
+              {theme === 'dark' ? <Moon size={14} color="var(--accent-blue)" /> : <Sun size={14} color="#f59e0b" />}
+            </div>
+          </button>
         </div>
       </div>
 

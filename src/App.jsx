@@ -505,7 +505,6 @@ function App() {
         <Sidebar theme={theme} onThemeChange={handleThemeChange} avatarUrl={avatarUrl} onLogout={handleLogout} onMenuToggle={setIsSidebarMenuOpen} />
 
         <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', width: '100%' }}>
-          <CornerThemeSwitcher theme={theme} onChange={handleThemeChange} />
           
           <Routes>
             <Route path="/" element={
