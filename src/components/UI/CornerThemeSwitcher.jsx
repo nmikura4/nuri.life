@@ -13,15 +13,17 @@ const CornerThemeSwitcher = ({ theme, onChange }) => {
   return (
     <button 
       onClick={toggleTheme}
-      className="corner-theme-toggle"
+      className={`corner-theme-toggle ${isLight ? 'light' : 'dark'}`}
       title={isLight ? 'Переключить на темную тему' : 'Переключить на светлую тему'}
       aria-label="Toggle theme"
     >
-      {isLight ? (
-        <Sun size={20} className="theme-sun-icon" />
-      ) : (
-        <Moon size={20} className="theme-moon-icon" />
-      )}
+      <div className="theme-toggle-thumb">
+        {isLight ? (
+          <Sun size={14} className="theme-sun-icon" />
+        ) : (
+          <Moon size={14} className="theme-moon-icon" />
+        )}
+      </div>
     </button>
   );
 };
