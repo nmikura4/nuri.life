@@ -1,7 +1,7 @@
 import React from 'react';
 import GlassCard from '../UI/GlassCard';
 import { useFinance } from './FinancesView';
-import { Edit2, Trash2, Tag as TagIcon, Paperclip } from 'lucide-react';
+import { Edit2, Trash2, Tag as TagIcon, Paperclip, CreditCard, Banknote } from 'lucide-react';
 import { ICON_OPTIONS } from '../Settings/icons';
 
 const TransactionsTable = () => {
@@ -99,8 +99,32 @@ const TransactionsTable = () => {
                         )}
                       </div>
                     </td>
-                    <td style={{ padding: '10px 16px', textAlign: 'right', fontWeight: 600, fontSize: '14px', color: t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)' }}>
-                      {t.type === 'income' ? '+' : '-'}{formatMoney(Number(t.amount))}
+                    <td style={{ padding: '10px 16px', textAlign: 'right', fontWeight: 600, fontSize: '14px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                        <span style={{ color: t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)' }}>
+                          {t.type === 'income' ? '+' : '-'}{formatMoney(Number(t.amount))}
+                        </span>
+                        <span 
+                          title={t.paymentMethod === 'cash' ? 'Наличные (Cash)' : 'Карта (Card)'}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '8px',
+                            background: 'var(--item-bg)',
+                            flexShrink: 0,
+                            boxShadow: 'var(--shadow-inner)'
+                          }}
+                        >
+                          {t.paymentMethod === 'cash' ? (
+                            <Banknote size={13} color="#10b981" />
+                          ) : (
+                            <CreditCard size={13} color="var(--accent-blue)" />
+                          )}
+                        </span>
+                      </div>
                     </td>
                     <td style={{ padding: '10px 16px', textAlign: 'center' }}>
                       <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
@@ -171,8 +195,30 @@ const TransactionsTable = () => {
                       )}
                     </div>
 
-                    <div style={{ fontWeight: 700, fontSize: '16px', color: t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)' }}>
-                      {t.type === 'income' ? '+' : '-'}{formatMoney(Number(t.amount))}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontWeight: 700, fontSize: '16px', color: t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)' }}>
+                        {t.type === 'income' ? '+' : '-'}{formatMoney(Number(t.amount))}
+                      </span>
+                      <span 
+                        title={t.paymentMethod === 'cash' ? 'Наличные (Cash)' : 'Карта (Card)'}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '22px',
+                          height: '22px',
+                          borderRadius: '7px',
+                          background: 'var(--card-bg)',
+                          flexShrink: 0,
+                          boxShadow: 'var(--shadow-inner)'
+                        }}
+                      >
+                        {t.paymentMethod === 'cash' ? (
+                          <Banknote size={12} color="#10b981" />
+                        ) : (
+                          <CreditCard size={12} color="var(--accent-blue)" />
+                        )}
+                      </span>
                     </div>
                   </div>
 

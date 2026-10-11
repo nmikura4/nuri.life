@@ -3,14 +3,50 @@ import GlassCard from '../UI/GlassCard';
 import { useFinance } from './FinancesView';
 import TransactionsToolbar from './TransactionsToolbar';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, Sector } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, Wallet, CheckCircle, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Wallet, CheckCircle, Clock, ChevronDown, ChevronUp, CreditCard, Banknote, Sliders, X, Check } from 'lucide-react';
 import safeStorage from '../../utils/safeStorage';
 
 const FinancesDashboard = () => {
-  const { transactions, allTransactions, allMonthTransactions, categories, currency, handleSaveTransaction } = useFinance();
+  const { 
+    transactions, 
+    allTransactions, 
+    allMonthTransactions, 
+    categories, 
+    currency, 
+    initialBalance = 0, 
+    initialCardBalance, 
+    initialCashBalance,
+    updateInitialBalances,
+    handleSaveTransaction 
+  } = useFinance();
   const [isProcessingRecurring, setIsProcessingRecurring] = useState(false);
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(null);
   const [isSmallScreen, setIsSmallScreen] = useState(() => typeof window !== 'undefined' && window.innerWidth < 520);
+  const [isInitialModalOpen, setIsInitialModalOpen] = useState(false);
+  const [cardStartInput, setCardStartInput] = useState('');
+  const [cashStartInput, setCashStartInput] = useState('');
+  const [isSavedInitial, setIsSavedInitial] = useState(false);
+
+  const openInitialModal = () => {
+    const cStart = initialCardBalance !== undefined ? initialCardBalance : initialBalance;
+    const kStart = initialCashBalance !== undefined ? initialCashBalance : 0;
+    setCardStartInput(cStart === 0 ? '' : String(cStart));
+    setCashStartInput(kStart === 0 ? '' : String(kStart));
+    setIsSavedInitial(false);
+    setIsInitialModalOpen(true);
+  };
+
+  const handleSaveInitialModal = async (e) => {
+    if (e) e.preventDefault();
+    if (updateInitialBalances) {
+      await updateInitialBalances(cardStartInput, cashStartInput);
+    }
+    setIsSavedInitial(true);
+    setTimeout(() => {
+      setIsSavedInitial(false);
+      setIsInitialModalOpen(false);
+    }, 600);
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -78,8 +114,51 @@ const FinancesDashboard = () => {
       value: expenseByCategory[name]
     })).sort((a, b) => b.value - a.value);
 
-    return { income, expense, balance: income - expense, chartData, categorySpending };
-  }, [allMonthTransactions, transactions, categories]);
+    // Cumulative balances including initial balances for card and cash
+    let allTimeIncome = 0;
+    let allTimeExpense = 0;
+    let cardIncome = 0;
+    let cardExpense = 0;
+    let cashIncome = 0;
+    let cashExpense = 0;
+
+    const allTx = allTransactions && allTransactions.length > 0 ? allTransactions : (allMonthTransactions || transactions);
+    allTx.forEach(t => {
+      const amount = Number(t.amount) || 0;
+      const isCash = t.paymentMethod === 'cash';
+      if (t.type === 'income') {
+        allTimeIncome += amount;
+        if (isCash) cashIncome += amount;
+        else cardIncome += amount;
+      } else {
+        allTimeExpense += amount;
+        if (isCash) cashExpense += amount;
+        else cardExpense += amount;
+      }
+    });
+
+    const cardStart = initialCardBalance !== undefined 
+      ? (Number(initialCardBalance) || 0) 
+      : (Number(initialBalance) || 0);
+    const cashStart = Number(initialCashBalance) || 0;
+
+    const cardBalance = cardStart + cardIncome - cardExpense;
+    const cashBalance = cashStart + cashIncome - cashExpense;
+    const netBalance = cardBalance + cashBalance;
+
+    return { 
+      income, 
+      expense, 
+      balance: netBalance, 
+      cardBalance,
+      cashBalance,
+      cardStart,
+      cashStart,
+      monthCashflow: income - expense, 
+      chartData, 
+      categorySpending 
+    };
+  }, [allMonthTransactions, allTransactions, transactions, categories, initialBalance, initialCardBalance, initialCashBalance]);
 
   // Recurring logic
   const dueRecurring = useMemo(() => {
@@ -315,15 +394,140 @@ const FinancesDashboard = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '30px' }}>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }}>
-          <GlassCard style={{ padding: isSmallScreen ? '18px 16px' : '24px', display: 'flex', alignItems: 'center', gap: isSmallScreen ? '14px' : '20px' }}>
-            <div style={{ background: 'var(--accent-cream)', padding: isSmallScreen ? '12px' : '16px', borderRadius: '50%', boxShadow: 'var(--shadow-inner)', flexShrink: 0 }}>
-              <Wallet size={isSmallScreen ? 22 : 28} color="var(--text-main)" />
+          <GlassCard style={{ padding: isSmallScreen ? '18px 16px' : '22px', display: 'flex', alignItems: 'center', gap: isSmallScreen ? '12px' : '18px', flexWrap: 'wrap' }}>
+            <div style={{ background: 'var(--accent-cream)', padding: isSmallScreen ? '12px' : '14px', borderRadius: '50%', boxShadow: 'var(--shadow-inner)', flexShrink: 0 }}>
+              <Wallet size={isSmallScreen ? 22 : 26} color="var(--text-main)" />
             </div>
-            <div style={{ minWidth: 0, overflow: 'hidden' }}>
-              <p style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>Net Balance</p>
-              <h2 style={{ fontSize: isSmallScreen ? '24px' : '32px', fontWeight: 700, color: 'var(--text-main)', wordBreak: 'break-word', lineHeight: 1.2 }}>
+
+            <div style={{ minWidth: 0 }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>Net Balance</p>
+              <h2 style={{ fontSize: isSmallScreen ? '22px' : '28px', fontWeight: 700, color: 'var(--text-main)', wordBreak: 'break-word', lineHeight: 1.2, margin: 0 }}>
                 {formatMoney(stats.balance)}
               </h2>
+            </div>
+
+            {/* Balances for Card and Cash - Stacked Vertically */}
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '6px', 
+              marginLeft: isSmallScreen ? '0' : 'auto',
+              alignItems: isSmallScreen ? 'stretch' : 'flex-end',
+              minWidth: isSmallScreen ? '100%' : '175px'
+            }}>
+              {/* Card Badge */}
+              <div 
+                onClick={openInitialModal}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between',
+                  gap: '12px', 
+                  background: 'var(--item-bg)', 
+                  padding: '5px 12px', 
+                  borderRadius: '12px', 
+                  boxShadow: 'var(--shadow-inner)',
+                  cursor: 'pointer',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  transition: 'background 0.2s ease'
+                }}
+                title="Кликните, чтобы указать начальный баланс для карты и кеша"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ 
+                    background: 'rgba(164, 201, 229, 0.3)', 
+                    padding: '4px', 
+                    borderRadius: '8px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    color: 'var(--accent-blue)'
+                  }}>
+                    <CreditCard size={14} />
+                  </div>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
+                    Карта
+                  </span>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)', display: 'block', lineHeight: 1.2 }}>
+                    {formatMoney(stats.cardBalance)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Cash Badge */}
+              <div 
+                onClick={openInitialModal}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between',
+                  gap: '12px', 
+                  background: 'var(--item-bg)', 
+                  padding: '5px 12px', 
+                  borderRadius: '12px', 
+                  boxShadow: 'var(--shadow-inner)',
+                  cursor: 'pointer',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  transition: 'background 0.2s ease'
+                }}
+                title="Кликните, чтобы указать начальный баланс для карты и кеша"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ 
+                    background: 'rgba(143, 185, 168, 0.3)', 
+                    padding: '4px', 
+                    borderRadius: '8px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    color: '#6fa590'
+                  }}>
+                    <Banknote size={14} />
+                  </div>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
+                    Кеш
+                  </span>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)', display: 'block', lineHeight: 1.2 }}>
+                    {formatMoney(stats.cashBalance)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Initial Balance Action / Subtext */}
+              <button
+                type="button"
+                onClick={openInitialModal}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '1px 2px',
+                  fontSize: '11px',
+                  color: 'var(--text-muted)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  opacity: 0.85,
+                  transition: 'opacity 0.2s',
+                  alignSelf: isSmallScreen ? 'flex-start' : 'flex-end'
+                }}
+                title="Указать начальный баланс для карты и кеша"
+              >
+                <Sliders size={11} color="var(--accent-blue)" />
+                <span>
+                  {stats.cardStart > 0 || stats.cashStart > 0 ? (
+                    <>Старт: 💳 {formatMoney(stats.cardStart)} • 💵 {formatMoney(stats.cashStart)}</>
+                  ) : (
+                    <>Задать начальный баланс</>
+                  )}
+                </span>
+              </button>
             </div>
           </GlassCard>
 
@@ -520,6 +724,79 @@ const FinancesDashboard = () => {
           </GlassCard>
         )}
       </div>
+
+      {/* Initial Balance Modal */}
+      {isInitialModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsInitialModalOpen(false)} role="dialog" aria-modal="true" aria-label="Начальный баланс">
+          <div onClick={e => e.stopPropagation()} style={{ margin: 'auto', width: '100%', maxWidth: '400px', padding: '16px' }}>
+            <GlassCard style={{ padding: '24px', background: 'var(--solid-card-bg)', position: 'relative' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div>
+                  <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>Начальный баланс</h3>
+                  <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>Сумма на счетах до начала ведения учета</p>
+                </div>
+                <button type="button" onClick={() => setIsInitialModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}>
+                  <X size={20} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveInitialModal} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Card input */}
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '13.5px', fontWeight: 600, color: 'var(--accent-blue)' }}>
+                    <CreditCard size={15} /> Карта
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <input 
+                      type="number" 
+                      step="any"
+                      className="neu-input" 
+                      placeholder="0" 
+                      value={cardStartInput}
+                      onChange={(e) => setCardStartInput(e.target.value)}
+                      autoFocus
+                      style={{ width: '100%', padding: '10px 52px 10px 16px', fontSize: '15px', boxSizing: 'border-box' }}
+                    />
+                    <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '13px', fontWeight: 700, color: 'var(--text-muted)', pointerEvents: 'none' }}>
+                      {typeof currency === 'string' ? currency : (currency?.code || 'AZN')}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Cash input */}
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '13.5px', fontWeight: 600, color: '#10b981' }}>
+                    <Banknote size={15} /> Кеш (Наличные)
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <input 
+                      type="number" 
+                      step="any"
+                      className="neu-input" 
+                      placeholder="0" 
+                      value={cashStartInput}
+                      onChange={(e) => setCashStartInput(e.target.value)}
+                      style={{ width: '100%', padding: '10px 52px 10px 16px', fontSize: '15px', boxSizing: 'border-box' }}
+                    />
+                    <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '13px', fontWeight: 700, color: 'var(--text-muted)', pointerEvents: 'none' }}>
+                      {typeof currency === 'string' ? currency : (currency?.code || 'AZN')}
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
+                  <button type="button" className="pill-btn" onClick={() => setIsInitialModalOpen(false)}>
+                    Отмена
+                  </button>
+                  <button type="submit" className="pill-btn primary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {isSavedInitial ? <><Check size={16} /> Сохранено</> : 'Сохранить'}
+                  </button>
+                </div>
+              </form>
+            </GlassCard>
+          </div>
+        </div>
+      )}
 
     </div>
   );

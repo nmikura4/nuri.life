@@ -264,8 +264,29 @@ body.dark-theme .welcome-search-input::placeholder {
 }
 
 .custom-select-dropdown {
-  max-height: none !important;
-  overflow: visible !important;
+  max-height: 280px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--shadow-color) transparent;
+}
+
+.custom-select-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-select-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 6px 0;
+}
+
+.custom-select-dropdown::-webkit-scrollbar-thumb {
+  background: var(--shadow-color);
+  border-radius: 10px;
+}
+
+.custom-select-dropdown::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 .custom-select-dropdown.top {

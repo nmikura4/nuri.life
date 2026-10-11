@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 import GlassCard from '../UI/GlassCard';
-import { X, Tag as TagIcon, ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
+import { X, Tag as TagIcon, ChevronDown, ChevronUp, ChevronRight, CreditCard, Banknote } from 'lucide-react';
 import CustomDatePicker from '../UI/CustomDatePicker';
 import CustomSelect from '../UI/CustomSelect';
 import FileUploader from '../UI/FileUploader';
@@ -13,6 +13,7 @@ import '../UI/UI.css';
 const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, counterparties = [], persons = [] }) => {
   const [formData, setFormData] = useState({
     type: 'expense',
+    paymentMethod: 'card',
     amount: '',
     date: new Date().toISOString().substring(0, 10),
     categoryId: '',
@@ -43,6 +44,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
     if (transaction) {
       setFormData({
         ...transaction,
+        paymentMethod: transaction.paymentMethod || 'card',
         date: transaction.date.substring(0, 10)
       });
       setIsCommentOpen(!!transaction.comment);
@@ -51,6 +53,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
       const lastType = safeStorage.getItem('lastTxType', 'expense');
       const lastCatId = safeStorage.getItem('lastTxCatId', null);
       const lastCounterparty = safeStorage.getItem('lastTxCounterparty', '');
+      const lastPaymentMethod = safeStorage.getItem('lastTxPaymentMethod', 'card');
 
       const fallbackCat = categories.find(c => c.type === lastType) || categories.find(c => c.type === 'expense');
       const validCat = lastCatId ? categories.find(c => c.id === lastCatId && c.type === lastType) : null;
@@ -61,6 +64,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
         categoryId: initialCatId,
         subcategoryId: '',
         type: lastType,
+        paymentMethod: lastPaymentMethod,
         amount: '',
         date: lastDate,
         person: '',
@@ -151,12 +155,14 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
       safeStorage.setItem('lastTxType', formData.type);
       safeStorage.setItem('lastTxCatId', formData.categoryId);
       safeStorage.setItem('lastTxCounterparty', formData.counterparty);
+      safeStorage.setItem('lastTxPaymentMethod', formData.paymentMethod || 'card');
     }
 
     const finalData = {
       ...formData,
       tags: finalTags,
       amount: numAmount,
+      paymentMethod: formData.paymentMethod || 'card',
     };
 
     if (finalData.recurrence && finalData.recurrence !== 'none') {
@@ -223,6 +229,57 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
                   onChange={(val) => setFormData(prev => ({ ...prev, date: val }))} 
                   alignRight={true}
                 />
+              </div>
+            </div>
+
+            {/* Payment Method Selector */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Account / Method</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <button 
+                  type="button" 
+                  onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'card' }))}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '10px 14px',
+                    borderRadius: '14px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    background: (formData.paymentMethod || 'card') === 'card' ? 'var(--item-bg)' : 'transparent',
+                    color: (formData.paymentMethod || 'card') === 'card' ? 'var(--accent-blue)' : 'var(--text-muted)',
+                    fontWeight: (formData.paymentMethod || 'card') === 'card' ? 700 : 500,
+                    boxShadow: (formData.paymentMethod || 'card') === 'card' ? 'var(--shadow-soft)' : 'none',
+                    transition: 'all 0.2s ease',
+                    fontSize: '13.5px'
+                  }}
+                >
+                  <CreditCard size={16} /> Card (Карта)
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'cash' }))}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '10px 14px',
+                    borderRadius: '14px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    background: formData.paymentMethod === 'cash' ? 'var(--item-bg)' : 'transparent',
+                    color: formData.paymentMethod === 'cash' ? '#10b981' : 'var(--text-muted)',
+                    fontWeight: formData.paymentMethod === 'cash' ? 700 : 500,
+                    boxShadow: formData.paymentMethod === 'cash' ? 'var(--shadow-soft)' : 'none',
+                    transition: 'all 0.2s ease',
+                    fontSize: '13.5px'
+                  }}
+                >
+                  <Banknote size={16} /> Cash (Кеш)
+                </button>
               </div>
             </div>
 

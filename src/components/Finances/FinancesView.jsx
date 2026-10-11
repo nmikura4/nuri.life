@@ -22,6 +22,9 @@ const FinancesView = ({ user }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [currency, setCurrency] = useState('USD');
+  const [initialBalance, setInitialBalance] = useState(0);
+  const [initialCardBalance, setInitialCardBalance] = useState(undefined);
+  const [initialCashBalance, setInitialCashBalance] = useState(undefined);
   const [counterparties, setCounterparties] = useState([]);
   const [persons, setPersons] = useState([]);
   
@@ -48,6 +51,9 @@ const FinancesView = ({ user }) => {
         if (data.currency) setCurrency(data.currency);
         if (data.counterparties) setCounterparties(data.counterparties);
         if (data.persons) setPersons(data.persons);
+        if (data.initialBalance !== undefined) setInitialBalance(Number(data.initialBalance) || 0);
+        if (data.initialCardBalance !== undefined) setInitialCardBalance(Number(data.initialCardBalance) || 0);
+        if (data.initialCashBalance !== undefined) setInitialCashBalance(Number(data.initialCashBalance) || 0);
       }
     });
 
@@ -86,7 +92,15 @@ const FinancesView = ({ user }) => {
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
       if (!t.date || !t.date.startsWith(selectedMonth)) return false;
-      if (filterType !== 'all' && t.type !== filterType) return false;
+      if (filterType !== 'all') {
+        if (filterType === 'card') {
+          if ((t.paymentMethod || 'card') !== 'card') return false;
+        } else if (filterType === 'cash') {
+          if (t.paymentMethod !== 'cash') return false;
+        } else if (t.type !== filterType) {
+          return false;
+        }
+      }
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         const catName = categories.find(c => c.id === t.categoryId)?.name?.toLowerCase() || '';
@@ -114,6 +128,17 @@ const FinancesView = ({ user }) => {
     return transactions.filter(t => t.date && t.date.startsWith(selectedMonth));
   }, [transactions, selectedMonth]);
 
+  const updateInitialBalances = async (cardVal, cashVal) => {
+    if (!user) return;
+    const validCard = Math.max(0, parseFloat(cardVal) || 0);
+    const validCash = Math.max(0, parseFloat(cashVal) || 0);
+    await setDoc(doc(db, "users", user.uid, "settings", "global"), {
+      initialCardBalance: validCard,
+      initialCashBalance: validCash,
+      initialBalance: validCard + validCash
+    }, { merge: true });
+  };
+
   const value = {
     transactions: filteredTransactions,
     allTransactions: transactions,
@@ -128,6 +153,10 @@ const FinancesView = ({ user }) => {
     filterType,
     setFilterType,
     currency,
+    initialBalance,
+    initialCardBalance,
+    initialCashBalance,
+    updateInitialBalances,
     openNewTransaction: () => { setEditingTransaction(null); setIsModalOpen(true); },
     openEditTransaction: (tx) => { setEditingTransaction(tx); setIsModalOpen(true); },
     handleDeleteTransaction,

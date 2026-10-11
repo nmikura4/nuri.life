@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { collection, doc, setDoc, deleteDoc, onSnapshot, writeBatch } from 'firebase/firestore';
 import { db } from '../../firebase';
-import { Plus, Trash2, Edit2, Check, X, Tag, ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
+import { Plus, Trash2, Edit2, Check, X, Tag, ChevronDown, ChevronUp, ChevronRight, CreditCard, Banknote } from 'lucide-react';
 import { ICON_OPTIONS } from './icons';
 import CustomSelect from '../UI/CustomSelect';
 import IconPickerModal from '../UI/IconPickerModal';
@@ -47,6 +47,9 @@ const FinanceCategoriesManager = ({ user }) => {
 
 
   const [currency, setCurrency] = useState('USD');
+  const [initialCardBalanceInput, setInitialCardBalanceInput] = useState('');
+  const [initialCashBalanceInput, setInitialCashBalanceInput] = useState('');
+  const [isInitialBalanceSaved, setIsInitialBalanceSaved] = useState(false);
   const [counterparties, setCounterparties] = useState([]);
   const [persons, setPersons] = useState([]);
 
@@ -74,11 +77,35 @@ const FinanceCategoriesManager = ({ user }) => {
         if (data.currency) setCurrency(data.currency);
         if (data.counterparties) setCounterparties(data.counterparties);
         if (data.persons) setPersons(data.persons);
+        if (data.initialCardBalance !== undefined) {
+          setInitialCardBalanceInput(data.initialCardBalance === 0 ? '' : String(data.initialCardBalance));
+        } else if (data.initialBalance !== undefined) {
+          setInitialCardBalanceInput(data.initialBalance === 0 ? '' : String(data.initialBalance));
+        }
+        if (data.initialCashBalance !== undefined) {
+          setInitialCashBalanceInput(data.initialCashBalance === 0 ? '' : String(data.initialCashBalance));
+        }
       }
     });
 
     return () => { unsubCat(); unsubSettings(); };
   }, [user]);
+
+  const handleSaveInitialBalances = async () => {
+    const parsedCard = parseFloat(initialCardBalanceInput);
+    const validCard = isNaN(parsedCard) ? 0 : Math.max(0, parsedCard);
+    const parsedCash = parseFloat(initialCashBalanceInput);
+    const validCash = isNaN(parsedCash) ? 0 : Math.max(0, parsedCash);
+    await syncFinanceSettings({ 
+      initialCardBalance: validCard,
+      initialCashBalance: validCash,
+      initialBalance: validCard + validCash
+    });
+    setInitialCardBalanceInput(validCard === 0 ? '' : String(validCard));
+    setInitialCashBalanceInput(validCash === 0 ? '' : String(validCash));
+    setIsInitialBalanceSaved(true);
+    setTimeout(() => setIsInitialBalanceSaved(false), 2000);
+  };
 
   const handleCurrencyChange = async (e) => {
     const val = e.target.value;
@@ -519,15 +546,104 @@ const FinanceCategoriesManager = ({ user }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       
-      {/* Currency Settings */}
-      <div style={{ background: 'var(--item-bg)', padding: '16px 20px', borderRadius: '16px', boxShadow: 'var(--shadow-soft)' }}>
-        <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '14px' }}>Global Currency</h2>
-        <div style={{ maxWidth: '300px' }}>
-          <CustomSelect 
-            options={CURRENCIES.map(c => ({ label: c.name, value: c.code }))}
-            value={currency}
-            onChange={(val) => handleCurrencyChange({ target: { value: val }})}
-          />
+      {/* Finance General Settings */}
+      <div style={{ background: 'var(--item-bg)', padding: '20px', borderRadius: '20px', boxShadow: 'var(--shadow-soft)' }}>
+        <div className="responsive-grid-2">
+          {/* Currency Settings */}
+          <div>
+            <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px' }}>Основная валюта</h2>
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 14px 0' }}>Валюта для расчётов и финансовых отчетов</p>
+            <div style={{ maxWidth: '320px' }}>
+              <CustomSelect 
+                options={CURRENCIES.map(c => ({ label: c.name, value: c.code }))}
+                value={currency}
+                onChange={(val) => handleCurrencyChange({ target: { value: val }})}
+                searchable={true}
+              />
+            </div>
+          </div>
+
+          {/* Initial Balance Settings */}
+          <div>
+            <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px' }}>Начальный баланс</h2>
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 14px 0' }}>Сумма на счетах до начала ведения учета</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '340px' }}>
+              {/* Card Input */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '6px', 
+                  width: '95px', 
+                  flexShrink: 0, 
+                  fontSize: '13px', 
+                  fontWeight: 600, 
+                  color: 'var(--accent-blue)' 
+                }}>
+                  <CreditCard size={16} /> Карта:
+                </div>
+                <div style={{ position: 'relative', flex: 1 }}>
+                  <input 
+                    type="number" 
+                    step="any"
+                    className="neu-input" 
+                    placeholder="0" 
+                    value={initialCardBalanceInput}
+                    onChange={(e) => setInitialCardBalanceInput(e.target.value)}
+                    onBlur={handleSaveInitialBalances}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSaveInitialBalances(); } }}
+                    style={{ width: '100%', padding: '8px 48px 8px 14px', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                  <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', pointerEvents: 'none' }}>
+                    {currency}
+                  </span>
+                </div>
+              </div>
+
+              {/* Cash Input */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '6px', 
+                  width: '95px', 
+                  flexShrink: 0, 
+                  fontSize: '13px', 
+                  fontWeight: 600, 
+                  color: '#10b981' 
+                }}>
+                  <Banknote size={16} /> Кеш:
+                </div>
+                <div style={{ position: 'relative', flex: 1 }}>
+                  <input 
+                    type="number" 
+                    step="any"
+                    className="neu-input" 
+                    placeholder="0" 
+                    value={initialCashBalanceInput}
+                    onChange={(e) => setInitialCashBalanceInput(e.target.value)}
+                    onBlur={handleSaveInitialBalances}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSaveInitialBalances(); } }}
+                    style={{ width: '100%', padding: '8px 48px 8px 14px', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                  <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', pointerEvents: 'none' }}>
+                    {currency}
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2px' }}>
+                <button 
+                  type="button" 
+                  onClick={handleSaveInitialBalances} 
+                  className="pill-btn primary"
+                  style={{ padding: '8px 18px', fontSize: '13px' }}
+                >
+                  {isInitialBalanceSaved ? 'Сохранено' : 'Сохранить'}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

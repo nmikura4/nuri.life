@@ -7,7 +7,9 @@ import CustomSelect from '../UI/CustomSelect';
 const FILTER_OPTIONS = [
   { value: 'all', label: 'All Types' },
   { value: 'income', label: 'Income' },
-  { value: 'expense', label: 'Expense' }
+  { value: 'expense', label: 'Expense' },
+  { value: 'card', label: '💳 Card' },
+  { value: 'cash', label: '💵 Cash' }
 ];
 
 const TransactionsToolbar = () => {
@@ -19,19 +21,20 @@ const TransactionsToolbar = () => {
       return;
     }
     
-    let csv = 'Date,Type,Category,Subcategory,Amount,Currency,Counterparty,Person,Tags,Comment\n';
+    let csv = 'Date,Type,PaymentMethod,Category,Subcategory,Amount,Currency,Counterparty,Person,Tags,Comment\n';
     
     transactions.forEach(t => {
       const cat = categories.find(c => c.id === t.categoryId)?.name || '';
       const subcat = categories.find(c => c.id === t.categoryId)?.subcategories?.find(s => s.id === t.subcategoryId)?.name || '';
       const amount = t.amount || 0;
       const type = t.type || 'expense';
+      const paymentMethod = t.paymentMethod || 'card';
       const counterparty = t.counterparty || '';
       const person = t.person || '';
       const tags = Array.isArray(t.tags) ? t.tags.join(';') : (t.tags || '');
       const comment = (t.comment || '').replace(/"/g, '""');
       
-      csv += `${t.date},${type},"${cat}","${subcat}",${amount},"${t.currency || ''}","${counterparty}","${person}","${tags}","${comment}"\n`;
+      csv += `${t.date},${type},"${paymentMethod}","${cat}","${subcat}",${amount},"${t.currency || ''}","${counterparty}","${person}","${tags}","${comment}"\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
