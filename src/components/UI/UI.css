@@ -344,3 +344,17 @@ body.dark-theme .category-picker-card:hover {
   }
 }
 
+/* Transaction Modal Top Row (Amount, Date, Wallet) */
+.transaction-top-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 520px) {
+  .transaction-top-row {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+}
+

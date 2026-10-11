@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 import GlassCard from '../UI/GlassCard';
-import { X, Tag as TagIcon, ChevronDown, ChevronUp, ChevronRight, CreditCard, Banknote } from 'lucide-react';
+import { X, Tag as TagIcon, ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
 import CustomDatePicker from '../UI/CustomDatePicker';
 import CustomSelect from '../UI/CustomSelect';
 import FileUploader from '../UI/FileUploader';
@@ -9,6 +9,11 @@ import CategoryPickerModal from './CategoryPickerModal';
 import { ICON_OPTIONS } from '../Settings/icons';
 import safeStorage from '../../utils/safeStorage';
 import '../UI/UI.css';
+
+const WALLET_OPTIONS = [
+  { value: 'card', label: '💳 Card (Карта)' },
+  { value: 'cash', label: '💵 Cash (Кеш)' }
+];
 
 const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, counterparties = [], persons = [] }) => {
   const [formData, setFormData] = useState({
@@ -64,7 +69,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
         categoryId: initialCatId,
         subcategoryId: '',
         type: lastType,
-        paymentMethod: lastPaymentMethod,
+        paymentMethod: 'card',
         amount: '',
         date: lastDate,
         person: '',
@@ -217,69 +222,38 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             
-            <div className="responsive-grid-2" style={{ gap: '20px' }}>
+            <div className="transaction-top-row">
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Amount</label>
-                <input type="number" step="0.01" name="amount" required className="neu-input" value={formData.amount} onChange={handleChange} placeholder="0.00" autoFocus />
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  name="amount" 
+                  required 
+                  className="neu-input" 
+                  value={formData.amount} 
+                  onChange={handleChange} 
+                  placeholder="0.00" 
+                  autoFocus 
+                  style={{ width: '100%', boxSizing: 'border-box' }}
+                />
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Date</label>
                 <CustomDatePicker 
                   value={formData.date} 
                   onChange={(val) => setFormData(prev => ({ ...prev, date: val }))} 
-                  alignRight={true}
+                  alignRight={false}
                 />
               </div>
-            </div>
-
-            {/* Payment Method Selector */}
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Account / Method</label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                <button 
-                  type="button" 
-                  onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'card' }))}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    padding: '10px 14px',
-                    borderRadius: '14px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    background: (formData.paymentMethod || 'card') === 'card' ? 'var(--item-bg)' : 'transparent',
-                    color: (formData.paymentMethod || 'card') === 'card' ? 'var(--accent-blue)' : 'var(--text-muted)',
-                    fontWeight: (formData.paymentMethod || 'card') === 'card' ? 700 : 500,
-                    boxShadow: (formData.paymentMethod || 'card') === 'card' ? 'var(--shadow-soft)' : 'none',
-                    transition: 'all 0.2s ease',
-                    fontSize: '13.5px'
-                  }}
-                >
-                  <CreditCard size={16} /> Card (Карта)
-                </button>
-                <button 
-                  type="button" 
-                  onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'cash' }))}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    padding: '10px 14px',
-                    borderRadius: '14px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    background: formData.paymentMethod === 'cash' ? 'var(--item-bg)' : 'transparent',
-                    color: formData.paymentMethod === 'cash' ? '#10b981' : 'var(--text-muted)',
-                    fontWeight: formData.paymentMethod === 'cash' ? 700 : 500,
-                    boxShadow: formData.paymentMethod === 'cash' ? 'var(--shadow-soft)' : 'none',
-                    transition: 'all 0.2s ease',
-                    fontSize: '13.5px'
-                  }}
-                >
-                  <Banknote size={16} /> Cash (Кеш)
-                </button>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Wallet</label>
+                <CustomSelect 
+                  value={formData.paymentMethod || 'card'}
+                  onChange={(val) => setFormData(prev => ({ ...prev, paymentMethod: val }))}
+                  options={WALLET_OPTIONS}
+                  innerStyle={{ padding: '12px 12px', fontSize: '13px' }}
+                />
               </div>
             </div>
 
