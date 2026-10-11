@@ -79,8 +79,8 @@
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(128, 128, 128, 0.2);
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   z-index: 1000;
   overflow-y: auto;
   scrollbar-gutter: stable;
@@ -278,8 +278,8 @@ body.dark-theme .welcome-search-input::placeholder {
 /* Category Picker Modal Styles */
 .category-picker-overlay {
   background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
 @keyframes modalScaleIn {

@@ -44,8 +44,8 @@ class ErrorBoundary extends React.Component {
         }}>
           <div style={{
             background: 'rgba(255, 255, 255, 0.75)',
-            backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
+            backdropFilter: 'blur(16px)',
             borderRadius: '24px',
             border: '1px solid rgba(255, 255, 255, 0.6)',
             boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
