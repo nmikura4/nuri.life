@@ -3,7 +3,7 @@ import GlassCard from '../UI/GlassCard';
 import { useFinance } from './FinancesView';
 import TransactionsToolbar from './TransactionsToolbar';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, Sector } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, Wallet, CheckCircle, Clock, ChevronDown, ChevronUp, CreditCard, Banknote, Sliders, X, Check } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Wallet, CheckCircle, Clock, ChevronDown, ChevronUp, CreditCard, Banknote, X, Check } from 'lucide-react';
 import safeStorage from '../../utils/safeStorage';
 
 const FinancesDashboard = () => {
@@ -498,36 +498,6 @@ const FinancesDashboard = () => {
                   </span>
                 </div>
               </div>
-
-              {/* Initial Balance Action / Subtext */}
-              <button
-                type="button"
-                onClick={openInitialModal}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '1px 2px',
-                  fontSize: '11px',
-                  color: 'var(--text-muted)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  opacity: 0.85,
-                  transition: 'opacity 0.2s',
-                  alignSelf: isSmallScreen ? 'flex-start' : 'flex-end'
-                }}
-                title="Указать начальный баланс для карты и кеша"
-              >
-                <Sliders size={11} color="var(--accent-blue)" />
-                <span>
-                  {stats.cardStart > 0 || stats.cashStart > 0 ? (
-                    <>Старт: 💳 {formatMoney(stats.cardStart)} • 💵 {formatMoney(stats.cashStart)}</>
-                  ) : (
-                    <>Задать начальный баланс</>
-                  )}
-                </span>
-              </button>
             </div>
           </GlassCard>
 
