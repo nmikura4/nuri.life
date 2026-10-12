@@ -91,9 +91,16 @@ const CustomSelect = ({
         }}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span style={{ color: 'var(--text-main)', fontSize: innerStyle.fontSize || '14px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, overflow: 'hidden' }}>
+          {selectedOption?.icon && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}>
+              {selectedOption.icon}
+            </span>
+          )}
+          <span style={{ color: 'var(--text-main)', fontSize: innerStyle.fontSize || '14px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+        </div>
         <ChevronDown size={16} color="var(--text-muted)" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease', flexShrink: 0, marginLeft: '8px' }} />
       </div>
       
@@ -143,6 +150,9 @@ const CustomSelect = ({
                 onClick={() => { onChange(opt.value); setIsOpen(false); }}
                 className={`custom-select-option ${opt.value === value ? 'selected' : ''}`}
                 style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
                   padding: '8px 16px',
                   cursor: 'pointer',
                   color: opt.value === value ? 'var(--accent-blue)' : 'var(--text-main)',
@@ -152,7 +162,12 @@ const CustomSelect = ({
                   background: opt.value === value ? 'var(--item-bg-hover)' : 'transparent'
                 }}
               >
-                {opt.label}
+                {opt.icon && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}>
+                    {opt.icon}
+                  </span>
+                )}
+                <span>{opt.label}</span>
               </div>
             ))
           ) : (

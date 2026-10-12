@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFinance } from './FinancesView';
-import { Plus, Search, Download } from 'lucide-react';
+import { Plus, Search, Download, CreditCard, Banknote } from 'lucide-react';
 import CustomMonthPicker from '../UI/CustomMonthPicker';
 import CustomSelect from '../UI/CustomSelect';
 
@@ -8,8 +8,8 @@ const FILTER_OPTIONS = [
   { value: 'all', label: 'All Types' },
   { value: 'income', label: 'Income' },
   { value: 'expense', label: 'Expense' },
-  { value: 'card', label: '💳 Card' },
-  { value: 'cash', label: '💵 Cash' }
+  { value: 'card', label: 'Card', icon: <CreditCard size={15} color="var(--accent-blue)" /> },
+  { value: 'cash', label: 'Cash', icon: <Banknote size={15} color="#10b981" /> }
 ];
 
 const TransactionsToolbar = () => {

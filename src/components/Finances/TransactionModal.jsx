@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 import GlassCard from '../UI/GlassCard';
-import { X, Tag as TagIcon, ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
+import { X, Tag as TagIcon, ChevronDown, ChevronUp, ChevronRight, CreditCard, Banknote } from 'lucide-react';
 import CustomDatePicker from '../UI/CustomDatePicker';
 import CustomSelect from '../UI/CustomSelect';
 import FileUploader from '../UI/FileUploader';
@@ -11,8 +11,16 @@ import safeStorage from '../../utils/safeStorage';
 import '../UI/UI.css';
 
 const WALLET_OPTIONS = [
-  { value: 'card', label: '💳 Card (Карта)' },
-  { value: 'cash', label: '💵 Cash (Кеш)' }
+  { 
+    value: 'card', 
+    label: 'Card', 
+    icon: <CreditCard size={15} color="var(--accent-blue)" /> 
+  },
+  { 
+    value: 'cash', 
+    label: 'Cash', 
+    icon: <Banknote size={15} color="#10b981" /> 
+  }
 ];
 
 const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, counterparties = [], persons = [] }) => {
@@ -252,7 +260,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
                   value={formData.paymentMethod || 'card'}
                   onChange={(val) => setFormData(prev => ({ ...prev, paymentMethod: val }))}
                   options={WALLET_OPTIONS}
-                  innerStyle={{ padding: '12px 12px', fontSize: '13px' }}
+                  innerStyle={{ padding: '12px 14px', fontSize: '13.5px' }}
                 />
               </div>
             </div>
