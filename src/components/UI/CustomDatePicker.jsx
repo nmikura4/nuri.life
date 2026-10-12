@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import GlassCard from './GlassCard';
-import { Calendar, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Clock, X } from 'lucide-react';
 import './UI.css';
 
 const CustomDatePicker = ({ 
@@ -11,15 +11,48 @@ const CustomDatePicker = ({
   onStartTimeChange = null,
   timeValue = '', 
   onTimeChange = null, 
-  alignRight = false 
+  alignRight = false,
+  placeholder = 'Select a date...',
+  defaultMonth = '',
+  clearable = true,
+  style = {},
+  innerStyle = {}
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
-  const initialDate = value ? new Date(value + 'T12:00:00') : new Date();
-  
-  const [displayYear, setDisplayYear] = useState(initialDate.getFullYear());
-  const [displayMonth, setDisplayMonth] = useState(initialDate.getMonth());
+  const getInitialYearMonth = () => {
+    if (value) {
+      const d = new Date(value + 'T12:00:00');
+      if (!isNaN(d.getTime())) return { y: d.getFullYear(), m: d.getMonth() };
+    }
+    if (defaultMonth && defaultMonth.includes('-')) {
+      const [y, m] = defaultMonth.split('-').map(Number);
+      if (y && m) return { y, m: m - 1 };
+    }
+    const today = new Date();
+    return { y: today.getFullYear(), m: today.getMonth() };
+  };
+
+  const initial = getInitialYearMonth();
+  const [displayYear, setDisplayYear] = useState(initial.y);
+  const [displayMonth, setDisplayMonth] = useState(initial.m);
+
+  useEffect(() => {
+    if (value) {
+      const d = new Date(value + 'T12:00:00');
+      if (!isNaN(d.getTime())) {
+        setDisplayYear(d.getFullYear());
+        setDisplayMonth(d.getMonth());
+      }
+    } else if (defaultMonth && defaultMonth.includes('-')) {
+      const [y, m] = defaultMonth.split('-').map(Number);
+      if (y && m) {
+        setDisplayYear(y);
+        setDisplayMonth(m - 1);
+      }
+    }
+  }, [value, defaultMonth, isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -76,7 +109,7 @@ const CustomDatePicker = ({
 
   const displayValue = value 
     ? new Date(value + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + formatTimeRangeText()
-    : 'Select a date...';
+    : placeholder;
 
   const justFocusedRef = useRef(false);
 
@@ -167,7 +200,7 @@ const CustomDatePicker = ({
   };
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
+    <div ref={containerRef} style={{ position: 'relative', width: '100%', ...style }}>
       <div 
         className="neu-input" 
         onClick={() => setIsOpen(!isOpen)}
@@ -178,11 +211,35 @@ const CustomDatePicker = ({
           cursor: 'pointer',
           width: '100%',
           boxSizing: 'border-box',
-          gap: '8px'
+          gap: '8px',
+          ...innerStyle
         }}
       >
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayValue}</span>
-        <Calendar size={16} color="var(--text-muted)" style={{ flexShrink: 0 }} />
+        <span style={{ 
+          overflow: 'hidden', 
+          textOverflow: 'ellipsis', 
+          whiteSpace: 'nowrap',
+          color: value ? 'var(--text-main)' : 'var(--text-muted)',
+          fontSize: innerStyle.fontSize || 'inherit',
+          fontWeight: value ? 600 : 500
+        }}>
+          {displayValue}
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+          {clearable && value && (
+            <span
+              onClick={(e) => {
+                e.stopPropagation();
+                onChange('');
+              }}
+              style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', color: 'var(--text-muted)', padding: '2px' }}
+              title="Сбросить дату"
+            >
+              <X size={14} />
+            </span>
+          )}
+          <Calendar size={16} color="var(--text-muted)" />
+        </div>
       </div>
 
       {isOpen && (

@@ -1,11 +1,70 @@
-import React from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import GlassCard from '../UI/GlassCard';
 import { useFinance } from './FinancesView';
-import { Edit2, Trash2, Tag as TagIcon, Paperclip, CreditCard, Banknote } from 'lucide-react';
+import { Edit2, Trash2, Tag as TagIcon, Paperclip, CreditCard, Banknote, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ICON_OPTIONS } from '../Settings/icons';
+import CustomDatePicker from '../UI/CustomDatePicker';
+import CustomSelect from '../UI/CustomSelect';
+import safeStorage from '../../utils/safeStorage';
+
+const LIMIT_OPTIONS = [
+  { value: '10', label: '10' },
+  { value: '20', label: '20' },
+  { value: '50', label: '50' },
+  { value: '100', label: '100' },
+  { value: 'all', label: 'Все' }
+];
 
 const TransactionsTable = () => {
-  const { transactions, categories, currency, openEditTransaction, handleDeleteTransaction } = useFinance();
+  const { transactions, categories, currency, openEditTransaction, handleDeleteTransaction, selectedMonth, setSelectedMonth } = useFinance();
+  
+  const [selectedDate, setSelectedDate] = useState('');
+  const [limit, setLimit] = useState(() => {
+    return safeStorage.getItem('transactions_table_limit', '20');
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const handleDateChange = (newDate) => {
+    setSelectedDate(newDate);
+    setCurrentPage(1);
+    if (newDate && setSelectedMonth) {
+      const newMonth = newDate.substring(0, 7);
+      if (newMonth !== selectedMonth) {
+        setSelectedMonth(newMonth);
+      }
+    }
+  };
+
+  const handleLimitChange = (newLimit) => {
+    setLimit(newLimit);
+    safeStorage.setItem('transactions_table_limit', newLimit);
+    setCurrentPage(1);
+  };
+
+  useEffect(() => {
+    if (selectedDate && !selectedDate.startsWith(selectedMonth)) {
+      setSelectedDate('');
+      setCurrentPage(1);
+    }
+  }, [selectedMonth]);
+
+  const dateFilteredTransactions = useMemo(() => {
+    if (!selectedDate) return transactions;
+    return transactions.filter(t => t.date === selectedDate);
+  }, [transactions, selectedDate]);
+
+  const numLimit = limit === 'all' ? dateFilteredTransactions.length : (parseInt(limit, 10) || 20);
+  const totalPages = Math.max(1, Math.ceil(dateFilteredTransactions.length / (numLimit || 1)));
+  const activePage = Math.min(currentPage, totalPages);
+
+  const displayedTransactions = useMemo(() => {
+    if (limit === 'all') return dateFilteredTransactions;
+    const start = (activePage - 1) * numLimit;
+    return dateFilteredTransactions.slice(start, start + numLimit);
+  }, [dateFilteredTransactions, limit, activePage, numLimit]);
+
+  const startItem = dateFilteredTransactions.length === 0 ? 0 : (limit === 'all' ? 1 : (activePage - 1) * numLimit + 1);
+  const endItem = limit === 'all' ? dateFilteredTransactions.length : Math.min(activePage * numLimit, dateFilteredTransactions.length);
 
   const formatMoney = (val) => {
     const num = new Intl.NumberFormat('en-US', {
@@ -18,11 +77,67 @@ const TransactionsTable = () => {
 
   return (
     <GlassCard style={{ padding: '30px', overflowX: 'auto' }}>
-      <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '20px' }}>Transactions</h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <h3 style={{ fontSize: '20px', fontWeight: 600, margin: 0 }}>Transactions</h3>
+          <span style={{ 
+            fontSize: '12px', 
+            fontWeight: 700, 
+            padding: '3px 9px', 
+            borderRadius: '12px', 
+            background: 'var(--item-bg)', 
+            color: 'var(--text-muted)' 
+          }}>
+            {dateFilteredTransactions.length}
+          </span>
+        </div>
+
+        {/* Filters in the indicated place */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          {/* Specific date selector */}
+          <div style={{ width: '155px' }}>
+            <CustomDatePicker 
+              value={selectedDate}
+              onChange={handleDateChange}
+              placeholder="Все даты"
+              defaultMonth={selectedMonth}
+              alignRight={true}
+              innerStyle={{ padding: '8px 12px', fontSize: '13px', minHeight: '36px' }}
+            />
+          </div>
+
+          {/* Rows limit selector */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '12.5px', color: 'var(--text-muted)', fontWeight: 600 }}>Показать:</span>
+            <div style={{ width: '90px' }}>
+              <CustomSelect 
+                value={limit}
+                onChange={handleLimitChange}
+                options={LIMIT_OPTIONS}
+                innerStyle={{ padding: '8px 12px', fontSize: '13px', minHeight: '36px' }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
       
-      {transactions.length === 0 ? (
+      {dateFilteredTransactions.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>
-          <p>No transactions found for this period.</p>
+          <p>
+            {selectedDate 
+              ? 'На выбранную дату нет транзакций.' 
+              : 'No transactions found for this period.'}
+          </p>
+          {selectedDate && (
+            <button 
+              type="button" 
+              onClick={() => handleDateChange('')} 
+              className="pill-btn" 
+              style={{ marginTop: '10px', fontSize: '13px' }}
+            >
+              Показать все транзакции месяца
+            </button>
+          )}
         </div>
       ) : (
         <>
@@ -38,7 +153,7 @@ const TransactionsTable = () => {
               </tr>
             </thead>
             <tbody>
-              {transactions.map(t => {
+              {displayedTransactions.map(t => {
                 const cat = categories.find(c => c.id === t.categoryId);
                 const subcat = cat?.subcategories?.find(s => s.id === t.subcategoryId);
                 
@@ -144,7 +259,7 @@ const TransactionsTable = () => {
 
           {/* Mobile Cards View */}
           <div className="transactions-cards-mobile">
-            {transactions.map(t => {
+            {displayedTransactions.map(t => {
               const cat = categories.find(c => c.id === t.categoryId);
               const subcat = cat?.subcategories?.find(s => s.id === t.subcategoryId);
               
@@ -301,6 +416,49 @@ const TransactionsTable = () => {
               );
             })}
           </div>
+
+          {/* Pagination Controls */}
+          {limit !== 'all' && dateFilteredTransactions.length > (parseInt(limit, 10) || 20) && (
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              marginTop: '20px', 
+              paddingTop: '16px', 
+              borderTop: '1px solid var(--card-border)', 
+              flexWrap: 'wrap', 
+              gap: '12px' 
+            }}>
+              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                Показано {startItem}–{endItem} из {dateFilteredTransactions.length}
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button 
+                  type="button" 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={activePage === 1}
+                  className="neu-icon-btn"
+                  style={{ width: '32px', height: '32px', borderRadius: '50%', opacity: activePage === 1 ? 0.35 : 1, cursor: activePage === 1 ? 'not-allowed' : 'pointer' }}
+                  title="Предыдущая страница"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-main)', padding: '0 4px' }}>
+                  {activePage} / {totalPages}
+                </span>
+                <button 
+                  type="button" 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={activePage === totalPages}
+                  className="neu-icon-btn"
+                  style={{ width: '32px', height: '32px', borderRadius: '50%', opacity: activePage === totalPages ? 0.35 : 1, cursor: activePage === totalPages ? 'not-allowed' : 'pointer' }}
+                  title="Следующая страница"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
+          )}
         </>
       )}
     </GlassCard>
