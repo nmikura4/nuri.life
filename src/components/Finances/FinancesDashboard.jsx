@@ -432,7 +432,7 @@ const FinancesDashboard = () => {
                   boxSizing: 'border-box',
                   transition: 'background 0.2s ease'
                 }}
-                title="Кликните, чтобы указать начальный баланс для карты и кеша"
+                title="Click to set initial balance for card and cash"
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div style={{ 
@@ -447,7 +447,7 @@ const FinancesDashboard = () => {
                     <CreditCard size={14} />
                   </div>
                   <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
-                    Карта
+                    Card
                   </span>
                 </div>
                 <div style={{ textAlign: 'right' }}>
@@ -474,7 +474,7 @@ const FinancesDashboard = () => {
                   boxSizing: 'border-box',
                   transition: 'background 0.2s ease'
                 }}
-                title="Кликните, чтобы указать начальный баланс для карты и кеша"
+                title="Click to set initial balance for card and cash"
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div style={{ 
@@ -489,7 +489,7 @@ const FinancesDashboard = () => {
                     <Banknote size={14} />
                   </div>
                   <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
-                    Кеш
+                    Cash
                   </span>
                 </div>
                 <div style={{ textAlign: 'right' }}>
@@ -714,7 +714,7 @@ const FinancesDashboard = () => {
                 {/* Card input */}
                 <div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '13.5px', fontWeight: 600, color: 'var(--accent-blue)' }}>
-                    <CreditCard size={15} /> Карта
+                    <CreditCard size={15} /> Card
                   </label>
                   <div style={{ position: 'relative' }}>
                     <input 
@@ -736,7 +736,7 @@ const FinancesDashboard = () => {
                 {/* Cash input */}
                 <div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '13.5px', fontWeight: 600, color: '#10b981' }}>
-                    <Banknote size={15} /> Кеш (Наличные)
+                    <Banknote size={15} /> Cash
                   </label>
                   <div style={{ position: 'relative' }}>
                     <input 

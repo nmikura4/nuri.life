@@ -10,8 +10,10 @@ const CustomSelect = ({
   style = {}, 
   innerStyle = {}, 
   menuPlacement = 'auto',
-  searchable = false
+  searchable = false,
+  center = false
 }) => {
+  const isCentered = center || innerStyle?.textAlign === 'center';
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const listRef = useRef(null);
@@ -84,24 +86,62 @@ const CustomSelect = ({
       <div 
         className="neu-input" 
         style={{ 
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-          cursor: 'pointer', userSelect: 'none',
+          display: 'flex', 
+          justifyContent: isCentered ? 'center' : 'space-between', 
+          alignItems: 'center', 
+          cursor: 'pointer', 
+          userSelect: 'none',
           padding: '12px 16px',
+          position: isCentered ? 'relative' : 'static',
           ...innerStyle 
         }}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, overflow: 'hidden' }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: isCentered ? 'center' : 'flex-start',
+          gap: '8px', 
+          minWidth: 0, 
+          overflow: 'hidden',
+          width: isCentered ? '100%' : 'auto',
+          paddingRight: isCentered ? '16px' : '0',
+          paddingLeft: isCentered ? (selectedOption?.icon ? '0' : '16px') : '0'
+        }}>
           {selectedOption?.icon && (
             <span style={{ display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}>
               {selectedOption.icon}
             </span>
           )}
-          <span style={{ color: 'var(--text-main)', fontSize: innerStyle.fontSize || '14px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <span style={{ 
+            color: 'var(--text-main)', 
+            fontSize: innerStyle.fontSize || '14px', 
+            fontWeight: 600, 
+            whiteSpace: 'nowrap', 
+            overflow: 'hidden', 
+            textOverflow: 'ellipsis',
+            textAlign: isCentered ? 'center' : 'inherit'
+          }}>
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </div>
-        <ChevronDown size={16} color="var(--text-muted)" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease', flexShrink: 0, marginLeft: '8px' }} />
+        <ChevronDown 
+          size={16} 
+          color="var(--text-muted)" 
+          style={{ 
+            transition: 'transform 0.2s ease', 
+            flexShrink: 0, 
+            marginLeft: isCentered ? '0' : '8px',
+            ...(isCentered ? {
+              position: 'absolute',
+              right: innerStyle.paddingRight || '10px',
+              top: '50%',
+              transform: isOpen ? 'translateY(-50%) rotate(180deg)' : 'translateY(-50%) rotate(0deg)'
+            } : {
+              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+            })
+          }} 
+        />
       </div>
       
       {isOpen && (
@@ -152,6 +192,7 @@ const CustomSelect = ({
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: isCentered ? 'center' : 'flex-start',
                   gap: '8px',
                   padding: '8px 16px',
                   cursor: 'pointer',

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import GlassCard from '../UI/GlassCard';
 import { useFinance } from './FinancesView';
-import { Edit2, Trash2, Tag as TagIcon, Paperclip, CreditCard, Banknote, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Edit2, Trash2, Tag as TagIcon, Paperclip, CreditCard, Banknote, ChevronLeft, ChevronRight, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { ICON_OPTIONS } from '../Settings/icons';
 import CustomDatePicker from '../UI/CustomDatePicker';
 import CustomSelect from '../UI/CustomSelect';
@@ -53,6 +53,20 @@ const TransactionsTable = () => {
     return transactions.filter(t => t.date === selectedDate);
   }, [transactions, selectedDate]);
 
+  const { periodIncome, periodExpense } = useMemo(() => {
+    let income = 0;
+    let expense = 0;
+    dateFilteredTransactions.forEach(t => {
+      const amount = Number(t.amount) || 0;
+      if (t.type === 'income') {
+        income += amount;
+      } else {
+        expense += amount;
+      }
+    });
+    return { periodIncome: income, periodExpense: expense };
+  }, [dateFilteredTransactions]);
+
   const numLimit = limit === 'all' ? dateFilteredTransactions.length : (parseInt(limit, 10) || 20);
   const totalPages = Math.max(1, Math.ceil(dateFilteredTransactions.length / (numLimit || 1)));
   const activePage = Math.min(currentPage, totalPages);
@@ -76,33 +90,66 @@ const TransactionsTable = () => {
   };
 
   return (
-    <GlassCard style={{ padding: '30px', overflowX: 'auto' }}>
+    <GlassCard style={{ padding: '30px', overflow: 'visible' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '14px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <h3 style={{ fontSize: '20px', fontWeight: 600, margin: 0 }}>Transactions</h3>
-          <span style={{ 
-            fontSize: '12px', 
-            fontWeight: 700, 
-            padding: '3px 9px', 
-            borderRadius: '12px', 
-            background: 'var(--item-bg)', 
-            color: 'var(--text-muted)' 
-          }}>
-            {dateFilteredTransactions.length}
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: 600, margin: 0 }}>Transactions</h3>
+            <span style={{ 
+              fontSize: '12px', 
+              fontWeight: 700, 
+              padding: '3px 9px', 
+              borderRadius: '12px', 
+              background: 'var(--item-bg)', 
+              color: 'var(--text-muted)' 
+            }}>
+              {dateFilteredTransactions.length}
+            </span>
+          </div>
+
+          {/* Income and Expense summary for the selected calendar period */}
+          <div 
+            style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '10px', 
+              background: 'var(--item-bg)', 
+              padding: '5px 12px', 
+              borderRadius: '14px', 
+              boxShadow: 'var(--shadow-inner)',
+              border: '1px solid var(--card-border)'
+            }}
+          >
+            <div 
+              title={`Доход за выбранный период: ${periodIncome > 0 ? '+' : ''}${formatMoney(periodIncome)}`}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 700, color: 'var(--accent-blue)' }}
+            >
+              <ArrowUpRight size={15} strokeWidth={2.5} />
+              <span>{periodIncome > 0 ? '+' : ''}{formatMoney(periodIncome)}</span>
+            </div>
+            <div style={{ width: '1px', height: '14px', background: 'var(--card-border)', opacity: 0.8 }} />
+            <div 
+              title={`Расход за выбранный период: ${periodExpense > 0 ? '-' : ''}${formatMoney(periodExpense)}`}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 700, color: 'var(--accent-coral)' }}
+            >
+              <ArrowDownRight size={15} strokeWidth={2.5} />
+              <span>{periodExpense > 0 ? '-' : ''}{formatMoney(periodExpense)}</span>
+            </div>
+          </div>
         </div>
 
         {/* Filters in the indicated place */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           {/* Specific date selector */}
-          <div style={{ width: '155px' }}>
+          <div style={{ width: '138px' }}>
             <CustomDatePicker 
               value={selectedDate}
               onChange={handleDateChange}
               placeholder="Все даты"
               defaultMonth={selectedMonth}
               alignRight={true}
-              innerStyle={{ padding: '8px 12px', fontSize: '13px', minHeight: '36px' }}
+              center={true}
+              innerStyle={{ padding: '8px 8px', fontSize: '13px', minHeight: '36px' }}
             />
           </div>
 
@@ -114,7 +161,8 @@ const TransactionsTable = () => {
                 value={limit}
                 onChange={handleLimitChange}
                 options={LIMIT_OPTIONS}
-                innerStyle={{ padding: '8px 12px', fontSize: '13px', minHeight: '36px' }}
+                center={true}
+                innerStyle={{ padding: '8px 10px', fontSize: '13px', minHeight: '36px' }}
               />
             </div>
           </div>
@@ -142,14 +190,15 @@ const TransactionsTable = () => {
       ) : (
         <>
           {/* Desktop Table View */}
-          <table className="transactions-table-desktop" style={{ borderCollapse: 'collapse', textAlign: 'left' }}>
+          <div style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
+            <table className="transactions-table-desktop" style={{ minWidth: '600px' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--card-border)', color: 'var(--text-muted)', fontSize: '14px' }}>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Date</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Category</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Details</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600, textAlign: 'right' }}>Amount</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600, textAlign: 'center' }}>Actions</th>
+              <tr style={{ color: 'var(--text-muted)' }}>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Details</th>
+                <th style={{ textAlign: 'right' }}>Amount</th>
+                <th style={{ textAlign: 'center' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -171,33 +220,33 @@ const TransactionsTable = () => {
                 }
 
                 return (
-                  <tr key={t.id} className="transaction-row" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', transition: 'background 0.2s' }}>
-                    <td style={{ padding: '10px 16px' }}>
-                      <div style={{ fontWeight: 600, fontSize: '15px' }}>{formattedDate}</div>
+                  <tr key={t.id} className="transaction-row">
+                    <td>
+                      <div style={{ fontWeight: 600, fontSize: '14px' }}>{formattedDate}</div>
                     </td>
-                    <td style={{ padding: '10px 16px' }}>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--item-bg)', padding: '6px 12px', borderRadius: '12px', fontSize: '13px', fontWeight: 600 }}>
+                    <td>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', background: 'var(--item-bg)', padding: '4px 10px', borderRadius: '10px', fontSize: '12.5px', fontWeight: 600 }}>
                         {subcat ? (
                           <>
-                            <SubcatIcon size={14} color={t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)'} />
+                            <SubcatIcon size={13} color={t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)'} />
                             {cat?.name} → {subcat.name}
                           </>
                         ) : (
                           <>
-                            <CatIcon size={14} color={t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)'} />
+                            <CatIcon size={13} color={t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)'} />
                             {cat?.name || 'Uncategorized'}
                           </>
                         )}
                       </div>
                     </td>
-                    <td style={{ padding: '10px 16px', maxWidth: '300px' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <div style={{ fontWeight: 600, fontSize: '14px' }}>
+                    <td style={{ maxWidth: '300px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <div style={{ fontWeight: 600, fontSize: '13.5px' }}>
                           {t.counterparty} {t.person && `• ${t.person}`}
                         </div>
-                        {t.comment && <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{t.comment}</div>}
+                        {t.comment && <div style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>{t.comment}</div>}
                         {t.tags && t.tags.length > 0 && (
-                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
+                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
                             {t.tags.map(tag => (
                               <span key={tag} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', background: 'var(--card-bg)', padding: '2px 8px', borderRadius: '8px', color: 'var(--text-muted)' }}>
                                 <TagIcon size={10} /> {tag}
@@ -206,15 +255,15 @@ const TransactionsTable = () => {
                           </div>
                         )}
                         {t.file && t.file.url && (
-                          <div style={{ marginTop: '4px' }}>
-                            <a href={t.file.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--accent-blue)', textDecoration: 'none', background: 'var(--item-bg)', padding: '4px 8px', borderRadius: '8px' }}>
+                          <div style={{ marginTop: '2px' }}>
+                            <a href={t.file.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--accent-blue)', textDecoration: 'none', background: 'var(--item-bg)', padding: '3px 8px', borderRadius: '8px' }}>
                               <Paperclip size={12} /> {t.file.name || 'Attachment'}
                             </a>
                           </div>
                         )}
                       </div>
                     </td>
-                    <td style={{ padding: '10px 16px', textAlign: 'right', fontWeight: 600, fontSize: '14px' }}>
+                    <td style={{ textAlign: 'right', fontWeight: 600, fontSize: '14px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
                         <span style={{ color: t.type === 'income' ? 'var(--accent-blue)' : 'var(--accent-coral)' }}>
                           {t.type === 'income' ? '+' : '-'}{formatMoney(Number(t.amount))}
@@ -225,29 +274,29 @@ const TransactionsTable = () => {
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            width: '24px',
-                            height: '24px',
-                            borderRadius: '8px',
+                            width: '22px',
+                            height: '22px',
+                            borderRadius: '7px',
                             background: 'var(--item-bg)',
                             flexShrink: 0,
                             boxShadow: 'var(--shadow-inner)'
                           }}
                         >
                           {t.paymentMethod === 'cash' ? (
-                            <Banknote size={13} color="#10b981" />
+                            <Banknote size={12} color="#10b981" />
                           ) : (
-                            <CreditCard size={13} color="var(--accent-blue)" />
+                            <CreditCard size={12} color="var(--accent-blue)" />
                           )}
                         </span>
                       </div>
                     </td>
-                    <td style={{ padding: '10px 16px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                        <button onClick={() => openEditTransaction(t)} style={{ background: 'var(--item-bg)', border: 'none', padding: '8px', borderRadius: '12px', cursor: 'pointer', color: 'var(--text-muted)' }}>
-                          <Edit2 size={16} />
+                    <td style={{ textAlign: 'center' }}>
+                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                        <button onClick={() => openEditTransaction(t)} style={{ background: 'var(--item-bg)', border: 'none', padding: '6px', borderRadius: '10px', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                          <Edit2 size={15} />
                         </button>
-                        <button onClick={() => handleDeleteTransaction(t.id)} style={{ background: 'var(--item-bg)', border: 'none', padding: '8px', borderRadius: '12px', cursor: 'pointer', color: 'var(--accent-coral)' }}>
-                          <Trash2 size={16} />
+                        <button onClick={() => handleDeleteTransaction(t.id)} style={{ background: 'var(--item-bg)', border: 'none', padding: '6px', borderRadius: '10px', cursor: 'pointer', color: 'var(--accent-coral)' }}>
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </td>
@@ -256,6 +305,7 @@ const TransactionsTable = () => {
               })}
             </tbody>
           </table>
+          </div>
 
           {/* Mobile Cards View */}
           <div className="transactions-cards-mobile">

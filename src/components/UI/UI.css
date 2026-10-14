@@ -347,8 +347,8 @@ body.dark-theme .category-picker-card:hover {
 /* Transaction Modal Top Row (Amount, Date, Wallet) */
 .transaction-top-row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: minmax(85px, 0.75fr) minmax(150px, 1.25fr) minmax(105px, 1fr);
+  gap: 14px;
 }
 
 @media (max-width: 520px) {
@@ -356,5 +356,53 @@ body.dark-theme .category-picker-card:hover {
     grid-template-columns: 1fr !important;
     gap: 14px !important;
   }
+}
+
+/* Transactions Desktop Table */
+.transactions-table-desktop {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.transactions-table-desktop thead tr {
+  border-bottom: 1.5px solid var(--table-row-border) !important;
+}
+
+.transactions-table-desktop thead th {
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+.transaction-row {
+  border-bottom: 1px solid var(--table-row-border) !important;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.transaction-row:last-child {
+  border-bottom: none !important;
+}
+
+.transaction-row:nth-child(even) {
+  background: var(--table-row-zebra);
+}
+
+.transaction-row:hover {
+  background: var(--item-bg-hover) !important;
+}
+
+.transaction-row td {
+  padding: 7px 16px;
+  vertical-align: middle;
+}
+
+.transaction-row button {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.transaction-row button:hover {
+  transform: scale(1.08);
 }
 

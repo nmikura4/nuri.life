@@ -580,7 +580,7 @@ const FinanceCategoriesManager = ({ user }) => {
                   fontWeight: 600, 
                   color: 'var(--accent-blue)' 
                 }}>
-                  <CreditCard size={16} /> Карта:
+                  <CreditCard size={16} /> Card:
                 </div>
                 <div style={{ position: 'relative', flex: 1 }}>
                   <input 
@@ -612,7 +612,7 @@ const FinanceCategoriesManager = ({ user }) => {
                   fontWeight: 600, 
                   color: '#10b981' 
                 }}>
-                  <Banknote size={16} /> Кеш:
+                  <Banknote size={16} /> Cash:
                 </div>
                 <div style={{ position: 'relative', flex: 1 }}>
                   <input 

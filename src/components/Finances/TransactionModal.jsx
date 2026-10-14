@@ -243,7 +243,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
                   onChange={handleChange} 
                   placeholder="0.00" 
                   autoFocus 
-                  style={{ width: '100%', boxSizing: 'border-box' }}
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '12px 14px' }}
                 />
               </div>
               <div>

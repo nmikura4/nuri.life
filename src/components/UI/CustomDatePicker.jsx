@@ -15,10 +15,14 @@ const CustomDatePicker = ({
   placeholder = 'Select a date...',
   defaultMonth = '',
   clearable = true,
+  showCalendarIcon = false,
+  center = false,
   style = {},
   innerStyle = {}
 }) => {
+  const isCentered = center || innerStyle?.textAlign === 'center';
   const [isOpen, setIsOpen] = useState(false);
+  const [placement, setPlacement] = useState('bottom');
   const containerRef = useRef(null);
 
   const getInitialYearMonth = () => {
@@ -61,6 +65,16 @@ const CustomDatePicker = ({
       }
     };
     if (isOpen) {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom - 16;
+        const spaceAbove = rect.top - 16;
+        if (spaceBelow < 320 && spaceAbove > spaceBelow) {
+          setPlacement('top');
+        } else {
+          setPlacement('bottom');
+        }
+      }
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -206,12 +220,13 @@ const CustomDatePicker = ({
         onClick={() => setIsOpen(!isOpen)}
         style={{ 
           display: 'flex', 
-          justifyContent: 'space-between', 
+          justifyContent: isCentered ? 'center' : 'space-between', 
           alignItems: 'center', 
           cursor: 'pointer',
           width: '100%',
           boxSizing: 'border-box',
-          gap: '8px',
+          position: isCentered ? 'relative' : 'static',
+          gap: isCentered ? '0' : '8px',
           ...innerStyle
         }}
       >
@@ -221,35 +236,53 @@ const CustomDatePicker = ({
           whiteSpace: 'nowrap',
           color: value ? 'var(--text-main)' : 'var(--text-muted)',
           fontSize: innerStyle.fontSize || 'inherit',
-          fontWeight: value ? 600 : 500
+          fontWeight: value ? 600 : 500,
+          textAlign: isCentered ? 'center' : (innerStyle.textAlign || 'inherit'),
+          width: isCentered ? '100%' : 'auto',
+          paddingLeft: isCentered && (clearable && value) ? '10px' : '0',
+          paddingRight: isCentered && (clearable && value) ? '10px' : '0'
         }}>
           {displayValue}
         </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-          {clearable && value && (
-            <span
-              onClick={(e) => {
-                e.stopPropagation();
-                onChange('');
-              }}
-              style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', color: 'var(--text-muted)', padding: '2px' }}
-              title="Сбросить дату"
-            >
-              <X size={14} />
-            </span>
-          )}
-          <Calendar size={16} color="var(--text-muted)" />
-        </div>
+        {(showCalendarIcon || (clearable && value)) && (
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '4px', 
+            flexShrink: 0,
+            ...(isCentered ? {
+              position: 'absolute',
+              right: '6px',
+              top: '50%',
+              transform: 'translateY(-50%)'
+            } : {})
+          }}>
+            {clearable && value && (
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onChange('');
+                }}
+                style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', color: 'var(--text-muted)', padding: '2px' }}
+                title="Сбросить дату"
+              >
+                <X size={14} />
+              </span>
+            )}
+            {showCalendarIcon && <Calendar size={16} color="var(--text-muted)" />}
+          </div>
+        )}
       </div>
 
       {isOpen && (
         <GlassCard style={{ 
           position: 'absolute', 
-          top: 'calc(100% + 8px)', 
+          ...(placement === 'top' ? { bottom: 'calc(100% + 8px)' } : { top: 'calc(100% + 8px)' }),
           ...(alignRight ? { right: 0 } : { left: 0 }),
           width: '300px', 
+          maxWidth: 'calc(100vw - 32px)',
           padding: '18px', 
-          zIndex: 100,
+          zIndex: 150,
           boxShadow: 'var(--shadow-card)',
           background: 'var(--solid-card-bg)',
           borderRadius: '16px'
