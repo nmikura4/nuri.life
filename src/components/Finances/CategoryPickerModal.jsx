@@ -8,14 +8,14 @@ import '../UI/UI.css';
 const CategoryPickerModal = ({
   isOpen,
   onClose,
-  title = 'Выберите категорию',
+  title = 'Select category',
   options = [],
   selectedId = '',
   onSelect,
   showTypeSwitch = false,
   type = 'expense',
   onTypeChange = null,
-  placeholder = 'Поиск...'
+  placeholder = 'Search...'
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -93,7 +93,7 @@ const CategoryPickerModal = ({
                       transition: 'all 0.2s ease' 
                     }}
                   >
-                    Расход
+                    Expense
                   </button>
                   <button 
                     type="button" 
@@ -111,7 +111,7 @@ const CategoryPickerModal = ({
                       transition: 'all 0.2s ease' 
                     }}
                   >
-                    Доход
+                    Income
                   </button>
                 </div>
               )}
@@ -122,7 +122,7 @@ const CategoryPickerModal = ({
               onClick={onClose} 
               className="neu-icon-btn"
               style={{ width: '34px', height: '34px', borderRadius: '50%', color: 'var(--text-muted)' }}
-              title="Закрыть"
+              title="Close"
             >
               <X size={18} />
             </button>
@@ -191,10 +191,10 @@ const CategoryPickerModal = ({
             {filteredOptions.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '36px 20px', color: 'var(--text-muted)' }}>
                 <p style={{ fontSize: '14px', fontWeight: 600, margin: '0 0 4px 0' }}>
-                  Ничего не найдено
+                  No results found
                 </p>
                 <p style={{ fontSize: '12px', margin: 0 }}>
-                  Попробуйте изменить поисковый запрос
+                  Try a different search query
                 </p>
               </div>
             ) : (

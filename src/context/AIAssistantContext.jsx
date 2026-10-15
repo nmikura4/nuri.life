@@ -119,7 +119,7 @@ export const AIAssistantProvider = ({ children, apiKey, user, onSaveTask, onSave
 
   const sendMessage = async (text) => {
     if (!chatSession) {
-      setMessages(prev => [...prev, { role: 'user', text }, { role: 'model', text: 'Пожалуйста, укажите валидный API ключ в настройках.' }]);
+      setMessages(prev => [...prev, { role: 'user', text }, { role: 'model', text: 'Please configure a valid API key in Settings.' }]);
       return;
     }
 
@@ -196,7 +196,7 @@ export const AIAssistantProvider = ({ children, apiKey, user, onSaveTask, onSave
       }
     } catch (error) {
       console.error("Chat error:", error);
-      setMessages(prev => [...prev, { role: 'model', text: 'Произошла ошибка при обращении к ИИ.' }]);
+      setMessages(prev => [...prev, { role: 'model', text: 'An error occurred while contacting AI.' }]);
     } finally {
       setIsTyping(false);
     }

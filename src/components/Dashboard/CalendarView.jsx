@@ -147,7 +147,7 @@ const CalendarView = ({ tasks = [], statuses = [], onEditTask, onAddTask, startH
               }}
             >
               <CalendarIcon size={14} />
-              <span>Месяц</span>
+              <span>Month</span>
             </button>
             <button 
               onClick={() => handleViewModeChange('day')} 
@@ -168,7 +168,7 @@ const CalendarView = ({ tasks = [], statuses = [], onEditTask, onAddTask, startH
               }}
             >
               <Clock size={14} />
-              <span>День</span>
+              <span>Day</span>
             </button>
           </div>
         </div>
@@ -179,7 +179,7 @@ const CalendarView = ({ tasks = [], statuses = [], onEditTask, onAddTask, startH
             <ChevronLeft size={18} />
           </button>
           <button onClick={handleToday} className="pill-btn secondary" style={{ padding: '8px 16px', fontSize: '13px' }}>
-            Сегодня
+            Today
           </button>
           <button onClick={handleNext} className="neu-icon-btn" style={{ width: '38px', height: '38px', borderRadius: '50%' }} aria-label="Next">
             <ChevronRight size={18} />

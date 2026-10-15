@@ -131,7 +131,7 @@ function App() {
       const loadedTasks = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
       setTasks(loadedTasks);
     }, (error) => {
-      alert("Ошибка чтения задач: " + error.message);
+      alert("Error loading tasks: " + error.message);
       console.error(error);
     });
 
@@ -140,7 +140,7 @@ function App() {
       loadedNotes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
       setNotes(loadedNotes);
     }, (error) => {
-      console.error("Ошибка чтения заметок:", error);
+      console.error("Error loading notes:", error);
     });
 
     return () => {
@@ -223,7 +223,7 @@ function App() {
         });
       }
     } catch (e) {
-      alert("Ошибка при сохранении задачи: " + e.message);
+      alert("Error saving task: " + e.message);
       console.error(e);
     }
   };
@@ -238,7 +238,7 @@ function App() {
       await batch.commit();
     } catch (e) {
       console.error("Error saving task order:", e);
-      alert("Ошибка при сохранении порядка задач.");
+      alert("Error saving task order.");
     }
   };
 
@@ -265,7 +265,7 @@ function App() {
         });
       }
     } catch (e) {
-      console.error("Ошибка при сохранении заметки: ", e);
+      console.error("Error saving note: ", e);
     }
   };
 
@@ -283,7 +283,7 @@ function App() {
       }
       await deleteDoc(doc(db, "users", user.uid, "notes", id.toString()));
     } catch (e) {
-      console.error("Ошибка при удалении заметки: ", e);
+      console.error("Error deleting note: ", e);
     }
   };
 
@@ -477,7 +477,7 @@ function App() {
   };
 
   if (authLoading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--text-primary)' }}>Загрузка...</div>;
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--text-primary)' }}>Loading...</div>;
   }
 
   if (!user) {

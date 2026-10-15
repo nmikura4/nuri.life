@@ -311,7 +311,7 @@ const TaskModal = ({ isOpen, onClose, onSave, onDelete, task = null, projects = 
   const handleDeleteSubtask = async (id) => {
     const subtask = formData.subtasks.find(s => s.id === id);
     const title = subtask?.title ? ` "${subtask.title}"` : '';
-    const isConfirmed = await confirm(`Вы уверены, что хотите удалить подзадачу${title}?`);
+    const isConfirmed = await confirm(`Are you sure you want to delete subtask${title}?`);
     if (isConfirmed) {
       setFormData(prev => ({
         ...prev,

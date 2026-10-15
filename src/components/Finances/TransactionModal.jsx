@@ -14,12 +14,12 @@ const WALLET_OPTIONS = [
   { 
     value: 'card', 
     label: 'Card', 
-    icon: <CreditCard size={15} color="var(--accent-blue)" /> 
+    icon: <CreditCard size={15} color="var(--text-main)" /> 
   },
   { 
     value: 'cash', 
     label: 'Cash', 
-    icon: <Banknote size={15} color="#10b981" /> 
+    icon: <Banknote size={15} color="var(--text-main)" /> 
   }
 ];
 
@@ -478,7 +478,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
               subcategoryId: ''
             }));
           }}
-          placeholder="Поиск..."
+          placeholder="Search..."
         />
       )}
 
@@ -490,7 +490,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
           title={selectedCategory?.name || ''}
           options={[
             ...subcategories,
-            { id: '', name: 'Без подкатегории', iconName: 'Tag' }
+            { id: '', name: 'No subcategory', iconName: 'Tag' }
           ]}
           selectedId={formData.subcategoryId}
           type={formData.type}
@@ -501,7 +501,7 @@ const TransactionModal = ({ isOpen, onClose, transaction, onSave, categories, co
               subcategoryId: subId
             }));
           }}
-          placeholder="Поиск..."
+          placeholder="Search..."
         />
       )}
     </div>

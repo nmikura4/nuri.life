@@ -10,7 +10,7 @@ const IconPickerModal = ({
   onClose,
   selectedIcon = 'Tag',
   onSelect,
-  title = 'Выберите иконку'
+  title = 'Select icon'
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -68,7 +68,7 @@ const IconPickerModal = ({
               onClick={onClose} 
               className="neu-icon-btn"
               style={{ width: '34px', height: '34px', borderRadius: '50%', color: 'var(--text-muted)' }}
-              title="Закрыть"
+              title="Close"
             >
               <X size={18} />
             </button>
@@ -90,7 +90,7 @@ const IconPickerModal = ({
             <input 
               type="text"
               className="neu-input"
-              placeholder="Поиск иконки..."
+              placeholder="Search icons..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{ 
@@ -137,10 +137,10 @@ const IconPickerModal = ({
             {filteredIcons.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '36px 20px', color: 'var(--text-muted)' }}>
                 <p style={{ fontSize: '14px', fontWeight: 600, margin: '0 0 4px 0' }}>
-                  Ничего не найдено
+                  No results found
                 </p>
                 <p style={{ fontSize: '12px', margin: 0 }}>
-                  Попробуйте другой запрос
+                  Try a different query
                 </p>
               </div>
             ) : (

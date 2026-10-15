@@ -70,10 +70,10 @@ class ErrorBoundary extends React.Component {
             </div>
 
             <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '10px' }}>
-              Что-то пошло не так
+              Something went wrong
             </h2>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary, #64748b)', marginBottom: '24px', lineHeight: 1.5 }}>
-              При загрузке страницы возникла ошибка. Попробуйте обновить страницу или очистить кэш приложения.
+              An error occurred while loading the page. Try refreshing the page or clearing the app cache.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -97,7 +97,7 @@ class ErrorBoundary extends React.Component {
                 }}
               >
                 <RefreshCw size={16} />
-                Обновить страницу
+                Refresh Page
               </button>
 
               <button
@@ -114,7 +114,7 @@ class ErrorBoundary extends React.Component {
                   transition: 'background 0.15s ease'
                 }}
               >
-                Очистить локальный кэш и перезагрузить
+                Clear Local Cache & Reload
               </button>
             </div>
 
@@ -132,7 +132,7 @@ class ErrorBoundary extends React.Component {
                     padding: 0
                   }}
                 >
-                  {this.state.showDetails ? 'Скрыть технические детали' : 'Показать технические детали'}
+                  {this.state.showDetails ? 'Hide technical details' : 'Show technical details'}
                 </button>
                 {this.state.showDetails && (
                   <pre style={{

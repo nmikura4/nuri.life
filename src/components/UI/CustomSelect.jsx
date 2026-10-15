@@ -168,7 +168,7 @@ const CustomSelect = ({
                   ref={searchInputRef}
                   type="text" 
                   className="neu-input" 
-                  placeholder="Поиск..." 
+                  placeholder="Search..." 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   style={{ 
@@ -213,7 +213,7 @@ const CustomSelect = ({
             ))
           ) : (
             <div style={{ padding: '12px 16px', color: 'var(--text-muted)', fontSize: '13px', textAlign: 'center' }}>
-              Ничего не найдено
+              No results found
             </div>
           )}
         </div>

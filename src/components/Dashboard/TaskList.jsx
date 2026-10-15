@@ -12,8 +12,8 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {tasks.length === 0 ? (
           <div style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '40px 20px', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-            <p style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-main)' }}>Задач не найдено</p>
-            <p style={{ fontSize: '14px' }}>На выбранную дату или по вашему запросу нет активных задач.</p>
+            <p style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-main)' }}>No tasks found</p>
+            <p style={{ fontSize: '14px' }}>There are no active tasks for the selected date or query.</p>
             {setSortBy && (
               <button 
                 onClick={() => {
@@ -34,7 +34,7 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
                 onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-coral)'; e.currentTarget.style.color = '#fff'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--accent-coral)'; }}
               >
-                Посмотреть просроченные задачи
+                View overdue tasks
               </button>
             )}
           </div>
@@ -134,7 +134,7 @@ const TaskList = ({ tasks, onEditTask, onToggleStatus, setSortBy, onClearDate, s
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
                     <span style={{ textTransform: 'capitalize' }}>
                       {task.recurrence}
-                      {task.recurrenceEndDate ? ` (до ${formatDisplayDate(task.recurrenceEndDate)})` : ''}
+                      {task.recurrenceEndDate ? ` (until ${formatDisplayDate(task.recurrenceEndDate)})` : ''}
                     </span>
                   </div>
                 )}

@@ -98,14 +98,14 @@ export const ProgressWidget = ({ tasks = [], statuses = [] }) => {
           <circle 
             cx="60" cy="60" r={radius} fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="10" 
             style={{ filter: 'drop-shadow(2px 4px 6px rgba(0,0,0,0.1))', cursor: 'pointer', pointerEvents: 'stroke' }} 
-            onPointerMove={(e) => handleMouseMove(e, `Осталось: ${totalTasks - doneTasks}`)}
+            onPointerMove={(e) => handleMouseMove(e, `Remaining: ${totalTasks - doneTasks}`)}
             onPointerLeave={handleMouseLeave}
           />
           <circle 
             cx="60" cy="60" r={radius} fill="none" stroke="var(--accent-coral)" strokeWidth="10" 
             strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" 
             style={{ transition: 'stroke-dashoffset 0.5s ease-in-out', cursor: 'pointer', pointerEvents: 'stroke' }}
-            onPointerMove={(e) => handleMouseMove(e, `Сделано: ${doneTasks}`)}
+            onPointerMove={(e) => handleMouseMove(e, `Completed: ${doneTasks}`)}
             onPointerLeave={handleMouseLeave}
           />
         </svg>
@@ -327,7 +327,7 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], selectedDate, 
       overflow: 'hidden',
     }}>
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', width: '100%' }}>
-        {/* Секция 1: Шапка (Top Bar) */}
+        {/* Section 1: Top Bar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ 
             display: 'flex', 
@@ -374,7 +374,7 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], selectedDate, 
           </button>
         </div>
 
-        {/* Секция 2: Заголовок даты (Header) */}
+        {/* Section 2: Date Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
           <h1 className="calendar-title" style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-main)', margin: 0, lineHeight: 1, letterSpacing: '-0.5px' }}>
             {viewMode === 'weekly' ? currentMonthName : referenceDate.getFullYear()}
@@ -384,7 +384,7 @@ export const WeeklyCalendarWidget = ({ tasks = [], statuses = [], selectedDate, 
           </h1>
         </div>
 
-        {/* Секция 3: Выбор дней/месяцев */}
+        {/* Section 3: Days/Months selector */}
         <div style={{ position: 'relative', height: viewMode === 'weekly' ? '82px' : 'auto', display: 'flex', alignItems: 'center' }}>
           {viewMode === 'weekly' ? (
             <>

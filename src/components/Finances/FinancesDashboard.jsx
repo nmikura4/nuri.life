@@ -254,22 +254,25 @@ const FinancesDashboard = () => {
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
+      const totalChartExpense = stats.chartData.reduce((sum, item) => sum + item.value, 0);
       return (
         <div style={{ 
-          background: 'rgba(255, 255, 255, 0.6)', 
-          WebkitBackdropFilter: 'blur(16px)',
-          backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255, 255, 255, 0.5)', 
+          background: 'var(--solid-card-bg)', 
+          border: '1px solid var(--card-border)', 
           borderRadius: '16px', 
           padding: '12px 16px', 
-          boxShadow: 'var(--shadow-soft)' 
+          boxShadow: 'var(--shadow-modal)' 
         }}>
           {label && <p style={{ margin: '0 0 8px 0', fontWeight: 700, fontSize: '14px', color: 'var(--text-main)' }}>{label}</p>}
-          {payload.map((entry, index) => (
-            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 0', fontSize: '13px', fontWeight: 700, color: entry.color }}>
-              {entry.name}: {formatMoney(entry.value)}
-            </div>
-          ))}
+          {payload.map((entry, index) => {
+            const pct = totalChartExpense > 0 ? Math.round((Number(entry.value) / totalChartExpense) * 100) : 0;
+            const color = entry.payload?.fill || entry.color || 'var(--text-main)';
+            return (
+              <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 0', fontSize: '13px', fontWeight: 700, color }}>
+                {entry.name}: {formatMoney(entry.value)} {pct > 0 && `(${pct}%)`}
+              </div>
+            );
+          })}
         </div>
       );
     }
@@ -311,19 +314,20 @@ const FinancesDashboard = () => {
     );
   };
 
-  const renderCustomLegend = (props) => {
-    const { payload } = props;
+  const renderCustomLegend = () => {
+    const totalChartExpense = stats.chartData.reduce((sum, item) => sum + item.value, 0);
+
     return (
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px 12px', paddingTop: '12px' }}>
-        {payload.map((entry, index) => {
+        {stats.chartData.map((catData, index) => {
           const isHovered = activeCategoryIndex === index;
           const isOtherHovered = activeCategoryIndex !== null && !isHovered;
-          const catData = stats.chartData[index];
-          const percent = stats.expense > 0 && catData ? Math.round((catData.value / stats.expense) * 100) : 0;
+          const color = COLORS[index % COLORS.length];
+          const percent = totalChartExpense > 0 ? Math.round((catData.value / totalChartExpense) * 100) : 0;
 
           return (
             <div
-              key={`legend-${index}`}
+              key={`legend-${catData.name}-${index}`}
               onMouseEnter={() => setActiveCategoryIndex(index)}
               onMouseLeave={() => setActiveCategoryIndex(null)}
               style={{
@@ -346,7 +350,7 @@ const FinancesDashboard = () => {
                   width: '10px',
                   height: '10px',
                   borderRadius: '50%',
-                  background: entry.color,
+                  background: color,
                   display: 'inline-block',
                   flexShrink: 0
                 }}
@@ -357,7 +361,7 @@ const FinancesDashboard = () => {
                 color: isHovered ? 'var(--text-main)' : 'var(--text-muted)',
                 transition: 'color 0.2s ease'
               }}>
-                {entry.value} {percent > 0 && <span style={{ opacity: 0.75, fontSize: '11px', marginLeft: '2px' }}>({percent}%)</span>}
+                {catData.name} {percent > 0 && <span style={{ opacity: 0.75, fontSize: '11px', marginLeft: '2px' }}>({percent}%)</span>}
               </span>
             </div>
           );
@@ -435,17 +439,7 @@ const FinancesDashboard = () => {
                 title="Click to set initial balance for card and cash"
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{ 
-                    background: 'rgba(164, 201, 229, 0.3)', 
-                    padding: '4px', 
-                    borderRadius: '8px', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    color: 'var(--accent-blue)'
-                  }}>
-                    <CreditCard size={14} />
-                  </div>
+                  <CreditCard size={15} color="var(--text-main)" style={{ flexShrink: 0 }} />
                   <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
                     Card
                   </span>
@@ -477,17 +471,7 @@ const FinancesDashboard = () => {
                 title="Click to set initial balance for card and cash"
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{ 
-                    background: 'rgba(143, 185, 168, 0.3)', 
-                    padding: '4px', 
-                    borderRadius: '8px', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    color: '#6fa590'
-                  }}>
-                    <Banknote size={14} />
-                  </div>
+                  <Banknote size={15} color="var(--text-main)" style={{ flexShrink: 0 }} />
                   <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
                     Cash
                   </span>
@@ -542,6 +526,7 @@ const FinancesDashboard = () => {
                     outerRadius={isSmallScreen ? 64 : 90}
                     paddingAngle={4}
                     dataKey="value"
+                    nameKey="name"
                     stroke="none"
                     activeIndex={activeCategoryIndex !== null ? activeCategoryIndex : undefined}
                     activeShape={renderActiveShape}
@@ -629,8 +614,8 @@ const FinancesDashboard = () => {
               onClick={toggleTrendsCollapsed}
               className="neu-icon-btn"
               style={{ width: '32px', height: '32px', borderRadius: '50%', color: 'var(--text-muted)' }}
-              title={isTrendsCollapsed ? "Развернуть график" : "Свернуть график"}
-              aria-label={isTrendsCollapsed ? "Развернуть график" : "Свернуть график"}
+              title={isTrendsCollapsed ? "Expand chart" : "Collapse chart"}
+              aria-label={isTrendsCollapsed ? "Expand chart" : "Collapse chart"}
             >
               {isTrendsCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
             </button>
@@ -697,13 +682,13 @@ const FinancesDashboard = () => {
 
       {/* Initial Balance Modal */}
       {isInitialModalOpen && (
-        <div className="modal-overlay" onClick={() => setIsInitialModalOpen(false)} role="dialog" aria-modal="true" aria-label="Начальный баланс">
+        <div className="modal-overlay" onClick={() => setIsInitialModalOpen(false)} role="dialog" aria-modal="true" aria-label="Initial Balance">
           <div onClick={e => e.stopPropagation()} style={{ margin: 'auto', width: '100%', maxWidth: '400px', padding: '16px' }}>
             <GlassCard style={{ padding: '24px', background: 'var(--solid-card-bg)', position: 'relative' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <div>
-                  <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>Начальный баланс</h3>
-                  <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>Сумма на счетах до начала ведения учета</p>
+                  <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>Initial Balance</h3>
+                  <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>Starting amount across accounts before tracking</p>
                 </div>
                 <button type="button" onClick={() => setIsInitialModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}>
                   <X size={20} />
@@ -756,10 +741,10 @@ const FinancesDashboard = () => {
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
                   <button type="button" className="pill-btn" onClick={() => setIsInitialModalOpen(false)}>
-                    Отмена
+                    Cancel
                   </button>
                   <button type="submit" className="pill-btn primary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    {isSavedInitial ? <><Check size={16} /> Сохранено</> : 'Сохранить'}
+                    {isSavedInitial ? <><Check size={16} /> Saved</> : 'Save'}
                   </button>
                 </div>
               </form>

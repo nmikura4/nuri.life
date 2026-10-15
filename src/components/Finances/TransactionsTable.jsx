@@ -12,7 +12,7 @@ const LIMIT_OPTIONS = [
   { value: '20', label: '20' },
   { value: '50', label: '50' },
   { value: '100', label: '100' },
-  { value: 'all', label: 'Все' }
+  { value: 'all', label: 'All' }
 ];
 
 const TransactionsTable = () => {
@@ -121,7 +121,7 @@ const TransactionsTable = () => {
             }}
           >
             <div 
-              title={`Доход за выбранный период: ${periodIncome > 0 ? '+' : ''}${formatMoney(periodIncome)}`}
+              title={`Income for selected period: ${periodIncome > 0 ? '+' : ''}${formatMoney(periodIncome)}`}
               style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 700, color: 'var(--accent-blue)' }}
             >
               <ArrowUpRight size={15} strokeWidth={2.5} />
@@ -129,7 +129,7 @@ const TransactionsTable = () => {
             </div>
             <div style={{ width: '1px', height: '14px', background: 'var(--card-border)', opacity: 0.8 }} />
             <div 
-              title={`Расход за выбранный период: ${periodExpense > 0 ? '-' : ''}${formatMoney(periodExpense)}`}
+              title={`Expenses for selected period: ${periodExpense > 0 ? '-' : ''}${formatMoney(periodExpense)}`}
               style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 700, color: 'var(--accent-coral)' }}
             >
               <ArrowDownRight size={15} strokeWidth={2.5} />
@@ -145,7 +145,7 @@ const TransactionsTable = () => {
             <CustomDatePicker 
               value={selectedDate}
               onChange={handleDateChange}
-              placeholder="Все даты"
+              placeholder="All Dates"
               defaultMonth={selectedMonth}
               alignRight={true}
               center={true}
@@ -155,7 +155,7 @@ const TransactionsTable = () => {
 
           {/* Rows limit selector */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '12.5px', color: 'var(--text-muted)', fontWeight: 600 }}>Показать:</span>
+            <span style={{ fontSize: '12.5px', color: 'var(--text-muted)', fontWeight: 600 }}>Show:</span>
             <div style={{ width: '90px' }}>
               <CustomSelect 
                 value={limit}
@@ -173,7 +173,7 @@ const TransactionsTable = () => {
         <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>
           <p>
             {selectedDate 
-              ? 'На выбранную дату нет транзакций.' 
+              ? 'No transactions found for the selected date.' 
               : 'No transactions found for this period.'}
           </p>
           {selectedDate && (
@@ -183,7 +183,7 @@ const TransactionsTable = () => {
               className="pill-btn" 
               style={{ marginTop: '10px', fontSize: '13px' }}
             >
-              Показать все транзакции месяца
+              Show all transactions for this month
             </button>
           )}
         </div>
@@ -269,7 +269,7 @@ const TransactionsTable = () => {
                           {t.type === 'income' ? '+' : '-'}{formatMoney(Number(t.amount))}
                         </span>
                         <span 
-                          title={t.paymentMethod === 'cash' ? 'Наличные (Cash)' : 'Карта (Card)'}
+                          title={t.paymentMethod === 'cash' ? 'Cash' : 'Card'}
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
@@ -283,9 +283,9 @@ const TransactionsTable = () => {
                           }}
                         >
                           {t.paymentMethod === 'cash' ? (
-                            <Banknote size={12} color="#10b981" />
+                            <Banknote size={12} color="var(--text-main)" />
                           ) : (
-                            <CreditCard size={12} color="var(--accent-blue)" />
+                            <CreditCard size={12} color="var(--text-main)" />
                           )}
                         </span>
                       </div>
@@ -365,7 +365,7 @@ const TransactionsTable = () => {
                         {t.type === 'income' ? '+' : '-'}{formatMoney(Number(t.amount))}
                       </span>
                       <span 
-                        title={t.paymentMethod === 'cash' ? 'Наличные (Cash)' : 'Карта (Card)'}
+                        title={t.paymentMethod === 'cash' ? 'Cash' : 'Card'}
                         style={{
                           display: 'inline-flex',
                           alignItems: 'center',
@@ -379,9 +379,9 @@ const TransactionsTable = () => {
                         }}
                       >
                         {t.paymentMethod === 'cash' ? (
-                          <Banknote size={12} color="#10b981" />
+                          <Banknote size={12} color="var(--text-main)" />
                         ) : (
-                          <CreditCard size={12} color="var(--accent-blue)" />
+                          <CreditCard size={12} color="var(--text-main)" />
                         )}
                       </span>
                     </div>
@@ -480,7 +480,7 @@ const TransactionsTable = () => {
               gap: '12px' 
             }}>
               <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                Показано {startItem}–{endItem} из {dateFilteredTransactions.length}
+                Showing {startItem}–{endItem} of {dateFilteredTransactions.length}
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <button 
@@ -489,7 +489,7 @@ const TransactionsTable = () => {
                   disabled={activePage === 1}
                   className="neu-icon-btn"
                   style={{ width: '32px', height: '32px', borderRadius: '50%', opacity: activePage === 1 ? 0.35 : 1, cursor: activePage === 1 ? 'not-allowed' : 'pointer' }}
-                  title="Предыдущая страница"
+                  title="Previous page"
                 >
                   <ChevronLeft size={16} />
                 </button>
@@ -502,7 +502,7 @@ const TransactionsTable = () => {
                   disabled={activePage === totalPages}
                   className="neu-icon-btn"
                   style={{ width: '32px', height: '32px', borderRadius: '50%', opacity: activePage === totalPages ? 0.35 : 1, cursor: activePage === totalPages ? 'not-allowed' : 'pointer' }}
-                  title="Следующая страница"
+                  title="Next page"
                 >
                   <ChevronRight size={16} />
                 </button>

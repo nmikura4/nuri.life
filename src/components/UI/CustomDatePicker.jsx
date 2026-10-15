@@ -264,7 +264,7 @@ const CustomDatePicker = ({
                   onChange('');
                 }}
                 style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', color: 'var(--text-muted)', padding: '2px' }}
-                title="Сбросить дату"
+                title="Reset date"
               >
                 <X size={14} />
               </span>
@@ -298,7 +298,7 @@ const CustomDatePicker = ({
           </div>
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', textAlign: 'center', fontSize: '12px', fontWeight: 700, marginBottom: '6px' }}>
-            {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((d, i) => <div key={i} style={{color: 'var(--text-muted)'}}>{d}</div>)}
+            {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((d, i) => <div key={i} style={{color: 'var(--text-muted)'}}>{d}</div>)}
           </div>
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', textAlign: 'center', fontSize: '13px' }}>
@@ -357,7 +357,7 @@ const CustomDatePicker = ({
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
                     <Clock size={12} style={{ color: 'var(--accent-blue)' }} />
-                    <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)' }}>Начало</span>
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)' }}>Start</span>
                   </div>
                   <input 
                     type="text" 
@@ -384,7 +384,7 @@ const CustomDatePicker = ({
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
                     <Clock size={12} style={{ color: 'var(--accent-coral)' }} />
-                    <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)' }}>Дедлайн</span>
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)' }}>Deadline</span>
                   </div>
                   <input 
                     type="text" 

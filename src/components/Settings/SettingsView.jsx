@@ -178,15 +178,15 @@ const SettingsView = ({
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        // Сжимаем изображение через canvas, чтобы не превысить лимит Firestore (1MB)
+        // Compress image via canvas to avoid exceeding Firestore limit (1MB)
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const size = 200; // 200x200 — достаточно для аватарки
+          const size = 200; // 200x200 is sufficient for avatar
           canvas.width = size;
           canvas.height = size;
           const ctx = canvas.getContext('2d');
-          // Обрезаем по центру (квадрат)
+          // Crop centered square
           const minSide = Math.min(img.width, img.height);
           const sx = (img.width - minSide) / 2;
           const sy = (img.height - minSide) / 2;
@@ -312,15 +312,15 @@ const SettingsView = ({
             <div style={{ background: 'var(--item-bg)', padding: '20px 30px', borderRadius: '24px', boxShadow: 'var(--shadow-soft)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                 <Clock size={20} color="var(--accent-blue)" />
-                <h2 style={{ fontSize: '20px', fontWeight: 600, margin: 0 }}>Часы отображения календаря</h2>
+                <h2 style={{ fontSize: '20px', fontWeight: 600, margin: 0 }}>Calendar Display Hours</h2>
               </div>
               <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: '0 0 20px 0' }}>
-                Укажите диапазон часов для дневного расписания задач (с какого часа начинать и каким часом заканчивать).
+                Specify the hour range for the daily task schedule (start hour and end hour).
               </p>
               
               <div className="responsive-grid-2" style={{ maxWidth: '500px' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Начало дня (С)</label>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Day Start (From)</label>
                   <CustomSelect 
                     value={calendarStartHour}
                     onChange={(val) => {
@@ -334,7 +334,7 @@ const SettingsView = ({
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Конец дня (По)</label>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Day End (To)</label>
                   <CustomSelect 
                     value={calendarEndHour}
                     onChange={(val) => {

@@ -180,9 +180,9 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
   const formatDurationText = (durationM) => {
     const h = Math.floor(durationM / 60);
     const m = durationM % 60;
-    if (h > 0 && m > 0) return `${h} ч ${m} мин`;
-    if (h > 0) return `${h} ч`;
-    return `${m} мин`;
+    if (h > 0 && m > 0) return `${h} h ${m} min`;
+    if (h > 0) return `${h} h`;
+    return `${m} min`;
   };
 
   const getPriorityColor = (priority) => {
@@ -228,10 +228,10 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
           </div>
           <div>
             <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-main)' }}>
-              {isToday ? 'Сегодня' : dateStr}
+              {isToday ? 'Today' : dateStr}
             </div>
             <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-              {totalCount === 0 ? 'Задач нет' : `Задач: ${totalCount} • Выполнено: ${completedCount}`}
+              {totalCount === 0 ? 'No tasks' : `Tasks: ${totalCount} • Completed: ${completedCount}`}
             </div>
           </div>
         </div>
@@ -246,7 +246,7 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
             color: completedCount === totalCount ? '#2e7d32' : 'var(--text-main)',
             boxShadow: 'var(--shadow-inner)'
           }}>
-            {Math.round((completedCount / totalCount) * 100)}% завершено
+            {Math.round((completedCount / totalCount) * 100)}% completed
           </div>
         )}
       </GlassCard>
@@ -260,7 +260,7 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
             <Clock size={15} style={{ color: 'var(--accent-blue)' }} />
             <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-              Весь день ({allDayTasks.length})
+              All Day ({allDayTasks.length})
             </span>
           </div>
 
@@ -662,7 +662,7 @@ const DayHourlyView = ({ date = new Date(), tasks = [], statuses = [], onEditTas
                     <div style={{ marginTop: 'auto', paddingTop: '4px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '3px' }}>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <CheckSquare size={11} /> Подзадачи
+                          <CheckSquare size={11} /> Subtasks
                         </span>
                         <span>{completedSubtasks}/{subtasks.length}</span>
                       </div>

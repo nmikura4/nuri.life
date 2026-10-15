@@ -1,6 +1,6 @@
 /**
- * Безопасная обёртка для работы с localStorage / sessionStorage.
- * Предотвращает критические ошибки в Safari Private Browsing и средах с ограниченными правами.
+ * Safe wrapper for working with localStorage / sessionStorage.
+ * Prevents critical errors in Safari Private Browsing and restricted environments.
  */
 
 export const safeStorage = {
@@ -10,7 +10,7 @@ export const safeStorage = {
       const val = window.localStorage.getItem(key);
       return val !== null ? val : fallback;
     } catch (e) {
-      console.warn(`[safeStorage] Не удалось прочитать ключ "${key}":`, e);
+      console.warn(`[safeStorage] Failed to read key "${key}":`, e);
       return fallback;
     }
   },
@@ -20,7 +20,7 @@ export const safeStorage = {
       if (typeof window === 'undefined' || !window.localStorage) return;
       window.localStorage.setItem(key, typeof value === 'string' ? value : String(value));
     } catch (e) {
-      console.warn(`[safeStorage] Не удалось сохранить ключ "${key}":`, e);
+      console.warn(`[safeStorage] Failed to save key "${key}":`, e);
     }
   },
 
@@ -29,7 +29,7 @@ export const safeStorage = {
       if (typeof window === 'undefined' || !window.localStorage) return;
       window.localStorage.removeItem(key);
     } catch (e) {
-      console.warn(`[safeStorage] Не удалось удалить ключ "${key}":`, e);
+      console.warn(`[safeStorage] Failed to remove key "${key}":`, e);
     }
   }
 };

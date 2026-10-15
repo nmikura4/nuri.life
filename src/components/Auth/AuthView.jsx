@@ -26,13 +26,13 @@ const AuthView = () => {
     } catch (err) {
       console.error(err);
       if (err.code === 'auth/email-already-in-use') {
-        setError('Этот email уже используется.');
+        setError('This email is already in use.');
       } else if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-        setError('Неверный email или пароль.');
+        setError('Invalid email or password.');
       } else if (err.code === 'auth/weak-password') {
-        setError('Пароль слишком слабый (минимум 6 символов).');
+        setError('Password is too weak (minimum 6 characters).');
       } else {
-        setError('Произошла ошибка при авторизации: ' + err.message);
+        setError('Authentication failed: ' + err.message);
       }
     } finally {
       setLoading(false);
@@ -47,7 +47,7 @@ const AuthView = () => {
       await signInWithPopup(auth, googleProvider);
     } catch (err) {
       console.error(err);
-      setError('Ошибка входа через Google: ' + err.message);
+      setError('Google sign-in error: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -56,20 +56,20 @@ const AuthView = () => {
   const handleResetPassword = async (e) => {
     e.preventDefault();
     if (!email) {
-      setError('Пожалуйста, введите ваш email для сброса пароля.');
+      setError('Please enter your email to reset password.');
       return;
     }
     setError('');
     setLoading(true);
     try {
       await sendPasswordResetEmail(auth, email);
-      setSuccessMsg('Ссылка для сброса пароля отправлена на ваш email.');
+      setSuccessMsg('Password reset link has been sent to your email.');
     } catch (err) {
       console.error(err);
       if (err.code === 'auth/user-not-found') {
-        setError('Пользователь с таким email не найден.');
+        setError('User with this email was not found.');
       } else {
-        setError('Ошибка при сбросе пароля: ' + err.message);
+        setError('Error resetting password: ' + err.message);
       }
     } finally {
       setLoading(false);

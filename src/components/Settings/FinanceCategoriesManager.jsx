@@ -350,10 +350,10 @@ const FinanceCategoriesManager = ({ user }) => {
                       onClick={() => setIconPickerState({
                         selectedIcon: editCatIcon,
                         onSelect: (name) => setEditCatIcon(name),
-                        title: 'Иконка категории'
+                        title: 'Category Icon'
                       })}
                       className="neu-icon-btn" 
-                      title="Выбрать иконку"
+                      title="Choose icon"
                       style={{ width: '32px', height: '32px', borderRadius: '8px', flexShrink: 0 }}
                     >
                       {renderIcon(editCatIcon)}
@@ -460,10 +460,10 @@ const FinanceCategoriesManager = ({ user }) => {
                               onClick={() => setIconPickerState({
                                 selectedIcon: editSubcatIcon,
                                 onSelect: (name) => setEditSubcatIcon(name),
-                                title: 'Иконка подкатегории'
+                                title: 'Subcategory Icon'
                               })}
                               className="neu-icon-btn" 
-                              title="Выбрать иконку"
+                              title="Choose icon"
                               style={{ width: '32px', height: '32px', borderRadius: '8px', flexShrink: 0 }}
                             >
                               {renderIcon(editSubcatIcon)}
@@ -513,10 +513,10 @@ const FinanceCategoriesManager = ({ user }) => {
                         onClick={() => setIconPickerState({
                           selectedIcon: newSubcatIcon[cat.id] || 'Tag',
                           onSelect: (name) => setNewSubcatIcon(p => ({ ...p, [cat.id]: name })),
-                          title: `Иконка подкатегории (${cat.name})`
+                          title: `Subcategory Icon (${cat.name})`
                         })}
                         className="neu-icon-btn"
-                        title="Выбрать иконку"
+                        title="Choose icon"
                         style={{ width: '32px', height: '32px', borderRadius: '8px', flexShrink: 0, background: 'var(--solid-card-bg)' }}
                       >
                         {renderIcon(newSubcatIcon[cat.id] || 'Tag')}
@@ -551,8 +551,8 @@ const FinanceCategoriesManager = ({ user }) => {
         <div className="responsive-grid-2">
           {/* Currency Settings */}
           <div>
-            <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px' }}>Основная валюта</h2>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 14px 0' }}>Валюта для расчётов и финансовых отчетов</p>
+            <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px' }}>Base Currency</h2>
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 14px 0' }}>Currency for calculations and financial reports</p>
             <div style={{ maxWidth: '320px' }}>
               <CustomSelect 
                 options={CURRENCIES.map(c => ({ label: c.name, value: c.code }))}
@@ -565,8 +565,8 @@ const FinanceCategoriesManager = ({ user }) => {
 
           {/* Initial Balance Settings */}
           <div>
-            <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px' }}>Начальный баланс</h2>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 14px 0' }}>Сумма на счетах до начала ведения учета</p>
+            <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px' }}>Initial Balance</h2>
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 14px 0' }}>Starting balance in accounts before tracking</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '340px' }}>
               {/* Card Input */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -639,7 +639,7 @@ const FinanceCategoriesManager = ({ user }) => {
                   className="pill-btn primary"
                   style={{ padding: '8px 18px', fontSize: '13px' }}
                 >
-                  {isInitialBalanceSaved ? 'Сохранено' : 'Сохранить'}
+                  {isInitialBalanceSaved ? 'Saved' : 'Save'}
                 </button>
               </div>
             </div>
@@ -682,10 +682,10 @@ const FinanceCategoriesManager = ({ user }) => {
                   onClick={() => setIconPickerState({
                     selectedIcon: newCatIcon,
                     onSelect: (name) => setNewCatIcon(name),
-                    title: 'Иконка категории'
+                    title: 'Category Icon'
                   })}
                   className="neu-icon-btn"
-                  title="Выбрать иконку"
+                  title="Choose icon"
                   style={{ flexShrink: 0 }}
                 >
                   {renderIcon(newCatIcon)}
@@ -740,7 +740,7 @@ const FinanceCategoriesManager = ({ user }) => {
               iconPickerState.onSelect(name);
             }
           }}
-          title={iconPickerState.title || 'Выберите иконку'}
+          title={iconPickerState.title || 'Select icon'}
         />
       )}
     </div>
